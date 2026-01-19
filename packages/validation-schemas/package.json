@@ -1,0 +1,30 @@
+{
+  "name": "@mindease/validation-schemas",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "description": "Shared Zod validation schemas for MindEase",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@mindease/models": "file:../models",
+    "zod": "3.24.4"
+  },
+  "devDependencies": {
+    "@mindease/eslint-config": "file:../eslint-config",
+    "@mindease/typescript-config": "file:../typescript-config",
+    "@types/node": "20.19.x",
+    "typescript": "5.8.3"
+  }
+}

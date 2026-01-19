@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "src/styles/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@mindease/design-system/components",
+    "utils": "@mindease/design-system/lib/utils",
+    "hooks": "@mindease/design-system/hooks",
+    "lib": "@mindease/design-system/lib",
+    "ui": "@mindease/design-system/components"
+  }
+}

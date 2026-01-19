@@ -1,0 +1,39 @@
+{
+  "name": "@mindease/services",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "description": "Shared services for MindEase",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./http": {
+      "types": "./dist/http/index.d.ts",
+      "import": "./dist/http/index.js"
+    },
+    "./storage": {
+      "types": "./dist/storage/index.d.ts",
+      "import": "./dist/storage/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@mindease/database": "file:../database",
+    "@mindease/models": "file:../models",
+    "@supabase/supabase-js": "2.50.1"
+  },
+  "devDependencies": {
+    "@mindease/eslint-config": "file:../eslint-config",
+    "@mindease/typescript-config": "file:../typescript-config",
+    "@types/node": "^20",
+    "typescript": "^5"
+  }
+}

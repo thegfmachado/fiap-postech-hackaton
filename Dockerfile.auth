@@ -1,0 +1,50 @@
+# Base: Node.js Alpine
+FROM node:20-alpine AS base
+
+# Deps: Instala dependências
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+COPY package*.json ./
+COPY turbo.json ./
+COPY packages/ ./packages/
+COPY apps/mindease-web-auth/package*.json ./apps/mindease-web-auth/
+
+RUN npm ci
+
+# Builder: Compila microfrontend auth
+FROM base AS builder
+WORKDIR /app
+
+ENV NODE_ENV production
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Build específico do app auth usando filtro Turbo
+RUN npm run build -- --filter=mindease-web-auth
+
+# Runner: Container final otimizado
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+
+# Usuário não-root para segurança
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copia build standalone do Next.js
+COPY --from=builder /app/apps/mindease-web-auth/.next/standalone ./
+COPY --from=builder /app/apps/mindease-web-auth/.next/static ./apps/mindease-web-auth/.next/static
+COPY --from=builder /app/apps/mindease-web-auth/public ./apps/mindease-web-auth/public
+
+USER nextjs
+
+EXPOSE 3001
+
+ENV PORT 3001
+ENV HOSTNAME "0.0.0.0"
+
+CMD ["node", "apps/mindease-web-auth/server.js"]

@@ -1,0 +1,3 @@
+{
+  "extends": "@mindease/typescript-config/base.json"
+}

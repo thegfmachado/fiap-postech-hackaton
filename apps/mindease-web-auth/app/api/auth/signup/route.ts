@@ -1,0 +1,16 @@
+import { createAuthService } from "@mindease-web-auth/lib/services/auth-service.factory";
+import type { NextRequest} from "next/server";
+import { NextResponse } from "next/server";
+
+import { handleResponseError } from "@mindease/services/http";
+
+export async function POST(req: NextRequest) {
+  try {
+    const data = await req.json();
+    const service = await createAuthService();
+    const user = await service.signUp(data);
+    return NextResponse.json(user);
+  } catch (err) {
+    return handleResponseError(err);
+  }
+}

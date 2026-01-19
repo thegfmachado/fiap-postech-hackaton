@@ -1,0 +1,43 @@
+{
+  "name": "mindease",
+  "version": "0.0.1",
+  "private": true,
+  "description": "MindEase - Inclusive Mental Health Platform",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/mindease.git",
+    "directory": "."
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo build",
+    "db:local": "npm run db:local --workspace=@mindease/database --",
+    "db:local:start": "npm run db:local:start --workspace=@mindease/database",
+    "db:local:stop": "npm run db:local:stop --workspace=@mindease/database",
+    "db:local:status": "npm run db:local:status --workspace=@mindease/database",
+    "db:local:reset": "npm run db:local:reset --workspace=@mindease/database",
+    "db:generate:types": "npm run db:generate:types --workspace=@mindease/database",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f"
+  },
+  "devDependencies": {
+    "@mindease/eslint-config": "file:./packages/eslint-config",
+    "@mindease/typescript-config": "file:./packages/typescript-config",
+    "cspell": "9.1.3",
+    "prettier": "3.6.2",
+    "turbo": "2.5.4",
+    "typescript": "5.8.3"
+  },
+  "packageManager": "npm@11.4.2",
+  "engines": {
+    "node": ">=20"
+  }
+}

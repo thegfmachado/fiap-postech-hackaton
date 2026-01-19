@@ -1,0 +1,39 @@
+services:
+  mindease-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MINDEASE_WEB_AUTH_DOMAIN: http://mindease-web-auth-app:3001
+    container_name: mindease-web-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - MINDEASE_WEB_AUTH_DOMAIN=http://mindease-web-auth-app:3001
+    restart: unless-stopped
+    networks:
+      - mindease-network
+    depends_on:
+      - mindease-web-auth
+
+  mindease-web-auth:
+    build:
+      context: .
+      dockerfile: Dockerfile.auth
+    container_name: mindease-web-auth-app
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    restart: unless-stopped
+    networks:
+      - mindease-network
+
+networks:
+  mindease-network:
+    driver: bridge
