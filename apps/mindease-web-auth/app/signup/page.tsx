@@ -4,7 +4,7 @@ import { AuthService } from "@mindease-web-auth/client/services/auth-service";
 import { Header } from "@mindease-web-auth/components/template/header";
 import { WelcomeHero } from "@mindease-web-auth/components/welcome-hero";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Brain, Heart, Shield, Sparkles } from "lucide-react";
+import { Kanban, Timer, Brain, Sparkles } from "lucide-react";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 
@@ -33,19 +33,19 @@ const authService = new AuthService(httpService);
 
 const cards = [
   {
-    title: "Acompanhamento personalizado",
+    title: "Quadro Kanban",
+    icon: <Kanban color="white" size={20} />
+  },
+  {
+    title: "Timer Pomodoro",
+    icon: <Timer color="white" size={20} />
+  },
+  {
+    title: "Foco e Organização",
     icon: <Brain color="white" size={20} />
   },
   {
-    title: "Bem-estar emocional",
-    icon: <Heart color="white" size={20} />
-  },
-  {
-    title: "Dados 100% seguros",
-    icon: <Shield color="white" size={20} />
-  },
-  {
-    title: "Suporte profissional",
+    title: "Interface Acessível",
     icon: <Sparkles color="white" size={20} />
   },
 ]
