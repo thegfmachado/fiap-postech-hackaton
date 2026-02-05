@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>🧠 MindEase</h1>
-  <p><strong>Plataforma inclusiva de saúde mental e bem-estar</strong></p>
+  <h1>📋 MindEase</h1>
+  <p><strong>Sistema de Produtividade Acessível para Neurodivergentes</strong></p>
 </div>
 
 <p align="center">
@@ -20,16 +20,24 @@
 
 ## 📖 Sobre o Projeto
 
-O **MindEase** é uma plataforma inclusiva desenvolvida para fornecer soluções acessíveis de saúde mental e bem-estar. A aplicação oferece recursos para acompanhamento, suporte e gerenciamento de saúde mental em ambientes web e mobile.
+O **MindEase** é uma plataforma de produtividade desenvolvida especialmente para pessoas neurodivergentes. Combinando um quadro Kanban visual com técnicas de Pomodoro, oferecemos uma ferramenta acessível que respeita diferentes estilos de aprendizado e concentração.
+
+### 🎯 Público-Alvo
+
+Pessoas neurodivergentes (TDAH, autismo, dislexia, etc.) que buscam uma ferramenta de produtividade que:
+- Seja visualmente clara e livre de distrações
+- Permita personalização do nível de complexidade
+- Respeite diferentes ritmos de trabalho
+- Ofereça estrutura sem rigidez
 
 ### ✅ Funcionalidades
 
-- Interface web responsiva com Next.js
-- Aplicação mobile nativa com React Native/Expo
-- Autenticação completa e segura com Supabase
-- Micro frontend dedicado para autenticação
-- Design System compartilhado entre plataformas
-- Banco de dados PostgreSQL com Supabase
+- **Quadro Kanban Visual**: Organize tarefas em colunas (A Fazer, Em Andamento, Concluído)
+- **Timer Pomodoro Flexível**: Intervalos personalizáveis para manter o foco
+- **Interface Adaptável**: Níveis de complexidade variáveis na exibição
+- **Design Acessível**: Focado em reduzir sobrecarga sensorial
+- **Aplicação Web e Mobile**: Acesse de qualquer dispositivo
+- **Autenticação Segura**: Sistema completo com Supabase
 
 ## 🚀 Início Rápido
 
@@ -92,6 +100,7 @@ fiap-postech-hackaton/
 ```
 ┌────────────────────────────────────────────────────────────┐
 │                         USUÁRIO                            │
+│                  (Neurodivergente)                         │
 └─────────────────────────────┬──────────────────────────────┘
                               │
           ┌───────────────────┼───────────────────┐
@@ -100,6 +109,9 @@ fiap-postech-hackaton/
 │  mindease-web   │  │mindease-web-auth│  │ mindease-native │
 │   (Next.js)     │◄─│   (Next.js)     │  │  (Expo/RN)      │
 │   Port: 3000    │  │   Port: 3001    │  │   Port: 8081    │
+│                 │  │                 │  │                 │
+│ • Quadro Kanban │  │ • Login/Signup  │  │ • Board Mobile  │
+│ • Timer Pomodoro│  │ • Auth Flow     │  │ • Pomodoro      │
 └────────┬────────┘  └────────┬────────┘  └────────┬────────┘
          │                    │                    │
          └────────────────────┼────────────────────┘
@@ -115,6 +127,7 @@ fiap-postech-hackaton/
          ┌────────────────────────────────────────┐
          │              SUPABASE                  │
          │   PostgreSQL + Auth + Storage          │
+         │   • Usuários  • Tarefas  • Sessões     │
          └────────────────────────────────────────┘
 ```
 

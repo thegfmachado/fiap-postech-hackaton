@@ -12,6 +12,11 @@ const PUBLIC_PATHS = [
   '/api/auth/signout',
   '/api/auth/forgot-password',
   '/api/auth/reset-password',
+
+  // TODO - Remove after testing
+  '/home',
+  '/pomodoro',
+  '/settings',
 ];
 
 /**

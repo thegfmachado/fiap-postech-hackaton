@@ -1,5 +1,6 @@
 "use client";
 
+import { Kanban } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -18,15 +19,18 @@ export function WelcomeHero(props: WelcomeHeroProps) {
   return (
     <section className="p-5 md:p-10 border-r-1 border-gray-100 grow flex flex-col items-center justify-center bg-gradient-to-b from-[#DCD4E7] via-[#DCD4E7] to-white">
       <div className="p-5 space-y-5 md:p-10 md:space-y-10 flex flex-col items-center justify-center h-full max-w-xl">
-        <div className="hidden md:block text-6xl font-bold text-primary">🧠 MindEase</div>
+        <div className="hidden md:flex items-center gap-3">
+          <Kanban className="w-14 h-14 text-primary" />
+          <span className="text-6xl font-bold text-primary">MindEase</span>
+        </div>
 
         <h1 className="text-4xl md:text-3xl lg:text-4xl text-center font-bold max-w-6xl">
           Bem-vindo de volta!
         </h1>
 
         <h2 className="text-muted-foreground md:text-lg lg:text-xl text-center max-w-6xl">
-          Continue sua jornada de bem-estar mental.
-          Seus dados estão seguros e prontos para você.
+          Continue organizando suas tarefas e mantendo o foco.
+          Suas informações estão seguras e prontas para você.
         </h2>
       </div>
 

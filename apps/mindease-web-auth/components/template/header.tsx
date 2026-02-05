@@ -1,5 +1,6 @@
 "use client";
 
+import { Kanban } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -12,8 +13,9 @@ export function Header() {
     <header className="p-4 shadow-lg bg-white">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-10">
-          <a href="/" className="flex items-center text-2xl font-bold text-primary">
-            🧠 MindEase
+          <a href="/" className="flex items-center gap-2">
+            <Kanban className="w-8 h-8 text-primary" />
+            <span className="text-2xl font-bold text-primary">MindEase</span>
           </a>
 
           <NavigationMenu className="hidden md:flex">
