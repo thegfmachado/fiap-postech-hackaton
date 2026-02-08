@@ -7,39 +7,21 @@ import { Header } from "@/components/template/header";
 import { Layout } from "@/components/template/layout";
 import { Main } from "@/components/template/main";
 import { Sidebar } from "@/components/template/sidebar";
-import { TaskForm, type Task } from "@/components/task-form";
+import { TaskForm } from "@/components/task-form";
 import { TaskCard } from "@/components/task-card";
 import { TaskDetailsModal } from "@/components/task-details-modal";
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@mindease/design-system/components";
+import { Task, Status, Priority } from "@mindease/models";
 
-const columnTitles = {
-  todo: "A Fazer",
-  doing: "Em Andamento",
-  done: "Concluído",
+const columnTitles: Record<Status, string> = {
+  [Status.todo]: "A fazer",
+  [Status.doing]: "Em andamento",
+  [Status.done]: "Concluído",
 };
 
 export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: "1",
-      title: "Configurar projeto",
-      description: "Configurar o ambiente de desenvolvimento",
-      status: "done",
-      priority: "high",
-      estimatedPomodoros: 2,
-      completedPomodoros: 2,
-    },
-    {
-      id: "2",
-      title: "Criar componentes base",
-      description: "Desenvolver os componentes principais da aplicação",
-      status: "doing",
-      priority: "high",
-      estimatedPomodoros: 4,
-      completedPomodoros: 2,
-    },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -79,7 +61,7 @@ export default function Home() {
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>, newStatus: Task["status"]) => {
     e.preventDefault();
-    
+
     if (!draggedTaskId) return;
 
     setTasks(
@@ -121,7 +103,7 @@ export default function Home() {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            {(["todo", "doing", "done"] as const).map((status) => (
+            {(Object.values(Status)).map((status) => (
               <div
                 key={status}
                 className="flex flex-col gap-3"

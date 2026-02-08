@@ -13,15 +13,9 @@ import {
   CardTitle,
 } from "@mindease/design-system/components";
 
-export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  status: "todo" | "doing" | "done";
-  priority: "low" | "medium" | "high";
-  estimatedPomodoros: number;
-  completedPomodoros: number;
-}
+import { Task } from "@mindease/models";
+import { Priority } from "../../../packages/models/dist/enums/priority.enum";
+import { Status } from "../../../packages/models/dist/enums/status.enum";
 
 interface TaskFormProps {
   onSubmit: (task: Omit<Task, "id" | "completedPomodoros">) => void;
@@ -32,18 +26,18 @@ interface TaskFormProps {
 export function TaskForm({ onSubmit, onCancel, initialValues }: TaskFormProps) {
   const [title, setTitle] = useState(initialValues?.title || "");
   const [description, setDescription] = useState(initialValues?.description || "");
-  const [priority, setPriority] = useState<Task["priority"]>(initialValues?.priority || "medium");
+  const [priority, setPriority] = useState<Task["priority"]>(initialValues?.priority || Priority.medium);
   const [estimatedPomodoros, setEstimatedPomodoros] = useState(initialValues?.estimatedPomodoros || 1);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!title.trim()) return;
 
     onSubmit({
       title,
       description,
-      status: initialValues?.status || "todo",
+      status: initialValues?.status || Status.todo,
       priority,
       estimatedPomodoros,
     });
@@ -51,7 +45,7 @@ export function TaskForm({ onSubmit, onCancel, initialValues }: TaskFormProps) {
     // Reset form
     setTitle("");
     setDescription("");
-    setPriority("medium");
+    setPriority(Priority.medium);
     setEstimatedPomodoros(1);
   };
 

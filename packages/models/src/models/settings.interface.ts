@@ -2,7 +2,7 @@ import { ContrastMode } from "../enums/contrast-mode.enum.js";
 import { Size } from "../enums/size.enum.js";
 import { ViewMode } from "../enums/view-mode.enum.js";
 
-export interface ISettings {
+export interface Settings {
   pomodoroDurationMinutes: number;
   shortBreakDurationMinutes: number;
   longBreakDurationMinutes: number;

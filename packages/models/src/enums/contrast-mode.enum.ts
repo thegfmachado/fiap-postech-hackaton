@@ -1,4 +1,4 @@
 export enum ContrastMode {
-  LOW = 'LOW',
-  HIGH = 'HIGH',
+  low = 'low',
+  high = 'high'
 }

@@ -1,4 +1,4 @@
 export enum ViewMode {
-  SUMMARY = 'SUMMARY',
-  DETAILED = 'DETAILED',
+  summary = 'summary',
+  detailed = 'detailed'
 }

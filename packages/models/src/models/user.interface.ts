@@ -1,11 +1,11 @@
-import { ISettings } from "./settings.interface.js";
+import { Settings } from "./settings.interface.js";
 
 export interface IUser {
   id: string;
   email: string;
   password: string;
   name: string;
-  settings: ISettings;
+  settings: Settings;
   createdAt: string;
   updatedAt: string;
 }

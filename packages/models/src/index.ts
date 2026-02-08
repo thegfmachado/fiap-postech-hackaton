@@ -5,3 +5,5 @@ export * from './models/settings.interface.js';
 export * from './enums/contrast-mode.enum.js';
 export * from './enums/size.enum.js';
 export * from './enums/view-mode.enum.js';
+export * from './enums/priority.enum.js';
+export * from './enums/status.enum.js';

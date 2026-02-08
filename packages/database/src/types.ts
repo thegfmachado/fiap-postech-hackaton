@@ -4,4 +4,9 @@ import type { Database, Tables, TablesInsert, TablesUpdate } from "./generated-t
 
 export type TypedSupabaseClient = SupabaseClient<Database>;
 
+type TransformTransaction<T> = Omit<T, 'created_at' | 'updated_at' | 'user_id'>;
+
+
+export type ITransaction = TransformTransaction<Tables<'tasks'>>;
+
 export type { Database } from './generated-types.js';
