@@ -5,6 +5,10 @@ export type GetAllTasksResponse = {
   count: number | null;
 };
 
+export type GetAllTasksParams = {
+  userId?: string;
+};
+
 export interface ITasksQueries {
-  getAll: (userId?: string) => Promise<GetAllTasksResponse>;
+  get: (params?: GetAllTasksParams) => Promise<GetAllTasksResponse>;
 }

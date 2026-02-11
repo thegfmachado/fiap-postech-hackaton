@@ -1,12 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import type { Database, Tables, TablesInsert, TablesUpdate } from "./generated-types.js";
+import type { Database, Tables } from "./generated-types.js";
 
 export type TypedSupabaseClient = SupabaseClient<Database>;
 
-type TransformTransaction<T> = Omit<T, 'created_at' | 'updated_at' | 'user_id'>;
+type TransformTasks<T> = Omit<T, 'created_at' | 'updated_at' | 'user_id'>;
 
 
-export type ITransaction = TransformTransaction<Tables<'tasks'>>;
+export type ITask = TransformTasks<Tables<'tasks'>>;
 
 export type { Database } from './generated-types.js';

@@ -1,8 +1,7 @@
 import { Priority, Status, Task } from "@mindease/models";
 import { TypedSupabaseClient } from "../../types.js";
 import { Tables } from "../../generated-types.js";
-import { ITasksQueries } from "./tasks-queries.interface.js";
-
+import { GetAllTasksParams, ITasksQueries } from "./tasks-queries.interface.js";
 
 export class TasksQueriesService implements ITasksQueries {
   static TABLE_NAME = 'tasks' as const
@@ -13,7 +12,9 @@ export class TasksQueriesService implements ITasksQueries {
     this.client = client
   }
 
-  async getAllTasks(userId?: string): Promise<{ data: Task[]; count: number }> {
+  async get(params?: GetAllTasksParams): Promise<{ data: Task[]; count: number }> {
+    const { userId } = params || {};
+
     let query = this.client
       .from(TasksQueriesService.TABLE_NAME)
       .select('*', { count: 'exact' })

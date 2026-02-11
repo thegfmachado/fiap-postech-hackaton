@@ -3,7 +3,7 @@
 import { X, Clock, Calendar, Tag, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { Button, Card, CardContent, CardHeader, Label, Input } from "@mindease/design-system/components";
-import type { Task } from "@/components/task-form";
+import { Task } from "@mindease/models";
 
 interface TaskDetailsModalProps {
   task: Task;

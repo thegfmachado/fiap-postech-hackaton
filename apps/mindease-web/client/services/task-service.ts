@@ -1,13 +1,13 @@
 import { GetAllTasksResponse } from "@mindease/database/queries";
 import { HTTPService } from "@mindease/services";
-import { ITaskService } from "./transaction-service.interface";
+import { ITaskService } from "./task-service.interface";
 
-export class TransactionService implements ITaskService {
+export class TasksService implements ITaskService {
   constructor(
     private readonly httpService: HTTPService
   ) { }
 
-  async getAll(params?: Record<string, unknown>): Promise<GetAllTasksResponse> {
+  async get(params?: Record<string, unknown>): Promise<GetAllTasksResponse> {
     const queryString = params
       ? '?' + new URLSearchParams(params as Record<string, string>).toString()
       : '';

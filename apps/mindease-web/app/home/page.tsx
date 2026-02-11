@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 
 import { Header } from "@/components/template/header";
@@ -13,6 +13,8 @@ import { TaskDetailsModal } from "@/components/task-details-modal";
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@mindease/design-system/components";
 import { Task, Status, Priority } from "@mindease/models";
+import { HTTPService } from "@mindease/services";
+import { TasksService } from "@/client/services/task-service";
 
 const columnTitles: Record<Status, string> = {
   [Status.todo]: "A fazer",
@@ -20,11 +22,23 @@ const columnTitles: Record<Status, string> = {
   [Status.done]: "Concluído",
 };
 
+const httpService = new HTTPService();
+const tasksService = new TasksService(httpService);
+
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const response = await tasksService.get();
+      setTasks(response.data);
+    };
+
+    void fetchTasks();
+  }, []);
 
   const handleAddTask = (newTask: Omit<Task, "id" | "completedPomodoros">) => {
     const task: Task = {
