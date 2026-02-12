@@ -7,69 +7,101 @@ export type Json =
   | Json[]
 
 export type Database = {
+  __InternalSupabase: {
+    PostgrestVersion: "14.1"
+  }
   public: {
     Tables: {
-      users: {
+      profiles: {
         Row: {
-          id: string
+          contrast_intensity: string | null
+          created_at: string | null
           email: string
-          name: string | null
-          created_at: string
-          updated_at: string
+          font_size: string | null
+          id: string
+          long_break_after_pomodoros: number
+          long_break_minutes: number
+          name: string
+          pomodoro_duration_minutes: number
+          short_break_minutes: number
+          spacing: string | null
+          updated_at: string | null
+          view_mode: string | null
         }
         Insert: {
-          id?: string
+          contrast_intensity?: string | null
+          created_at?: string | null
           email: string
-          name?: string | null
-          created_at?: string
-          updated_at?: string
+          font_size?: string | null
+          id: string
+          long_break_after_pomodoros?: number
+          long_break_minutes?: number
+          name: string
+          pomodoro_duration_minutes?: number
+          short_break_minutes?: number
+          spacing?: string | null
+          updated_at?: string | null
+          view_mode?: string | null
         }
         Update: {
-          id?: string
+          contrast_intensity?: string | null
+          created_at?: string | null
           email?: string
-          name?: string | null
-          created_at?: string
-          updated_at?: string
+          font_size?: string | null
+          id?: string
+          long_break_after_pomodoros?: number
+          long_break_minutes?: number
+          name?: string
+          pomodoro_duration_minutes?: number
+          short_break_minutes?: number
+          spacing?: string | null
+          updated_at?: string | null
+          view_mode?: string | null
         }
         Relationships: []
-      },
+      }
       tasks: {
         Row: {
-          id: string
-          title: string
+          checklist: Json
+          completed_pomodoros: number
+          created_at: string | null
           description: string | null
-          status: string
           due_date: string | null
           estimated_pomodoros: number
-          completed_pomodoros: number
-          checklist: Json | null
-          priority: string
-          created_at: string
-          updated_at: string
+          id: string
+          priority: Database["public"]["Enums"]["task_priority"]
+          status: string
+          title: string
+          updated_at: string | null
+          user_id: string
         }
         Insert: {
-          id?: string
-          title: string
-          description?: string | null
-          status: string
-          due_date?: string | null
-          estimated_pomodoros: number
+          checklist?: Json
           completed_pomodoros?: number
-          checklist?: Json | null
-          priority: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          title?: string
+          created_at?: string | null
           description?: string | null
-          status?: string
           due_date?: string | null
           estimated_pomodoros?: number
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          status?: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          checklist?: Json
           completed_pomodoros?: number
-          checklist?: Json | null
-          priority?: string
-          updated_at?: string
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          estimated_pomodoros?: number
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          status?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -81,7 +113,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      task_priority: "low" | "medium" | "high"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -89,27 +121,33 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[keyof Database]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
-  PublicTableNameOrOptions extends
-  | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-  | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-  ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-    Database[PublicTableNameOrOptions["schema"]]["Views"])
+  DefaultSchemaTableNameOrOptions extends
+  | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+  | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+  ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+    DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
   : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-    Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+    DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
   ? R
   : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-    PublicSchema["Views"])
-  ? (PublicSchema["Tables"] &
-    PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+    DefaultSchema["Views"])
+  ? (DefaultSchema["Tables"] &
+    DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
       Row: infer R
     }
   ? R
@@ -117,20 +155,24 @@ export type Tables<
   : never
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-  | keyof PublicSchema["Tables"]
-  | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-  ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+  | keyof DefaultSchema["Tables"]
+  | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+  ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
   : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
     Insert: infer I
   }
   ? I
   : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-  ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
     Insert: infer I
   }
   ? I
@@ -138,20 +180,24 @@ export type TablesInsert<
   : never
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-  | keyof PublicSchema["Tables"]
-  | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-  ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+  | keyof DefaultSchema["Tables"]
+  | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+  ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
   : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
     Update: infer U
   }
   ? U
   : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-  ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
     Update: infer U
   }
   ? U
@@ -159,29 +205,43 @@ export type TablesUpdate<
   : never
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-  | keyof PublicSchema["Enums"]
-  | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+  | keyof DefaultSchema["Enums"]
+  | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+  ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
   : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-  ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+  ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
   : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-  | keyof PublicSchema["CompositeTypes"]
-  | { schema: keyof Database },
+  | keyof DefaultSchema["CompositeTypes"]
+  | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-  ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+  ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
   : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-  ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+  ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
   : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      task_priority: ["low", "medium", "high"],
+    },
+  },
+} as const

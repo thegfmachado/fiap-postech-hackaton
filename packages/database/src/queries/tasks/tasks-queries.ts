@@ -47,8 +47,8 @@ export class TasksQueriesService implements ITasksQueries {
       estimatedPomodoros: row.estimated_pomodoros,
       completedPomodoros: row.completed_pomodoros,
       checklist: row.checklist as any[] | undefined,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
+      createdAt: row.created_at ?? undefined,
+      updatedAt: row.updated_at ?? undefined,
       priority: row.priority as Priority,
     }
   }

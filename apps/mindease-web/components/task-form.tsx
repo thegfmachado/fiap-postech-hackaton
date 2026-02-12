@@ -13,9 +13,7 @@ import {
   CardTitle,
 } from "@mindease/design-system/components";
 
-import { Task } from "@mindease/models";
-import { Priority } from "../../../packages/models/dist/enums/priority.enum";
-import { Status } from "../../../packages/models/dist/enums/status.enum";
+import { Task, Priority, Status } from "@mindease/models";
 
 interface TaskFormProps {
   onSubmit: (task: Omit<Task, "id" | "completedPomodoros">) => void;

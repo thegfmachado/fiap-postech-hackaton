@@ -3,7 +3,7 @@
 import { GripVertical, Trash2, Edit, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, Button } from "@mindease/design-system/components";
 import { useDisplayMode } from "@/hooks/use-display-mode";
-import type { Task } from "@/components/task-form";
+import { Task } from "@mindease/models";
 
 interface TaskCardProps {
   task: Task;
@@ -80,14 +80,14 @@ export function TaskCard({ task, onDelete, onEdit, onView, onDragStart, draggabl
         {!isSimplified && task.description && (
           <p className="text-sm text-muted-foreground">{task.description}</p>
         )}
-        
+
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <span
             className={`text-xs px-2 py-1 rounded-full border ${priorityColors[task.priority]}`}
           >
             {priorityLabels[task.priority]}
           </span>
-          
+
           {!isSimplified && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Clock className="h-3.5 w-3.5" />
