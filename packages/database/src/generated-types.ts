@@ -62,7 +62,6 @@ export type Database = {
       }
       tasks: {
         Row: {
-          checklist: Json
           completed_pomodoros: number
           created_at: string | null
           description: string | null
@@ -73,24 +72,19 @@ export type Database = {
           status: string
           title: string
           updated_at: string | null
-          user_id: string
         }
         Insert: {
-          checklist?: Json
           completed_pomodoros?: number
           created_at?: string | null
           description?: string | null
           due_date?: string | null
           estimated_pomodoros?: number
-          id?: string
           priority?: Database["public"]["Enums"]["task_priority"]
           status?: string
           title: string
           updated_at?: string | null
-          user_id: string
         }
         Update: {
-          checklist?: Json
           completed_pomodoros?: number
           created_at?: string | null
           description?: string | null
@@ -101,7 +95,6 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string | null
-          user_id?: string
         }
         Relationships: []
       }

@@ -1,5 +1,5 @@
-import { Priority, Status, Task } from "@mindease/models";
-import { TypedSupabaseClient } from "../../types.js";
+import { Priority, Status, Task, TaskToInsert } from "@mindease/models";
+import { ITask, ITaskInsert, TypedSupabaseClient } from "../../types.js";
 import { Tables } from "../../generated-types.js";
 import { GetAllTasksParams, ITasksQueries } from "./tasks-queries.interface.js";
 
@@ -13,16 +13,12 @@ export class TasksQueriesService implements ITasksQueries {
   }
 
   async get(params?: GetAllTasksParams): Promise<{ data: Task[]; count: number }> {
-    const { userId } = params || {};
 
     let query = this.client
       .from(TasksQueriesService.TABLE_NAME)
       .select('*', { count: 'exact' })
+      .order('priority', { ascending: false })
       .order('created_at', { ascending: false })
-
-    if (userId) {
-      query = query.eq('user_id', userId)
-    }
 
     const { data, error, count } = await query
 
@@ -37,6 +33,21 @@ export class TasksQueriesService implements ITasksQueries {
     }
   }
 
+  async create(transaction: ITaskInsert): Promise<Task> {
+    const { data, error } = await this.client
+      .from(TasksQueriesService.TABLE_NAME)
+      .insert(transaction)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      throw new Error(`Error creating transaction: ${error.message}`);
+    }
+
+    return this.dbTaskToTask(data);
+  }
+
   private dbTaskToTask(row: Tables<'tasks'>): Task {
     return {
       id: row.id,
@@ -46,7 +57,6 @@ export class TasksQueriesService implements ITasksQueries {
       dueDate: row.due_date ?? undefined,
       estimatedPomodoros: row.estimated_pomodoros,
       completedPomodoros: row.completed_pomodoros,
-      checklist: row.checklist as any[] | undefined,
       createdAt: row.created_at ?? undefined,
       updatedAt: row.updated_at ?? undefined,
       priority: row.priority as Priority,

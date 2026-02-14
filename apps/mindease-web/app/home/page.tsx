@@ -12,7 +12,7 @@ import { TaskCard } from "@/components/task-card";
 import { TaskDetailsModal } from "@/components/task-details-modal";
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@mindease/design-system/components";
-import { Task, Status, Priority } from "@mindease/models";
+import { Task, Status, TaskToInsert } from "@mindease/models";
 import { HTTPService } from "@mindease/services";
 import { TasksService } from "@/client/services/task-service";
 
@@ -40,15 +40,16 @@ export default function Home() {
     void fetchTasks();
   }, []);
 
-  const handleAddTask = (newTask: Omit<Task, "id" | "completedPomodoros">) => {
-    const task: Task = {
-      ...newTask,
-      id: Date.now().toString(),
-      completedPomodoros: 0,
-    };
-    setTasks([...tasks, task]);
-    setShowForm(false);
-  };
+  const handleAddTask = async (transactionData: TaskToInsert) => {
+    try {
+      const createdTransaction = await tasksService.create(transactionData);
+      setTasks([...tasks, createdTransaction]);
+    } catch (error) {
+      console.error("Erro ao criar nova transação", error);
+    } finally {
+      setShowForm(false);
+    }
+  }
 
   const handleDeleteTask = (taskId: string) => {
     setTasks(tasks.filter((task) => task.id !== taskId));

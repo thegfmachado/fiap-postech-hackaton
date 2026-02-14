@@ -20,3 +20,14 @@ export async function GET(request: Request) {
   }
 }
 
+export async function POST(req: NextRequest) {
+  try {
+    const data = await req.json();
+    const service = await createTaskService();
+    const transaction = await service.create(data);
+    return NextResponse.json(transaction);
+  } catch (err) {
+    return handleResponseError(err);
+  }
+}
+
