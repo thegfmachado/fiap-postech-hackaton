@@ -1,66 +1,79 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 
 import { Header } from "@/components/template/header";
 import { Layout } from "@/components/template/layout";
 import { Main } from "@/components/template/main";
 import { Sidebar } from "@/components/template/sidebar";
-import { TaskForm, type Task } from "@/components/task-form";
+import { TaskForm } from "@/components/task-form";
 import { TaskCard } from "@/components/task-card";
 import { TaskDetailsModal } from "@/components/task-details-modal";
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@mindease/design-system/components";
+import { Task, Status, TaskToInsert } from "@mindease/models";
+import { HTTPService } from "@mindease/services";
+import { TasksService } from "@/client/services/task-service";
 
-const columnTitles = {
-  todo: "A Fazer",
-  doing: "Em Andamento",
-  done: "Concluído",
+const columnTitles: Record<Status, string> = {
+  [Status.todo]: "A fazer",
+  [Status.doing]: "Em andamento",
+  [Status.done]: "Concluído",
 };
 
+const httpService = new HTTPService();
+const tasksService = new TasksService(httpService);
+
 export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: "1",
-      title: "Configurar projeto",
-      description: "Configurar o ambiente de desenvolvimento",
-      status: "done",
-      priority: "high",
-      estimatedPomodoros: 2,
-      completedPomodoros: 2,
-    },
-    {
-      id: "2",
-      title: "Criar componentes base",
-      description: "Desenvolver os componentes principais da aplicação",
-      status: "doing",
-      priority: "high",
-      estimatedPomodoros: 4,
-      completedPomodoros: 2,
-    },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
-  const handleAddTask = (newTask: Omit<Task, "id" | "completedPomodoros">) => {
-    const task: Task = {
-      ...newTask,
-      id: Date.now().toString(),
-      completedPomodoros: 0,
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const response = await tasksService.get();
+      setTasks(response.data);
     };
-    setTasks([...tasks, task]);
-    setShowForm(false);
+
+    void fetchTasks();
+  }, []);
+
+  const handleAddTask = async (data: TaskToInsert) => {
+    try {
+      const createdTask = await tasksService.create(data);
+      setTasks([...tasks, createdTask]);
+    } catch (error) {
+      console.error("Erro ao criar nova tarefa", error);
+    } finally {
+      setShowForm(false);
+    }
+  }
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      await tasksService.delete(taskId);
+      setTasks(tasks.filter((task) => task.id !== taskId));
+    } catch (error) {
+      console.error("Erro ao deletar tarefa", error);
+    }
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    setTasks(tasks.filter((task) => task.id !== taskId));
-  };
+  const handleUpdateTask = async (updatedTask: Task) => {
+    try {
+      const savedTask = await tasksService.update(updatedTask.id, updatedTask);
 
-  const handleUpdateTask = (updatedTask: Task) => {
-    setTasks(tasks.map((task) => (task.id === updatedTask.id ? updatedTask : task)));
-    setSelectedTask(null);
+      setTasks(
+        tasks.map((task) =>
+          task.id === savedTask.id ? savedTask : task
+        )
+      );
+
+      setSelectedTask(null);
+    } catch (error) {
+      console.error("Erro ao atualizar tarefa", error);
+    }
   };
 
   const handleViewTask = (task: Task) => {
@@ -77,17 +90,26 @@ export default function Home() {
     e.dataTransfer.dropEffect = "move";
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>, newStatus: Task["status"]) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>, newStatus: Task["status"]) => {
     e.preventDefault();
-    
+
     if (!draggedTaskId) return;
 
-    setTasks(
-      tasks.map((task) =>
-        task.id === draggedTaskId ? { ...task, status: newStatus } : task
-      )
-    );
-    setDraggedTaskId(null);
+    try {
+      const updatedTask = await tasksService.update(draggedTaskId, {
+        status: newStatus,
+      });
+
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === updatedTask.id ? updatedTask : task
+        )
+      );
+    } catch (error) {
+      console.error("Erro ao atualizar status da tarefa", error);
+    } finally {
+      setDraggedTaskId(null);
+    }
   };
 
   const getTasksByStatus = (status: Task["status"]) => {
@@ -121,7 +143,7 @@ export default function Home() {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            {(["todo", "doing", "done"] as const).map((status) => (
+            {(Object.values(Status)).map((status) => (
               <div
                 key={status}
                 className="flex flex-col gap-3"
