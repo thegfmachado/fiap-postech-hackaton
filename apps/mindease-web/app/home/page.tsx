@@ -40,24 +40,40 @@ export default function Home() {
     void fetchTasks();
   }, []);
 
-  const handleAddTask = async (transactionData: TaskToInsert) => {
+  const handleAddTask = async (data: TaskToInsert) => {
     try {
-      const createdTransaction = await tasksService.create(transactionData);
-      setTasks([...tasks, createdTransaction]);
+      const createdTask = await tasksService.create(data);
+      setTasks([...tasks, createdTask]);
     } catch (error) {
-      console.error("Erro ao criar nova transação", error);
+      console.error("Erro ao criar nova tarefa", error);
     } finally {
       setShowForm(false);
     }
   }
 
-  const handleDeleteTask = (taskId: string) => {
-    setTasks(tasks.filter((task) => task.id !== taskId));
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      await tasksService.delete(taskId);
+      setTasks(tasks.filter((task) => task.id !== taskId));
+    } catch (error) {
+      console.error("Erro ao deletar tarefa", error);
+    }
   };
 
-  const handleUpdateTask = (updatedTask: Task) => {
-    setTasks(tasks.map((task) => (task.id === updatedTask.id ? updatedTask : task)));
-    setSelectedTask(null);
+  const handleUpdateTask = async (updatedTask: Task) => {
+    try {
+      const savedTask = await tasksService.update(updatedTask.id, updatedTask);
+
+      setTasks(
+        tasks.map((task) =>
+          task.id === savedTask.id ? savedTask : task
+        )
+      );
+
+      setSelectedTask(null);
+    } catch (error) {
+      console.error("Erro ao atualizar tarefa", error);
+    }
   };
 
   const handleViewTask = (task: Task) => {
@@ -74,17 +90,26 @@ export default function Home() {
     e.dataTransfer.dropEffect = "move";
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>, newStatus: Task["status"]) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>, newStatus: Task["status"]) => {
     e.preventDefault();
 
     if (!draggedTaskId) return;
 
-    setTasks(
-      tasks.map((task) =>
-        task.id === draggedTaskId ? { ...task, status: newStatus } : task
-      )
-    );
-    setDraggedTaskId(null);
+    try {
+      const updatedTask = await tasksService.update(draggedTaskId, {
+        status: newStatus,
+      });
+
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === updatedTask.id ? updatedTask : task
+        )
+      );
+    } catch (error) {
+      console.error("Erro ao atualizar status da tarefa", error);
+    } finally {
+      setDraggedTaskId(null);
+    }
   };
 
   const getTasksByStatus = (status: Task["status"]) => {

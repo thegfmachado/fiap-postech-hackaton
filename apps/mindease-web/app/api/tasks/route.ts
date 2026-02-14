@@ -24,8 +24,8 @@ export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
     const service = await createTaskService();
-    const transaction = await service.create(data);
-    return NextResponse.json(transaction);
+    const task = await service.create(data);
+    return NextResponse.json(task);
   } catch (err) {
     return handleResponseError(err);
   }

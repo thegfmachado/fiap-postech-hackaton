@@ -3,6 +3,7 @@ import { HTTPService } from "@mindease/services";
 import { ITaskService } from "./task-service.interface";
 import { Task, TaskToInsert } from "@mindease/models";
 import { toast } from "@mindease/design-system/components";
+import { ITaskUpdate } from "@mindease/database/types";
 
 export class TasksService implements ITaskService {
   constructor(
@@ -26,6 +27,30 @@ export class TasksService implements ITaskService {
     }
     catch (err) {
       toast.error("Erro ao criar Tarefa")
+      throw err;
+    }
+  }
+
+  async update(id: string, updates: ITaskUpdate): Promise<Task> {
+    try {
+      const data = await this.httpService.patch<Task>(`/api/tasks/${id}`, updates);
+      toast.success("Tarefa atualizada com sucesso")
+
+      return data;
+    }
+    catch (err) {
+      toast.error("Erro ao editar tarefa")
+      throw err;
+    }
+  }
+
+  async delete(id: string): Promise<void> {
+    try {
+      await this.httpService.delete(`/api/tasks/${id}`);
+      toast.success("tarefa deletada com sucesso")
+    }
+    catch (err) {
+      toast.error("Erro ao deletar tarefa")
       throw err;
     }
   }

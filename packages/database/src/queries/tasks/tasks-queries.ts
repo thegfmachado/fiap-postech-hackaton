@@ -1,5 +1,5 @@
-import { Priority, Status, Task, TaskToInsert } from "@mindease/models";
-import { ITask, ITaskInsert, TypedSupabaseClient } from "../../types.js";
+import { Priority, Status, Task } from "@mindease/models";
+import { ITask, ITaskInsert, ITaskUpdate, TypedSupabaseClient } from "../../types.js";
 import { Tables } from "../../generated-types.js";
 import { GetAllTasksParams, ITasksQueries } from "./tasks-queries.interface.js";
 
@@ -33,16 +33,63 @@ export class TasksQueriesService implements ITasksQueries {
     }
   }
 
-  async create(transaction: ITaskInsert): Promise<Task> {
+  async getById(id: string): Promise<Task> {
     const { data, error } = await this.client
       .from(TasksQueriesService.TABLE_NAME)
-      .insert(transaction)
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      throw new Error(`Error fetching task: ${error.message}`);
+    }
+
+    return this.dbTaskToTask(data);
+  }
+
+  async create(taskToInsert: ITaskInsert): Promise<Task> {
+    const { data, error } = await this.client
+      .from(TasksQueriesService.TABLE_NAME)
+      .insert(taskToInsert)
       .select()
       .single();
 
     if (error) {
       console.error('Supabase error:', error);
-      throw new Error(`Error creating transaction: ${error.message}`);
+      throw new Error(`Error creating task: ${error.message}`);
+    }
+
+    return this.dbTaskToTask(data);
+  }
+
+  async update(id: string, taskToUpdate: ITaskUpdate): Promise<Task> {
+    const { data, error } = await this.client
+      .from(TasksQueriesService.TABLE_NAME)
+      .update(taskToUpdate)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      throw new Error(`Error updating task: ${error.message}`);
+    }
+
+    return this.dbTaskToTask(data);
+  }
+
+  async delete(id: string): Promise<Task> {
+    const { data, error } = await this.client
+      .from(TasksQueriesService.TABLE_NAME)
+      .delete()
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      throw new Error(`Error deleting task: ${error.message}`);
     }
 
     return this.dbTaskToTask(data);
