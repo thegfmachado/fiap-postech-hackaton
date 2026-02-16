@@ -72,6 +72,7 @@ export function Button({
 
   return (
     <TouchableOpacity
+      testID="button"
       {...props}
       disabled={isDisabled}
       className={`
@@ -81,6 +82,7 @@ export function Button({
     >
       {loading && (
         <ActivityIndicator
+          testID="button-loading"
           color={variant === 'primary' ? textOnPrimary : tintColor}
           size="small"
           className="mr-2"

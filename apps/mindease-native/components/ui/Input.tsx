@@ -60,6 +60,7 @@ export function Input({
 
         {showPasswordToggle && (
           <TouchableOpacity
+            testID="password-toggle"
             onPress={() => setIsPasswordVisible(!isPasswordVisible)}
             className="absolute right-3 top-3 p-1"
           >
