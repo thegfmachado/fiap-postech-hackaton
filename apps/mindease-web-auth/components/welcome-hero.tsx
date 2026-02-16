@@ -17,7 +17,7 @@ export function WelcomeHero(props: WelcomeHeroProps) {
   const { cards } = props;
 
   return (
-    <section className="p-5 md:p-10 border-r-1 border-gray-100 grow flex flex-col items-center justify-center bg-gradient-to-b from-[#DCD4E7] via-[#DCD4E7] to-white">
+    <section className="p-5 md:p-10 border-r border-gray-100 grow flex flex-col items-center justify-center bg-linear-to-b from-brand-100/30 via-brand-100/20 to-white">
       <div className="p-5 space-y-5 md:p-10 md:space-y-10 flex flex-col items-center justify-center h-full max-w-xl">
         <div className="hidden md:flex items-center gap-3">
           <Kanban className="w-14 h-14 text-primary" />

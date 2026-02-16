@@ -89,7 +89,7 @@ export default function Page() {
       </header>
 
       <main className="mt-12">
-        <section className="relative flex flex-col py-20 gap-10 md:gap-20 items-center justify-center bg-gradient-to-b from-white via-white to-[#312C7233]">
+        <section className="relative flex flex-col py-20 gap-10 md:gap-20 items-center justify-center bg-linear-to-b from-white via-white to-neutral-900/20">
           <h1 className="text-4xl md:text-7xl lg:text-8xl text-center font-bold max-w-6xl">
             Produtividade Acessível para Todos
           </h1>
