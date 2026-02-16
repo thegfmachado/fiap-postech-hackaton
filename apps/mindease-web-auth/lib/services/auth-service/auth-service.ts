@@ -1,11 +1,9 @@
 import type { IAuthQueries } from "@mindease/database/queries";
-import type { IUser } from "@mindease/models";
 import { HttpError } from "@mindease/services";
-
-import type { IAuthService } from "./auth-service.interface";
+import { IAuthService } from "./auth-service.interface";
+import type { IUser } from "@mindease/models";
 
 export class AuthService implements IAuthService {
-
   private readonly queries: IAuthQueries
 
   constructor(queries: IAuthQueries) {
@@ -14,7 +12,8 @@ export class AuthService implements IAuthService {
 
   async signUp(user: IUser) {
     try {
-      return await this.queries.signUp(user);
+      const newUser = await this.queries.signUp(user);
+      return newUser;
     } catch (error) {
       console.error('Error signing up user:', error);
       throw new HttpError(500, 'Error signing up user');
@@ -31,17 +30,19 @@ export class AuthService implements IAuthService {
 
       return user;
     } catch (error) {
-      console.error('Error logging in user:', error);
-      throw new HttpError(500, 'Error logging in user');
+      if (error instanceof HttpError) throw error;
+      console.error('Error signing in:', error);
+      throw new HttpError(500, 'Error signing in');
     }
   }
 
   async getCurrentUser() {
     try {
-      return await this.queries.getCurrentUser();
+      const user = await this.queries.getCurrentUser();
+      return user;
     } catch (error) {
-      console.error('Error fetching logged user:', error);
-      throw new HttpError(500, 'Error fetching logged user');
+      console.error('Error getting current user:', error);
+      throw new HttpError(500, 'Error getting current user');
     }
   }
 
@@ -49,8 +50,8 @@ export class AuthService implements IAuthService {
     try {
       await this.queries.signOut();
     } catch (error) {
-      console.error('Error signing out user:', error);
-      throw new HttpError(500, 'Error signing out user');
+      console.error('Error signing out:', error);
+      throw new HttpError(500, 'Error signing out');
     }
   }
 
@@ -58,8 +59,8 @@ export class AuthService implements IAuthService {
     try {
       await this.queries.forgotPassword(email);
     } catch (error) {
-      console.error('Error sending forgot password email:', error);
-      throw new HttpError(500, 'Error sending forgot password email');
+      console.error('Error sending password reset email:', error);
+      throw new HttpError(500, 'Error sending password reset email');
     }
   }
 
@@ -70,16 +71,6 @@ export class AuthService implements IAuthService {
     } catch (error) {
       console.error('Error updating user:', error);
       throw new HttpError(500, 'Error updating user');
-    }
-  }
-
-  async updateUserPassword(password: string) {
-    try {
-      const updatedUser = await this.queries.updateUser({ password });
-      return updatedUser;
-    } catch (error) {
-      console.error('Error updating user password:', error);
-      throw new HttpError(500, 'Error updating user password');
     }
   }
 }
