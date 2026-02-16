@@ -8,11 +8,7 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
+  CardTitle
 } from "@mindease/design-system/components";
 
 const cards = [
@@ -48,34 +44,6 @@ export default function Page() {
               <Kanban className="w-8 h-8 text-primary" />
               <span className="text-2xl font-bold text-primary">MindEase</span>
             </Link>
-
-            <NavigationMenu className="hidden md:flex">
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuLink className="px-4 py-2 hover:underline cursor-pointer">
-                    Sobre
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <NavigationMenuLink className="px-4 py-2 hover:underline cursor-pointer">
-                    Serviços
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <NavigationMenuLink className="px-4 py-2 hover:underline cursor-pointer">
-                    Valores
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <NavigationMenuLink className="px-4 py-2 hover:underline cursor-pointer">
-                    Contato
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost">
@@ -138,34 +106,6 @@ export default function Page() {
             <Kanban className="w-8 h-8 text-primary" />
             <span className="text-2xl font-bold text-primary">MindEase</span>
           </Link>
-
-          <NavigationMenu className="flex">
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuLink className="px-4 py-2 hover:underline cursor-pointer">
-                  Sobre
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <NavigationMenuLink className="px-4 py-2 hover:underline cursor-pointer">
-                  Serviços
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <NavigationMenuLink className="px-4 py-2 hover:underline cursor-pointer">
-                  Valores
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <NavigationMenuLink className="px-4 py-2 hover:underline cursor-pointer">
-                  Contato
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
         </div>
       </footer>
     </div>

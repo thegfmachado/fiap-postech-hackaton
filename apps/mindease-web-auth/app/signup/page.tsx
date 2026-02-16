@@ -1,7 +1,6 @@
 "use client";
 
 import { AuthService } from "@mindease-web-auth/client/services/auth-service";
-import { Header } from "@mindease-web-auth/components/template/header";
 import { WelcomeHero } from "@mindease-web-auth/components/welcome-hero";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Kanban, Timer, Brain, Sparkles } from "lucide-react";
@@ -81,8 +80,6 @@ export default function Page() {
 
   return (
     <div className="grid grid-rows-[auto_1fr] min-h-screen">
-      <Header />
-
       <main className="flex flex-col md:flex-row">
         <WelcomeHero cards={cards} />
 
