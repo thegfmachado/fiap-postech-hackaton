@@ -67,15 +67,13 @@ export default function Page() {
   const handleSubmit = async (values: SignupFormSchemaType) => {
     setIsLoading(true);
 
-    const user = await authService.signUp(values);
-
-    if (!user) {
-      return;
+    try {
+      await authService.signUp(values);
+      // next/navigation does not support redirects to external domains
+      window.location.href = "/home";
+    } catch {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
-
-    form.reset();
   };
 
   return (
@@ -150,6 +148,7 @@ export default function Page() {
                             <FormControl>
                               <Input
                                 {...field}
+                                autoComplete="new-password"
                                 type="password"
                                 placeholder="Digite sua senha"
                                 showPasswordToggle
@@ -170,6 +169,7 @@ export default function Page() {
                             <FormControl>
                               <Input
                                 {...field}
+                                autoComplete="new-password"
                                 type="password"
                                 placeholder="Confirme sua senha"
                                 showPasswordToggle
