@@ -17,11 +17,6 @@ export class AuthService implements IAuthService {
   async signUp(user: IUser): Promise<User> {
     try {
       const createdUser = await this.httpService.post("/api/auth/signup", user);
-
-      toast.success("Usuário criado com sucesso! Um e-mail de confirmação foi enviado para o e-mail informado, confirme sua conta e faça login para continuar.", {
-        duration: 6000,
-      })
-
       return createdUser as User;
     } catch (err) {
       toast.error("Erro ao criar usuário")
