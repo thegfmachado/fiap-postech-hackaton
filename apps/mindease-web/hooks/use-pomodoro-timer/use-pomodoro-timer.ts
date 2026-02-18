@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { StorageService } from "@mindease/services";
 
 export type TimerMode = "work" | "break" | "longBreak";
 
@@ -32,19 +33,21 @@ export interface UsePomodoroTimerReturn {
   formatTime: (seconds: number) => string;
 }
 
+const STORAGE_KEY = "pomodoroSettings";
+
 export function usePomodoroTimer(
   initialSettings: PomodoroSettings = defaultPomodoroSettings
 ): UsePomodoroTimerReturn {
+  const storage = useMemo(() => new StorageService(), []);
+
   const [settings, setSettingsState] = useState(() => {
-    // Tenta carregar do localStorage
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("pomodoroSettings");
-      if (stored) {
-        return JSON.parse(stored) as PomodoroSettings;
-      }
+    const stored = storage.getItem(STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored) as PomodoroSettings;
     }
     return initialSettings;
   });
+  
   const [mode, setMode] = useState<TimerMode>("work");
   const [timeLeft, setTimeLeft] = useState(settings.work * 60);
   const [isRunning, setIsRunning] = useState(false);
@@ -52,10 +55,7 @@ export function usePomodoroTimer(
 
   const setSettings = (newSettings: PomodoroSettings) => {
     setSettingsState(newSettings);
-    // Salvar no localStorage
-    if (typeof window !== "undefined") {
-      localStorage.setItem("pomodoroSettings", JSON.stringify(newSettings));
-    }
+    storage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
   };
 
   const handleTimerComplete = useCallback(() => {

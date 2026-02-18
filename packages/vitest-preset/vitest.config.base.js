@@ -1,11 +1,10 @@
 import { defineConfig } from 'vitest/config';
-import type { ViteUserConfig  } from 'vitest/config';
 
 /**
  * Base Vitest configuration for MindEase monorepo
  * This provides common settings for all packages/apps
  */
-export const createBaseConfig = (overrides?: ViteUserConfig ): ViteUserConfig  => {
+export const createBaseConfig = (overrides) => {
   return defineConfig({
     test: {
       globals: true,

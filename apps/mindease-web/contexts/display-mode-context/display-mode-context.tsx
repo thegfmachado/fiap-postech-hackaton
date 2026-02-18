@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useState, useMemo, useCallback, type ReactNode } from 'react'
+import { StorageService } from '@mindease/services'
 
 export type DisplayMode = 'detailed' | 'simplified'
 
@@ -17,20 +18,18 @@ interface DisplayModeProviderProps {
   children: ReactNode
 }
 
+const storage = new StorageService()
+const STORAGE_KEY = 'displayMode'
+
 export function DisplayModeProvider({ children }: DisplayModeProviderProps) {
   const [displayMode, setDisplayModeState] = useState<DisplayMode>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('displayMode')
-      return (saved as DisplayMode) || 'detailed'
-    }
-    return 'detailed'
+    const saved = storage.getItem(STORAGE_KEY) as DisplayMode | null
+    return saved || 'detailed'
   })
 
   const setDisplayMode = useCallback((mode: DisplayMode) => {
     setDisplayModeState(mode)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('displayMode', mode)
-    }
+    storage.setItem(STORAGE_KEY, mode)
   }, [])
 
   const value = useMemo(

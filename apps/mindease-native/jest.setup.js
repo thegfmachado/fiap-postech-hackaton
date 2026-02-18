@@ -1,15 +1,6 @@
 import '@testing-library/jest-native/extend-expect';
 
-// Mock expo modules
-jest.mock('expo-font');
-jest.mock('expo-asset');
-jest.mock('expo-constants', () => ({
-  expoConfig: {
-    extra: {},
-  },
-}));
-
-// Mock hooks
+// Mock hooks (path aliases não suportam __mocks__/ na raiz)
 jest.mock('@/hooks/useThemeColor', () => ({
   useThemeColor: jest.fn((props, colorName) => {
     const colors = {

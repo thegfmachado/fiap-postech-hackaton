@@ -3,34 +3,41 @@ import { formatDate, formatCurrency } from './formatters.js';
 
 describe('formatters', () => {
   test('should format date with short style by default', () => {
-    const date = new Date('2024-01-15');
+    const date = new Date('2024-01-15T12:00:00Z');
     const formatted = formatDate(date);
 
-    expect(formatted).toBeTruthy();
-    expect(typeof formatted).toBe('string');
+    // PT-BR short format: DD/MM/YYYY
+    expect(formatted).toMatch(/\d{2}\/\d{2}\/\d{4}/);
+    expect(formatted).toContain('/01/2024');
   });
 
   test('should format date with medium style', () => {
-    const date = new Date('2024-01-15');
+    const date = new Date('2024-01-15T12:00:00Z');
     const formatted = formatDate(date, 'medium');
 
-    expect(formatted).toBeTruthy();
-    expect(typeof formatted).toBe('string');
+    // PT-BR medium format: DD de MMM. de YYYY
+    expect(formatted).toMatch(/\d{1,2} de \w{3,4}\.? de \d{4}/);
+    expect(formatted.toLowerCase()).toContain('jan');
+    expect(formatted).toContain('2024');
   });
 
   test('should format date with long style', () => {
-    const date = new Date('2024-01-15');
+    const date = new Date('2024-01-15T12:00:00Z');
     const formatted = formatDate(date, 'long');
 
-    expect(formatted).toBeTruthy();
-    expect(typeof formatted).toBe('string');
+    // PT-BR long format: DD de MMMM de YYYY
+    expect(formatted).toMatch(/\d{1,2} de \w+ de \d{4}/);
+    expect(formatted.toLowerCase()).toContain('janeiro');
+    expect(formatted).toContain('2024');
   });
 
   test('should return PT-BR format for date', () => {
-    const date = new Date('2024-12-25');
+    const date = new Date('2024-12-25T12:00:00Z');
     const formatted = formatDate(date, 'long');
 
-    expect(formatted.toLowerCase()).toMatch(/dez|dezembro/);
+    expect(formatted.toLowerCase()).toContain('dezembro');
+    expect(formatted).toContain('25');
+    expect(formatted).toContain('2024');
   });
 
   test('should format currency value in BRL', () => {

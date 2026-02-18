@@ -12,8 +12,7 @@ export class AuthService implements IAuthService {
 
   async signUp(user: IUser) {
     try {
-      const newUser = await this.queries.signUp(user);
-      return newUser;
+      return await this.queries.signUp(user);
     } catch (error) {
       console.error('Error signing up user:', error);
       throw new HttpError(500, 'Error signing up user');
@@ -38,8 +37,7 @@ export class AuthService implements IAuthService {
 
   async getCurrentUser() {
     try {
-      const user = await this.queries.getCurrentUser();
-      return user;
+      return await this.queries.getCurrentUser();
     } catch (error) {
       console.error('Error getting current user:', error);
       throw new HttpError(500, 'Error getting current user');
@@ -66,8 +64,7 @@ export class AuthService implements IAuthService {
 
   async updateUser(user: Partial<IUser>) {
     try {
-      const updatedUser = await this.queries.updateUser(user);
-      return updatedUser;
+      return await this.queries.updateUser(user);
     } catch (error) {
       console.error('Error updating user:', error);
       throw new HttpError(500, 'Error updating user');

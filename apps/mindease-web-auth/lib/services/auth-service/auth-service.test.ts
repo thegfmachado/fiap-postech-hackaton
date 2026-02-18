@@ -32,7 +32,7 @@ describe('AuthService', () => {
       signOut: vi.fn(),
       forgotPassword: vi.fn(),
       updateUser: vi.fn(),
-    } as any;
+    } as IAuthQueries;
 
     authService = new AuthService(mockQueries);
   });

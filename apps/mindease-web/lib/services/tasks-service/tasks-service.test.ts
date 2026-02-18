@@ -27,7 +27,7 @@ describe('TaskService', () => {
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
-    } as any;
+    } as ITasksQueries;
 
     taskService = new TaskService(mockQueries);
   });
@@ -76,7 +76,7 @@ describe('TaskService', () => {
   });
 
   test('should throw 404 when getting task by id not found', async () => {
-    vi.mocked(mockQueries.getById).mockResolvedValue(null as any);
+    vi.mocked(mockQueries.getById).mockResolvedValue(null!);
 
     try {
       await taskService.getById('999');
@@ -178,7 +178,7 @@ describe('TaskService', () => {
   });
 
   test('should throw 404 when updating task not found', async () => {
-    vi.mocked(mockQueries.update).mockResolvedValue(null as any);
+    vi.mocked(mockQueries.update).mockResolvedValue(null!);
 
     try {
       await taskService.update('999', { title: 'Test' });

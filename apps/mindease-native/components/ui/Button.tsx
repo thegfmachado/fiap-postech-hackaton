@@ -72,8 +72,10 @@ export function Button({
 
   return (
     <TouchableOpacity
-      testID="button"
       {...props}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
       className={`
         ${buttonVariants({ variant, size, disabled: isDisabled })}
@@ -82,7 +84,7 @@ export function Button({
     >
       {loading && (
         <ActivityIndicator
-          testID="button-loading"
+          accessibilityLabel="Carregando"
           color={variant === 'primary' ? textOnPrimary : tintColor}
           size="small"
           className="mr-2"

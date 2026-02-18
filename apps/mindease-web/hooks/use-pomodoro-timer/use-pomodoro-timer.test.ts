@@ -128,8 +128,7 @@ describe('usePomodoroTimer', () => {
       vi.advanceTimersByTime(12.5 * 60 * 1000); // 50% of time
     });
 
-    expect(result.current.progress).toBeGreaterThan(45);
-    expect(result.current.progress).toBeLessThan(55);
+    expect(result.current.progress).toEqual(50);
   });
 
   test('should update settings', () => {
@@ -147,6 +146,35 @@ describe('usePomodoroTimer', () => {
     });
 
     expect(result.current.settings).toEqual(newSettings);
+  });
+
+  test('should initialize with custom settings', () => {
+    const customSettings = {
+      work: 50,
+      break: 10,
+      longBreak: 30,
+      sessionsBeforeLongBreak: 2,
+    };
+
+    const { result } = renderHook(() => usePomodoroTimer(customSettings));
+
+    expect(result.current.settings).toEqual(customSettings);
+    expect(result.current.timeLeft).toBe(50 * 60);
+  });
+
+  test('should load settings from localStorage on init', () => {
+    const savedSettings = {
+      work: 40,
+      break: 8,
+      longBreak: 25,
+      sessionsBeforeLongBreak: 3,
+    };
+    localStorage.setItem('pomodoroSettings', JSON.stringify(savedSettings));
+
+    const { result } = renderHook(() => usePomodoroTimer());
+
+    expect(result.current.settings).toEqual(savedSettings);
+    expect(result.current.timeLeft).toBe(40 * 60);
   });
 
   test('should save settings to localStorage', () => {
