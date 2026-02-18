@@ -1,57 +1,27 @@
-import { ScrollView } from 'react-native';
-import { ThemedView } from '@/components/ui/ThemedView';
-import { ThemedText } from '@/components/ui/ThemedText';
-import { GradientLogo } from '@/components/ui/GradientLogo';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { useEffect } from "react";
+import { ActivityIndicator, View } from "react-native";
+import { useRouter } from "expo-router";
+import { useAuth } from "@/contexts/auth-context";
+import { useAppColors } from "@/hooks/useAppColors";
 
 export default function Index() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const { colors } = useAppColors();
+
+  useEffect(() => {
+    if (loading) return;
+
+    if (user) {
+      router.replace("/(tabs)/home");
+    } else {
+      router.replace("/(auth)/login");
+    }
+  }, [user, loading, router]);
+
   return (
-    <ScrollView className="flex-1">
-      <ThemedView className="flex-1">
-        <GradientLogo />
-        
-        <ThemedView className="p-6">
-          <ThemedText type="title" className="mb-2">
-            Bem-vindo ao MindEase
-          </ThemedText>
-          
-          <ThemedText type="subtitle" className="mb-6 text-gray-600">
-            Sua jornada de bem-estar mental começa aqui
-          </ThemedText>
-
-          <Input
-            label="Email"
-            placeholder="seu@email.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-
-          <Input
-            label="Senha"
-            placeholder="Digite sua senha"
-            secureTextEntry
-            showPasswordToggle
-          />
-
-          <Button
-            title="Entrar"
-            variant="primary"
-            className="mb-3"
-          />
-
-          <Button
-            title="Criar conta"
-            variant="secondary"
-          />
-
-          <Button
-            title="Explorar como visitante"
-            variant="ghost"
-            className="mt-2"
-          />
-        </ThemedView>
-      </ThemedView>
-    </ScrollView>
+    <View className="flex-1 items-center justify-center bg-white dark:bg-gray-900">
+      <ActivityIndicator size="large" color={colors.primary} />
+    </View>
   );
 }

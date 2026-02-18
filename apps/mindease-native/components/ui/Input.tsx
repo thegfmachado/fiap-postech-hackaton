@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import {
+  View,
   Text,
   TextInput,
   TouchableOpacity,
   TextInputProps
 } from 'react-native';
-import { IconSymbol } from './IconSymbol';
-import { ThemedView } from './ThemedView';
-import { useThemeColor } from '@/hooks/useThemeColor';
-import { Colors } from '@/constants/Colors';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useAppColors } from '@/hooks/useAppColors';
 
 interface InputProps extends TextInputProps {
   label: string;
@@ -26,27 +25,31 @@ export function Input({
 }: InputProps) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const iconColor = useThemeColor({}, 'icon');
+  const { colors } = useAppColors();
 
   const isPassword = showPasswordToggle && secureTextEntry;
   const actualSecureTextEntry = isPassword ? !isPasswordVisible : secureTextEntry;
 
+  const borderColor = isFocused
+    ? colors.primary
+    : error
+    ? colors.destructive
+    : colors.border;
+
   return (
-    <ThemedView className="mb-4">
-      <Text className="text-base font-medium mb-2">
+    <View className="mb-4">
+      <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         {label}
       </Text>
 
-      <ThemedView className="relative">
+      <View>
         <TextInput
           {...props}
           secureTextEntry={actualSecureTextEntry}
-          className={`
-            border-2 rounded-lg px-4 py-3 text-base bg-white
-            ${isFocused ? 'border-primary' : error ? 'border-destructive' : 'border-secondary'}
-            ${showPasswordToggle ? 'pr-12' : ''}
-            ${className || ''}
-          `}
+          className={`border-2 rounded-xl px-4 py-3.5 text-base bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ${
+            showPasswordToggle ? 'pr-12' : ''
+          } ${className || ''}`}
+          style={{ borderColor }}
           onFocus={(e) => {
             setIsFocused(true);
             props.onFocus?.(e);
@@ -55,28 +58,30 @@ export function Input({
             setIsFocused(false);
             props.onBlur?.(e);
           }}
-          placeholderTextColor={Colors.light.grayLight}
+          placeholderTextColor={colors.grayLight}
         />
 
         {showPasswordToggle && (
           <TouchableOpacity
             onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-            className="absolute right-3 top-3 p-1"
+            className="absolute right-3 top-3.5 p-1"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityLabel={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
           >
-            <IconSymbol
-              name={isPasswordVisible ? 'eye.slash' : 'eye'}
+            <MaterialIcons
+              name={isPasswordVisible ? 'visibility-off' : 'visibility'}
               size={20}
-              color={iconColor}
+              color={colors.icon}
             />
           </TouchableOpacity>
         )}
-      </ThemedView>
+      </View>
 
       {error && (
-        <Text className="text-destructive text-sm mt-1">
+        <Text className="text-red-500 text-sm mt-1">
           {error}
         </Text>
       )}
-    </ThemedView>
+    </View>
   );
 }
