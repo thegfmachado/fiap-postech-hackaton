@@ -33,13 +33,14 @@ export function Input({
 
   return (
     <ThemedView className="mb-4">
-      <Text className="text-base font-medium mb-2">
+      <Text accessibilityRole="text" className="text-base font-medium mb-2">
         {label}
       </Text>
 
       <ThemedView className="relative">
         <TextInput
           {...props}
+          accessibilityLabel={label}
           secureTextEntry={actualSecureTextEntry}
           className={`
             border-2 rounded-lg px-4 py-3 text-base bg-white
@@ -60,6 +61,8 @@ export function Input({
 
         {showPasswordToggle && (
           <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
             onPress={() => setIsPasswordVisible(!isPasswordVisible)}
             className="absolute right-3 top-3 p-1"
           >

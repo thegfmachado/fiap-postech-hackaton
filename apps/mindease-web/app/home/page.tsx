@@ -8,7 +8,7 @@ import { Layout } from "@/components/template/layout";
 import { Main } from "@/components/template/main";
 import { Sidebar } from "@/components/template/sidebar";
 import { TaskForm } from "@/components/task-form";
-import { TaskCard } from "@/components/task-card";
+import { TaskCard } from "@/components/task-card/task-card";
 import { TaskDetailsModal } from "@/components/task-details-modal";
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@mindease/design-system/components";

@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 import { Eye, EyeOff } from "lucide-react";
 
 import type { InputProps } from "./input.types";
@@ -17,7 +17,7 @@ const Input = React.forwardRef<
     type,
     ...otherProps
   } = useInput(props);
-
+  
   return (
     <div className="relative w-full">
       <input

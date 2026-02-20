@@ -1,7 +1,6 @@
 "use client";
 
 import { AuthService } from "@mindease-web-auth/client/services/auth-service";
-import { Header } from "@mindease-web-auth/components/template/header";
 import { WelcomeHero } from "@mindease-web-auth/components/welcome-hero";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Kanban, Timer, Brain, Sparkles } from "lucide-react";
@@ -26,7 +25,6 @@ import {
   FormLabel,
   Checkbox,
   Skeleton,
-  toast,
 } from "@mindease/design-system/components";
 import { HTTPService } from "@mindease/services";
 import { loginSchema } from "@mindease/validation-schemas";
@@ -83,15 +81,16 @@ export default function Page() {
       }
     } catch (error) {
       setIsLoading(false);
-      toast.error("Erro ao fazer login. Verifique suas credenciais e tente novamente.");
       console.error("Erro ao fazer login:", error);
+
+      form.setError('password', {
+        message: "Email ou senha inválidos. Por favor, verifique suas credenciais e tente novamente.",
+      });
     }
   }
 
   return (
     <div className="grid grid-rows-[auto_1fr] min-h-screen">
-      <Header />
-
       <main className="flex flex-col md:flex-row">
         <WelcomeHero cards={cards} />
 
@@ -130,6 +129,7 @@ export default function Page() {
                             <FormControl>
                               <Input
                                 {...field}
+                                autoComplete="email"
                                 type="email"
                                 placeholder="seu@email.com"
                               />
@@ -149,6 +149,7 @@ export default function Page() {
                             <FormControl>
                               <Input
                                 {...field}
+                                autoComplete="current-password"
                                 type="password"
                                 placeholder="Digite sua senha"
                                 showPasswordToggle

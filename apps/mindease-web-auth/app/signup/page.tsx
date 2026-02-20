@@ -1,7 +1,6 @@
 "use client";
 
 import { AuthService } from "@mindease-web-auth/client/services/auth-service";
-import { Header } from "@mindease-web-auth/components/template/header";
 import { WelcomeHero } from "@mindease-web-auth/components/welcome-hero";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Kanban, Timer, Brain, Sparkles } from "lucide-react";
@@ -68,21 +67,17 @@ export default function Page() {
   const handleSubmit = async (values: SignupFormSchemaType) => {
     setIsLoading(true);
 
-    const user = await authService.signUp(values);
-
-    if (!user) {
-      return;
+    try {
+      await authService.signUp(values);
+      // next/navigation does not support redirects to external domains
+      window.location.href = "/home";
+    } catch {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
-
-    form.reset();
   };
 
   return (
     <div className="grid grid-rows-[auto_1fr] min-h-screen">
-      <Header />
-
       <main className="flex flex-col md:flex-row">
         <WelcomeHero cards={cards} />
 
@@ -153,6 +148,7 @@ export default function Page() {
                             <FormControl>
                               <Input
                                 {...field}
+                                autoComplete="new-password"
                                 type="password"
                                 placeholder="Digite sua senha"
                                 showPasswordToggle
@@ -173,6 +169,7 @@ export default function Page() {
                             <FormControl>
                               <Input
                                 {...field}
+                                autoComplete="new-password"
                                 type="password"
                                 placeholder="Confirme sua senha"
                                 showPasswordToggle
