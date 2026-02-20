@@ -1,0 +1,41 @@
+{
+  "name": "@mindease/vitest-preset",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "description": "Shared Vitest configuration for MindEase monorepo",
+  "main": "./vitest.config.base.js",
+  "scripts": {
+    "lint": "eslint . --max-warnings 0"
+  },
+  "exports": {
+    ".": "./vitest.config.base.js",
+    "./base": "./vitest.config.base.js",
+    "./react": "./vitest.config.react.js",
+    "./setup": "./setup/vitest.setup.js",
+    "./setup-react": "./setup/vitest.setup.react.js"
+  },
+  "dependencies": {
+    "@testing-library/jest-dom": "^6.6.4",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^24.0.0",
+    "vitest": "^3.1.3"
+  },
+  "devDependencies": {
+    "@mindease/eslint-config": "file:../eslint-config"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  }
+}

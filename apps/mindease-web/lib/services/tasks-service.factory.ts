@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@mindease/database/server";
-import { TaskService } from "./tasks-service";
+import { TaskService } from "./tasks-service/tasks-service";
 import { TasksQueriesService } from "@mindease/database/queries";
 
 export async function createTaskService() {

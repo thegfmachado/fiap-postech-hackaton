@@ -9,5 +9,4 @@ export interface IAuthService {
   signOut(): Promise<void>;
   forgotPassword(email: string): Promise<void>;
   updateUser(user: Partial<IUser>): Promise<User | null>;
-  updateUserPassword(password: string): Promise<User | null>;
 }
