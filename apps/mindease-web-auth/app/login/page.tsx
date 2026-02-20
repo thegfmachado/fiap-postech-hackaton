@@ -25,7 +25,6 @@ import {
   FormLabel,
   Checkbox,
   Skeleton,
-  toast,
 } from "@mindease/design-system/components";
 import { HTTPService } from "@mindease/services";
 import { loginSchema } from "@mindease/validation-schemas";
@@ -82,8 +81,11 @@ export default function Page() {
       }
     } catch (error) {
       setIsLoading(false);
-      toast.error("Erro ao fazer login. Verifique suas credenciais e tente novamente.");
       console.error("Erro ao fazer login:", error);
+
+      form.setError('password', {
+        message: "Email ou senha inválidos. Por favor, verifique suas credenciais e tente novamente.",
+      });
     }
   }
 
@@ -127,6 +129,7 @@ export default function Page() {
                             <FormControl>
                               <Input
                                 {...field}
+                                autoComplete="email"
                                 type="email"
                                 placeholder="seu@email.com"
                               />
@@ -146,6 +149,7 @@ export default function Page() {
                             <FormControl>
                               <Input
                                 {...field}
+                                autoComplete="current-password"
                                 type="password"
                                 placeholder="Digite sua senha"
                                 showPasswordToggle
