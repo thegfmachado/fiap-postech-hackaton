@@ -21,7 +21,7 @@ export class SettingsService implements ISettingsService {
     } catch (error) {
       if (error instanceof HttpError) throw error;
       console.error('Error fetching settings:', error);
-      throw new HttpError(500, 'Error fetching settings');
+      throw new HttpError(500, 'Error fetching task');
     }
   }
 
