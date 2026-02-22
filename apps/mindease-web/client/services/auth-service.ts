@@ -24,9 +24,6 @@ export class AuthService implements IAuthService {
   async signOut(): Promise<void> {
     try {
       await this.httpService.post("/api/auth/signout");
-      toast("Saindo... Você será redirecionado para a página inicial em instantes.", {
-        duration: 2000,
-      });
     } catch (err) {
       toast.error("Erro ao deslogar usuário")
       throw err;

@@ -23,7 +23,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const service = await createAuthService();
-    const updated = await service.updateUserPassword(data.password);
+    const updated = await service.updateUser({ password: data.password });
     return NextResponse.json(updated);
   } catch (err) {
     return handleResponseError(err);

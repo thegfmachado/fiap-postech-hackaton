@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { AuthQueriesService } from "@mindease/database/queries";
 import { createServerClient } from "@mindease/database/server";
 
-import { AuthService } from "./auth-service";
+import { AuthService } from "./auth-service/auth-service";
 
 export async function createAuthService() {
   const cookieStore = await cookies();

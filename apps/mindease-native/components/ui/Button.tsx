@@ -44,12 +44,16 @@ export function Button({
   return (
     <TouchableOpacity
       {...props}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
       className={`rounded-xl items-center justify-center flex-row ${vs.button} ${ss.button} ${isDisabled ? 'opacity-50' : ''} ${className || ''}`}
       activeOpacity={0.8}
     >
       {loading && (
         <ActivityIndicator
+          accessibilityLabel="Carregando"
           color={variant === 'primary' ? '#FFFFFF' : colors.primary}
           size="small"
           style={{ marginRight: 8 }}

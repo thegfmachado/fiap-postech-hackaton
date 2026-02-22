@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, Timer as TimerIcon, X, Coffee, Brain } from "lu
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 
-import { usePomodoroTimer } from "@/hooks/use-pomodoro-timer";
+import { usePomodoroTimer } from "@/hooks/use-pomodoro-timer/use-pomodoro-timer";
 import { useDisplayMode } from "@/hooks/use-display-mode";
 import { Button, Card, CardContent } from "@mindease/design-system/components";
 

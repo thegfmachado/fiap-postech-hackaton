@@ -38,13 +38,14 @@ export function Input({
 
   return (
     <View className="mb-4">
-      <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <Text accessibilityRole="text" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         {label}
       </Text>
 
       <View>
         <TextInput
           {...props}
+          accessibilityLabel={label}
           secureTextEntry={actualSecureTextEntry}
           className={`border-2 rounded-xl px-4 py-3.5 text-base bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ${
             showPasswordToggle ? 'pr-12' : ''
@@ -63,6 +64,8 @@ export function Input({
 
         {showPasswordToggle && (
           <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
             onPress={() => setIsPasswordVisible(!isPasswordVisible)}
             className="absolute right-3 top-3.5 p-1"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
