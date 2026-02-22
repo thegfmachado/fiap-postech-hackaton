@@ -27,17 +27,17 @@ export class SettingsService implements ISettingsService {
 
   async update(id: string, data: Settings) {
     try {
-      const updatedTask = await this.queries.update(id, this.buildSettingsToInsert(data));
+      const updatedSettings = await this.queries.update(id, this.buildSettingsToInsert(data));
 
-      if (!updatedTask) {
-        throw new HttpError(404, 'task not found');
+      if (!updatedSettings) {
+        throw new HttpError(404, 'settings not found');
       }
 
-      return updatedTask;
+      return updatedSettings;
     } catch (error) {
       if (error instanceof HttpError) throw error;
-      console.error('Error updating task:', error);
-      throw new HttpError(500, 'Error updating task');
+      console.error('Error updating settings:', error);
+      throw new HttpError(500, 'Error updating settings');
     }
   }
 
