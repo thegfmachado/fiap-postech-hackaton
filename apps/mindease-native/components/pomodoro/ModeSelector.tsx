@@ -26,7 +26,9 @@ export function ModeSelector({
         onPress={onSelectTask}
         disabled={isRunning}
         className={`flex-1 py-2.5 rounded-lg items-center flex-row justify-center gap-1 ${
-          pomodoroMode === "task" ? "bg-white dark:bg-gray-700 shadow-sm" : ""
+          pomodoroMode === "task"
+            ? "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600"
+            : ""
         }`}
       >
         <MaterialIcons
@@ -49,7 +51,9 @@ export function ModeSelector({
         onPress={onSelectFree}
         disabled={isRunning}
         className={`flex-1 py-2.5 rounded-lg items-center flex-row justify-center gap-1 ${
-          pomodoroMode === "free" ? "bg-white dark:bg-gray-700 shadow-sm" : ""
+          pomodoroMode === "free"
+            ? "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600"
+            : ""
         }`}
       >
         <MaterialIcons

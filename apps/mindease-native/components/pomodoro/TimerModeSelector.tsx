@@ -31,7 +31,9 @@ export function TimerModeSelector({
           onPress={() => onChangeMode(m)}
           disabled={isRunning}
           className={`flex-1 py-2 rounded-lg items-center ${
-            timerMode === m ? "bg-white dark:bg-gray-700 shadow-sm" : ""
+            timerMode === m
+              ? "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600"
+              : ""
           }`}
         >
           <Text
