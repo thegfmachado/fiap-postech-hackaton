@@ -1,4 +1,4 @@
-import { ContrastMode, Settings, Size, ViewMode } from "@mindease/models";
+import { ContrastMode, UserSettings, Size, ViewMode } from "@mindease/models";
 import { ISettings, ISettingsUpdate, TypedSupabaseClient } from "../../types.js";
 import { ISettingsQueries } from "./settings-queries.interface.js";
 
@@ -11,7 +11,7 @@ export class SettingsQueriesService implements ISettingsQueries {
     this.client = client
   }
 
-  async getById(id: string): Promise<Settings> {
+  async getById(id: string): Promise<UserSettings> {
     const { data, error } = await this.client
       .from(SettingsQueriesService.TABLE_NAME)
       .select('*')
@@ -26,7 +26,7 @@ export class SettingsQueriesService implements ISettingsQueries {
     return this.dbSettingsToSettings(data);
   }
 
-  async update(id: string, settingsToUpdate: ISettingsUpdate): Promise<Settings> {
+  async update(id: string, settingsToUpdate: ISettingsUpdate): Promise<UserSettings> {
     const { data, error } = await this.client
       .from(SettingsQueriesService.TABLE_NAME)
       .update(settingsToUpdate)
@@ -42,7 +42,7 @@ export class SettingsQueriesService implements ISettingsQueries {
     return this.dbSettingsToSettings(data);
   }
 
-  private dbSettingsToSettings(row: ISettings): Settings {
+  private dbSettingsToSettings(row: ISettings): UserSettings {
     return {
       pomodoroDurationMinutes: row.pomodoro_duration_minutes,
       shortBreakDurationMinutes: row.short_break_minutes,

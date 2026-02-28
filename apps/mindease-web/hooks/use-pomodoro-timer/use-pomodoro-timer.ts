@@ -1,61 +1,59 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { StorageService } from "@mindease/services";
+import { UserSettings } from "@mindease/models";
+import { useState, useEffect, useCallback } from "react";
 
 export type TimerMode = "work" | "break" | "longBreak";
-
-export interface PomodoroSettings {
-  work: number;
-  break: number;
-  longBreak: number;
-  sessionsBeforeLongBreak: number;
-}
-
-export const defaultPomodoroSettings: PomodoroSettings = {
-  work: 25,
-  break: 5,
-  longBreak: 15,
-  sessionsBeforeLongBreak: 4,
-};
 
 export interface UsePomodoroTimerReturn {
   mode: TimerMode;
   timeLeft: number;
   isRunning: boolean;
   sessionsCompleted: number;
-  settings: PomodoroSettings;
+  settings: UserSettings;
   progress: number;
   toggleTimer: () => void;
   resetTimer: () => void;
   changeMode: (newMode: TimerMode) => void;
-  setSettings: (settings: PomodoroSettings) => void;
+  setSettings: (settings: UserSettings) => void;
   formatTime: (seconds: number) => string;
 }
 
-const STORAGE_KEY = "pomodoroSettings";
-
 export function usePomodoroTimer(
-  initialSettings: PomodoroSettings = defaultPomodoroSettings
+  initialSettings: UserSettings
 ): UsePomodoroTimerReturn {
-  const storage = useMemo(() => new StorageService(), []);
+  const [settings, setSettingsState] = useState<UserSettings>(
+    initialSettings
+  );
 
-  const [settings, setSettingsState] = useState(() => {
-    const stored = storage.getItem(STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored) as PomodoroSettings;
-    }
-    return initialSettings;
-  });
-  
   const [mode, setMode] = useState<TimerMode>("work");
-  const [timeLeft, setTimeLeft] = useState(settings.work * 60);
+  const [timeLeft, setTimeLeft] = useState(
+    initialSettings.pomodoroDurationMinutes * 60
+  );
   const [isRunning, setIsRunning] = useState(false);
   const [sessionsCompleted, setSessionsCompleted] = useState(0);
 
-  const setSettings = (newSettings: PomodoroSettings) => {
+  const getTimeForMode = (timerMode: TimerMode, timerSettings: UserSettings): number => {
+    switch (timerMode) {
+      case "work":
+        return timerSettings.pomodoroDurationMinutes * 60;
+      case "break":
+        return timerSettings.shortBreakDurationMinutes * 60;
+      case "longBreak":
+        return timerSettings.longBreakDurationMinutes * 60;
+    }
+  };
+
+  useEffect(() => {
+    setSettingsState(initialSettings);
+
+    if (!isRunning) {
+      setTimeLeft(getTimeForMode(mode, initialSettings));
+    }
+  }, [initialSettings, mode, isRunning]);
+
+  const setSettings = (newSettings: UserSettings) => {
     setSettingsState(newSettings);
-    storage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
   };
 
   const handleTimerComplete = useCallback(() => {
@@ -65,16 +63,19 @@ export function usePomodoroTimer(
       const newSessions = sessionsCompleted + 1;
       setSessionsCompleted(newSessions);
 
-      if (newSessions % settings.sessionsBeforeLongBreak === 0) {
+      if (
+        newSessions % settings.longBreakAfterPomodoros ===
+        0
+      ) {
         setMode("longBreak");
-        setTimeLeft(settings.longBreak * 60);
+        setTimeLeft(settings.longBreakDurationMinutes * 60);
       } else {
         setMode("break");
-        setTimeLeft(settings.break * 60);
+        setTimeLeft(settings.shortBreakDurationMinutes * 60);
       }
     } else {
       setMode("work");
-      setTimeLeft(settings.work * 60);
+      setTimeLeft(settings.pomodoroDurationMinutes * 60);
     }
   }, [mode, sessionsCompleted, settings]);
 
@@ -95,27 +96,32 @@ export function usePomodoroTimer(
   }, [isRunning, timeLeft, handleTimerComplete]);
 
   const toggleTimer = () => {
-    setIsRunning(!isRunning);
+    setIsRunning((prev) => !prev);
   };
 
   const resetTimer = () => {
     setIsRunning(false);
-    setTimeLeft(settings[mode] * 60);
+    setTimeLeft(getTimeForMode(mode, settings));
   };
 
   const changeMode = (newMode: TimerMode) => {
     setMode(newMode);
     setIsRunning(false);
-    setTimeLeft(settings[newMode] * 60);
+    setTimeLeft(getTimeForMode(newMode, settings));
   };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
-  const progress = ((settings[mode] * 60 - timeLeft) / (settings[mode] * 60)) * 100;
+  const totalSeconds = getTimeForMode(mode, settings);
+
+  const progress =
+    ((totalSeconds - timeLeft) / totalSeconds) * 100;
 
   return {
     mode,

@@ -1,6 +1,6 @@
-import { Settings } from "@mindease/models";
+import { UserSettings } from "@mindease/models";
 
 export interface ISettingsService {
-  getById: (id: string) => Promise<Settings>;
-  update: (id: string, data: Settings) => Promise<Settings>;
+  getById: (id: string) => Promise<UserSettings>;
+  update: (id: string, data: UserSettings) => Promise<UserSettings>;
 }

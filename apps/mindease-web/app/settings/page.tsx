@@ -1,7 +1,6 @@
 "use client";
 
 import { Settings, Eye, EyeOff, Timer, Clock } from "lucide-react";
-import { useState, useEffect } from "react";
 
 import { Header } from "@/components/template/header";
 import { Layout } from "@/components/template/layout";
@@ -9,62 +8,14 @@ import { Main } from "@/components/template/main";
 import { Sidebar } from "@/components/template/sidebar";
 import { useDisplayMode } from "@/hooks/use-display-mode";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { defaultPomodoroSettings, type PomodoroSettings } from "@/hooks/use-pomodoro-timer";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Label } from "@mindease/design-system/components";
-import { SettingsClientService } from "@/client/services/settings-service";
-import { HTTPService } from "@mindease/services";
+import { useUserSettings } from "@/hooks/use-user-settings";
 
 export default function ConfiguracoesPage() {
   const { displayMode, setDisplayMode, isSimplified, isDetailed } = useDisplayMode();
   const { user } = useCurrentUser();
-  const [pomodoroSettings, setPomodoroSettings] = useState<PomodoroSettings>(defaultPomodoroSettings);
-
-  const settingsService = new SettingsClientService(new HTTPService());
-
-  useEffect(() => {
-    const fetchSettings = async () => {
-      if (!user?.id) return;
-
-      try {
-        const settings = await settingsService.getById(user.id);
-
-        if (settings) {
-          setPomodoroSettings({
-            work: settings.pomodoroDurationMinutes,
-            break: settings.shortBreakDurationMinutes,
-            longBreak: settings.longBreakDurationMinutes,
-            sessionsBeforeLongBreak: settings.longBreakAfterPomodoros,
-          });
-        }
-      } catch (error) {
-        console.error("Erro ao carregar configurações:", error);
-      }
-    };
-
-    fetchSettings();
-  }, [user?.id]);
-
-  const handlePomodoroSettingsChange = async (newSettings: PomodoroSettings) => {
-    setPomodoroSettings(newSettings);
-
-    if (typeof window !== "undefined") {
-      localStorage.setItem("pomodoroSettings", JSON.stringify(newSettings));
-    }
-
-    if (user?.id) {
-      try {
-        await settingsService.update(user.id, {
-          pomodoroDurationMinutes: newSettings.work,
-          shortBreakDurationMinutes: newSettings.break,
-          longBreakDurationMinutes: newSettings.longBreak,
-          longBreakAfterPomodoros: newSettings.sessionsBeforeLongBreak,
-        } as any);
-      } catch (error) {
-        console.error("Erro ao atualizar configurações:", error);
-      }
-    }
-  };
+  const { userSettings, updateSettings, loading } = useUserSettings(user?.id);
 
   return (
     <Layout>
@@ -102,11 +53,11 @@ export default function ConfiguracoesPage() {
                   </Label>
                   <select
                     id="work-time"
-                    value={pomodoroSettings.work.toString()}
+                    value={userSettings.pomodoroDurationMinutes.toString()}
                     onChange={(e) =>
-                      handlePomodoroSettingsChange({
-                        ...pomodoroSettings,
-                        work: parseInt(e.target.value),
+                      updateSettings({
+                        ...userSettings,
+                        pomodoroDurationMinutes: parseInt(e.target.value),
                       })
                     }
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -126,11 +77,11 @@ export default function ConfiguracoesPage() {
                   </Label>
                   <select
                     id="break-time"
-                    value={pomodoroSettings.break.toString()}
+                    value={userSettings.shortBreakDurationMinutes.toString()}
                     onChange={(e) =>
-                      handlePomodoroSettingsChange({
-                        ...pomodoroSettings,
-                        break: parseInt(e.target.value),
+                      updateSettings({
+                        ...userSettings,
+                        shortBreakDurationMinutes: parseInt(e.target.value),
                       })
                     }
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -150,11 +101,11 @@ export default function ConfiguracoesPage() {
                   </Label>
                   <select
                     id="long-break-time"
-                    value={pomodoroSettings.longBreak.toString()}
+                    value={userSettings.longBreakDurationMinutes.toString()}
                     onChange={(e) =>
-                      handlePomodoroSettingsChange({
-                        ...pomodoroSettings,
-                        longBreak: parseInt(e.target.value),
+                      updateSettings({
+                        ...userSettings,
+                        longBreakDurationMinutes: parseInt(e.target.value),
                       })
                     }
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"

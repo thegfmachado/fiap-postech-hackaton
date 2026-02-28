@@ -1,6 +1,6 @@
 import { HttpError } from "@mindease/services";
 import type { ISettingsUpdate, ITaskInsert, ITaskUpdate } from '@mindease/database/types';
-import { Priority, Settings, Status, TaskToInsert } from "@mindease/models";
+import { Priority, UserSettings, Status, TaskToInsert } from "@mindease/models";
 import { ISettingsQueries } from "@mindease/database/queries";
 import { ISettingsService } from "./settings-service.interface";
 
@@ -25,7 +25,7 @@ export class SettingsService implements ISettingsService {
     }
   }
 
-  async update(id: string, data: Settings) {
+  async update(id: string, data: UserSettings) {
     try {
       const updatedSettings = await this.queries.update(id, this.buildSettingsToInsert(data));
 
@@ -41,7 +41,7 @@ export class SettingsService implements ISettingsService {
     }
   }
 
-  private buildSettingsToInsert(data: Settings): ISettingsUpdate {
+  private buildSettingsToInsert(data: UserSettings): ISettingsUpdate {
     return {
       pomodoro_duration_minutes: data.pomodoroDurationMinutes,
       short_break_minutes: data.shortBreakDurationMinutes,

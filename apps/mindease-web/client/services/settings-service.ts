@@ -1,5 +1,5 @@
 import { HTTPService } from "@mindease/services";
-import { Settings } from "@mindease/models";
+import { UserSettings } from "@mindease/models";
 import { ISettingsService } from "./settings-service.interface";
 import { toast } from "@mindease/design-system/components";
 
@@ -8,9 +8,9 @@ export class SettingsClientService implements ISettingsService {
     private readonly httpService: HTTPService
   ) { }
 
-  async getById(id: string): Promise<Settings> {
+  async getById(id: string): Promise<UserSettings> {
     try {
-      const data = await this.httpService.get<Settings>(`/api/settings/${id}`);
+      const data = await this.httpService.get<UserSettings>(`/api/settings/${id}`);
       return data;
     }
     catch (err) {
@@ -20,9 +20,9 @@ export class SettingsClientService implements ISettingsService {
     }
   }
 
-  async update(id: string, data: Settings): Promise<Settings> {
+  async update(id: string, data: UserSettings): Promise<UserSettings> {
     try {
-      const updatedData = await this.httpService.patch<Settings>(`/api/settings/${id}`, data);
+      const updatedData = await this.httpService.patch<UserSettings>(`/api/settings/${id}`, data);
       toast.success("Configurações atualizadas com sucesso")
       return updatedData;
     }
