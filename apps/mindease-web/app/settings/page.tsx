@@ -1,6 +1,6 @@
 "use client";
 
-import { Settings, Eye, EyeOff, Timer, Clock } from "lucide-react";
+import { Settings, Eye, EyeOff, Timer, Clock, View } from "lucide-react";
 
 import { Header } from "@/components/template/header";
 import { Layout } from "@/components/template/layout";
@@ -8,9 +8,17 @@ import { Main } from "@/components/template/main";
 import { Sidebar } from "@/components/template/sidebar";
 import { useDisplayMode } from "@/hooks/use-display-mode";
 import { useCurrentUser } from "@/hooks/use-current-user";
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Label } from "@mindease/design-system/components";
 import { useUserSettings } from "@/hooks/use-user-settings";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Label,
+} from "@mindease/design-system/components";
+import { ViewMode } from "@mindease/models";
 
 export default function ConfiguracoesPage() {
   const { displayMode, setDisplayMode, isSimplified, isDetailed } = useDisplayMode();
@@ -139,7 +147,7 @@ export default function ConfiguracoesPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Modo Detalhado */}
                 <button
-                  onClick={() => setDisplayMode("detailed")}
+                  onClick={() => setDisplayMode(ViewMode.detailed)}
                   className={`relative p-6 rounded-lg border-2 transition-all text-left ${isDetailed
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-primary/50"
@@ -165,7 +173,7 @@ export default function ConfiguracoesPage() {
 
                 {/* Modo Simplificado */}
                 <button
-                  onClick={() => setDisplayMode("simplified")}
+                  onClick={() => setDisplayMode(ViewMode.summary)}
                   className={`relative p-6 rounded-lg border-2 transition-all text-left ${isSimplified
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-primary/50"

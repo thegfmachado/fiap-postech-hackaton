@@ -1,13 +1,13 @@
 'use client'
 
-import { createContext, useState, useMemo, useCallback, type ReactNode } from 'react'
-import { StorageService } from '@mindease/services'
-
-export type DisplayMode = 'detailed' | 'simplified'
+import { createContext, useMemo, useCallback, type ReactNode } from 'react'
+import { useUserSettings } from '@/hooks/use-user-settings'
+import { useCurrentUser } from '@/hooks/use-current-user'
+import { ViewMode } from '@mindease/models'
 
 export interface DisplayModeContextType {
-  displayMode: DisplayMode
-  setDisplayMode: (mode: DisplayMode) => void
+  displayMode: ViewMode
+  setDisplayMode: (mode: ViewMode) => void
   isSimplified: boolean
   isDetailed: boolean
 }
@@ -18,28 +18,28 @@ interface DisplayModeProviderProps {
   children: ReactNode
 }
 
-const storage = new StorageService()
-const STORAGE_KEY = 'displayMode'
-
 export function DisplayModeProvider({ children }: DisplayModeProviderProps) {
-  const [displayMode, setDisplayModeState] = useState<DisplayMode>(() => {
-    const saved = storage.getItem(STORAGE_KEY) as DisplayMode | null
-    return saved || 'detailed'
-  })
+  const { user } = useCurrentUser()
+  const { userSettings, updateSettings } = useUserSettings(user?.id)
 
-  const setDisplayMode = useCallback((mode: DisplayMode) => {
-    setDisplayModeState(mode)
-    storage.setItem(STORAGE_KEY, mode)
-  }, [])
+  const setDisplayMode = useCallback(
+    (mode: ViewMode) => {
+      updateSettings({
+        ...userSettings,
+        viewMode: mode,
+      })
+    },
+    [userSettings, updateSettings]
+  )
 
   const value = useMemo(
     () => ({
-      displayMode,
+      displayMode: userSettings.viewMode,
       setDisplayMode,
-      isSimplified: displayMode === 'simplified',
-      isDetailed: displayMode === 'detailed',
+      isSimplified: userSettings.viewMode === ViewMode.summary,
+      isDetailed: userSettings.viewMode === ViewMode.detailed,
     }),
-    [displayMode, setDisplayMode]
+    [userSettings.viewMode, setDisplayMode]
   )
 
   return <DisplayModeContext.Provider value={value}>{children}</DisplayModeContext.Provider>

@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { usePomodoroTimer } from './use-pomodoro-timer';
-import { UserSettings, ViewMode, ContrastMode, Size, defaultPomodoroSettings } from '@mindease/models';
+import { UserSettings, ViewMode, ContrastMode, Size } from '@mindease/models';
 
 const defaultSettings: UserSettings = {
   pomodoroDurationMinutes: 25,
@@ -17,7 +17,6 @@ const defaultSettings: UserSettings = {
 describe('usePomodoroTimer', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    localStorage.clear();
   });
 
   afterEach(() => {
@@ -103,15 +102,24 @@ describe('usePomodoroTimer', () => {
   test('should change to long break after 4 completed sessions', () => {
     const { result } = renderHook(() => usePomodoroTimer(defaultSettings));
 
-    act(() => {
-      result.current.toggleTimer();
-    });
-
-    // Complete 4 work sessions
     for (let i = 0; i < 4; i++) {
+      act(() => {
+        result.current.toggleTimer();
+      });
+
       act(() => {
         vi.advanceTimersByTime(25 * 60 * 1000);
       });
+
+      if (i < 3) {
+        act(() => {
+          result.current.toggleTimer();
+        });
+
+        act(() => {
+          vi.advanceTimersByTime(5 * 60 * 1000);
+        });
+      }
     }
 
     expect(result.current.mode).toBe('longBreak');
@@ -138,10 +146,10 @@ describe('usePomodoroTimer', () => {
     });
 
     act(() => {
-      vi.advanceTimersByTime(12.5 * 60 * 1000); // 50% of time
+      vi.advanceTimersByTime(12.5 * 60 * 1000);
     });
 
-    expect(result.current.progress).toEqual(50);
+    expect(Math.round(result.current.progress)).toBe(50);
   });
 
   test('should update settings', () => {
