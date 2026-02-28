@@ -47,7 +47,6 @@ export class SettingsService implements ISettingsService {
       short_break_minutes: data.shortBreakDurationMinutes,
       long_break_minutes: data.longBreakDurationMinutes,
       long_break_after_pomodoros: data.longBreakAfterPomodoros,
-
       view_mode: data.viewMode ?? null,
       contrast_intensity: data.contrastMode ?? null,
       spacing: data.spacing ?? null,

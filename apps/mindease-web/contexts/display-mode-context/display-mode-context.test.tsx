@@ -144,11 +144,11 @@ describe('DisplayModeContext', () => {
 
     mockUserSettings.viewMode = ViewMode.summary;
 
-    const { result: result2 } = renderHook(() => useContext(DisplayModeContext), {
+    const { result: displayMode } = renderHook(() => useContext(DisplayModeContext), {
       wrapper: DisplayModeProvider,
     });
 
-    expect(result2.current?.isSimplified).toBe(true);
+    expect(displayMode.current?.isSimplified).toBe(true);
   });
 
   test('should compute isDetailed correctly', () => {
@@ -162,11 +162,11 @@ describe('DisplayModeContext', () => {
 
     mockUserSettings.viewMode = ViewMode.detailed;
 
-    const { result: result2 } = renderHook(() => useContext(DisplayModeContext), {
+    const { result: displayMode } = renderHook(() => useContext(DisplayModeContext), {
       wrapper: DisplayModeProvider,
     });
 
-    expect(result2.current?.isDetailed).toBe(true);
+    expect(displayMode.current?.isDetailed).toBe(true);
   });
 
   test('should provide context value to children', () => {
