@@ -2,11 +2,7 @@ import { createSettingsService } from "@/lib/services/settings/settings-service.
 import { handleResponseError } from "@mindease/services";
 import { NextRequest, NextResponse } from "next/server";
 
-interface RouteParams {
-  id: string;
-}
-
-export async function GET(_req: NextRequest, { params }: { params: Promise<RouteParams> }) {
+export async function GET(_req: NextRequest, { params }: RouteContext<'/api/settings/[id]'>) {
   try {
     const { id } = await params;
     const service = await createSettingsService();
@@ -17,7 +13,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<Route
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<RouteParams> }) {
+export async function PATCH(req: NextRequest, { params }: RouteContext<'/api/settings/[id]'>) {
   try {
     const { id } = await params;
     const data = await req.json();
