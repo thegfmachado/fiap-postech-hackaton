@@ -19,6 +19,27 @@ import {
 } from "@mindease/design-system/components";
 import { usePomodoroTimer } from "@/hooks/use-pomodoro-timer/use-pomodoro-timer";
 
+const modeConfig = {
+  work: {
+    label: "Foco",
+    icon: Brain,
+    color: "text-primary",
+    bgColor: "bg-primary/10",
+  },
+  break: {
+    label: "Pausa Curta",
+    icon: Coffee,
+    color: "text-green-600",
+    bgColor: "bg-green-100",
+  },
+  longBreak: {
+    label: "Pausa Longa",
+    icon: Coffee,
+    color: "text-blue-600",
+    bgColor: "bg-blue-100",
+  },
+};
+
 export default function PomodoroPage() {
   const { user } = useCurrentUser();
   const { userSettings } = useUserSettings(user?.id);
@@ -34,27 +55,6 @@ export default function PomodoroPage() {
     changeMode,
     formatTime,
   } = usePomodoroTimer(userSettings);
-
-  const modeConfig = {
-    work: {
-      label: "Foco",
-      icon: Brain,
-      color: "text-primary",
-      bgColor: "bg-primary/10",
-    },
-    break: {
-      label: "Pausa Curta",
-      icon: Coffee,
-      color: "text-green-600",
-      bgColor: "bg-green-100",
-    },
-    longBreak: {
-      label: "Pausa Longa",
-      icon: Coffee,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
-    },
-  };
 
   const currentConfig = modeConfig[mode];
   const Icon = currentConfig.icon;

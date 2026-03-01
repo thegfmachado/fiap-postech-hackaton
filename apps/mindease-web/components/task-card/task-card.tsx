@@ -1,6 +1,6 @@
 "use client";
 
-import { GripVertical, Trash2, Edit, Clock } from "lucide-react";
+import { GripVertical, Trash2, Edit, Clock, ListCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, Button } from "@mindease/design-system/components";
 import { useDisplayMode } from "@/hooks/use-display-mode";
 import { Task } from "@mindease/models";
@@ -29,6 +29,13 @@ const priorityLabels = {
 export function TaskCard({ task, onDelete, onEdit, onView, onDragStart, draggable = false }: TaskCardProps) {
   const { isSimplified } = useDisplayMode();
 
+  const checklistProgress = task.checklistItems && !isSimplified
+    ? {
+      total: task.checklistItems.length,
+      completed: task.checklistItems.filter((item) => item.completed).length,
+    }
+    : null;
+
   return (
     <Card
       className="cursor-move hover:shadow-md transition-shadow"
@@ -42,38 +49,36 @@ export function TaskCard({ task, onDelete, onEdit, onView, onDragStart, draggabl
             {!isSimplified && <GripVertical className="h-5 w-5 text-muted-foreground mt-0.5" />}
             <h3 className="font-semibold text-sm leading-tight">{task.title}</h3>
           </div>
-          {!isSimplified && (
-            <div className="flex gap-1">
-              {onEdit && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit(task);
-                  }}
-                >
-                  <Edit className="h-3.5 w-3.5" />
-                  <span className="sr-only">Editar tarefa</span>
-                </Button>
-              )}
-              {onDelete && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-destructive hover:text-destructive"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(task.id);
-                  }}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  <span className="sr-only">Deletar tarefa</span>
-                </Button>
-              )}
-            </div>
-          )}
+          <div className="flex gap-1">
+            {onEdit && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(task);
+                }}
+              >
+                <Edit className="h-3.5 w-3.5" />
+                <span className="sr-only">Editar tarefa</span>
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-destructive hover:text-destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(task.id);
+                }}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                <span className="sr-only">Deletar tarefa</span>
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -93,6 +98,15 @@ export function TaskCard({ task, onDelete, onEdit, onView, onDragStart, draggabl
               <Clock className="h-3.5 w-3.5" />
               <span>
                 {task.completedPomodoros}/{task.estimatedPomodoros} pomodoros
+              </span>
+            </div>
+          )}
+
+          {checklistProgress && checklistProgress.total > 0 && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <ListCheck className="h-3.5 w-3.5" />
+              <span>
+                {checklistProgress.completed}/{checklistProgress.total}
               </span>
             </div>
           )}

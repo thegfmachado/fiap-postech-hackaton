@@ -1,17 +1,20 @@
 import type { CookieOptions } from '@supabase/ssr';
 import { createServerClient as createSupabaseServerClient } from '@supabase/ssr';
 
-import type { Database } from './types.js';
+import type { Database, TypedSupabaseClient } from './types.js';
+import { getSupabaseEnv } from './env.js';
 
 interface ICookieStoreLike {
   getAll(): { name: string; value: string; }[] | null;
   set(name: string, value: string, options?: CookieOptions): void;
 }
 
-export async function createServerClient(cookieStore: ICookieStoreLike) {
+export async function createServerClient(cookieStore: ICookieStoreLike): Promise<TypedSupabaseClient> {
+  const { url, anonKey } = getSupabaseEnv()
+
   return createSupabaseServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    anonKey,
     {
       cookies: {
         getAll() {

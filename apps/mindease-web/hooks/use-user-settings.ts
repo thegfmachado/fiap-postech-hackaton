@@ -1,19 +1,16 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { SettingsClientService } from "@/client/services/settings-service";
 import { HTTPService } from "@mindease/services";
-import { UserSettings, defaultPomodoroSettings } from "@mindease/models";
+import { defaultPomodoroSettings, UserSettings } from "@mindease/models";
+
+const settingsService = new SettingsClientService(new HTTPService());
 
 export function useUserSettings(userId?: string) {
   const [userSettings, setUserSettings] = useState<UserSettings>(defaultPomodoroSettings);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown>(null);
-
-  const settingsService = useMemo(() => {
-    return new SettingsClientService(new HTTPService());
-  }, []);
-
 
   const fetchSettings = useCallback(async () => {
     if (!userId) return;
@@ -24,17 +21,14 @@ export function useUserSettings(userId?: string) {
     try {
       const result = await settingsService.getById(userId);
 
-      if (result) {
-        setUserSettings(result);
-      }
+      setUserSettings(result);
     } catch (err) {
       setError(err);
       console.error("Erro ao carregar settings:", err);
     } finally {
       setLoading(false);
     }
-  }, [userId, settingsService]);
-
+  }, [userId]);
 
   const updateSettings = async (newSettings: UserSettings) => {
     if (!userId) return;
