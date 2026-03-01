@@ -1,38 +1,29 @@
 "use client";
 
-import { Settings, Eye, EyeOff, Timer, Clock } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Settings, Eye, EyeOff, Timer, Clock, View } from "lucide-react";
 
 import { Header } from "@/components/template/header";
 import { Layout } from "@/components/template/layout";
 import { Main } from "@/components/template/main";
 import { Sidebar } from "@/components/template/sidebar";
 import { useDisplayMode } from "@/hooks/use-display-mode";
-import { defaultPomodoroSettings, type PomodoroSettings } from "@/hooks/use-pomodoro-timer";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { useUserSettings } from "@/hooks/use-user-settings";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Label } from "@mindease/design-system/components";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Label,
+} from "@mindease/design-system/components";
+import { ViewMode } from "@mindease/models";
 
 export default function ConfiguracoesPage() {
   const { displayMode, setDisplayMode, isSimplified, isDetailed } = useDisplayMode();
-  const [pomodoroSettings, setPomodoroSettings] = useState<PomodoroSettings>(defaultPomodoroSettings);
-
-  // Carregar configurações do localStorage
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("pomodoroSettings");
-      if (stored) {
-        setPomodoroSettings(JSON.parse(stored));
-      }
-    }
-  }, []);
-
-  // Salvar configurações no localStorage
-  const handlePomodoroSettingsChange = (newSettings: PomodoroSettings) => {
-    setPomodoroSettings(newSettings);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("pomodoroSettings", JSON.stringify(newSettings));
-    }
-  };
+  const { user } = useCurrentUser();
+  const { userSettings, updateSettings, loading } = useUserSettings(user?.id);
 
   return (
     <Layout>
@@ -70,11 +61,11 @@ export default function ConfiguracoesPage() {
                   </Label>
                   <select
                     id="work-time"
-                    value={pomodoroSettings.work.toString()}
+                    value={userSettings.pomodoroDurationMinutes.toString()}
                     onChange={(e) =>
-                      handlePomodoroSettingsChange({
-                        ...pomodoroSettings,
-                        work: parseInt(e.target.value),
+                      updateSettings({
+                        ...userSettings,
+                        pomodoroDurationMinutes: parseInt(e.target.value),
                       })
                     }
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -94,11 +85,11 @@ export default function ConfiguracoesPage() {
                   </Label>
                   <select
                     id="break-time"
-                    value={pomodoroSettings.break.toString()}
+                    value={userSettings.shortBreakDurationMinutes.toString()}
                     onChange={(e) =>
-                      handlePomodoroSettingsChange({
-                        ...pomodoroSettings,
-                        break: parseInt(e.target.value),
+                      updateSettings({
+                        ...userSettings,
+                        shortBreakDurationMinutes: parseInt(e.target.value),
                       })
                     }
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -118,11 +109,11 @@ export default function ConfiguracoesPage() {
                   </Label>
                   <select
                     id="long-break-time"
-                    value={pomodoroSettings.longBreak.toString()}
+                    value={userSettings.longBreakDurationMinutes.toString()}
                     onChange={(e) =>
-                      handlePomodoroSettingsChange({
-                        ...pomodoroSettings,
-                        longBreak: parseInt(e.target.value),
+                      updateSettings({
+                        ...userSettings,
+                        longBreakDurationMinutes: parseInt(e.target.value),
                       })
                     }
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -138,7 +129,7 @@ export default function ConfiguracoesPage() {
 
               <div className="p-4 bg-muted/50 rounded-lg border">
                 <p className="text-sm text-muted-foreground">
-                  <strong>Dica:</strong> A técnica Pomodoro tradicional usa 25 minutos de foco, 
+                  <strong>Dica:</strong> A técnica Pomodoro tradicional usa 25 minutos de foco,
                   5 minutos de pausa curta e 15 minutos de pausa longa. Ajuste conforme sua preferência.
                 </p>
               </div>
@@ -156,12 +147,11 @@ export default function ConfiguracoesPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Modo Detalhado */}
                 <button
-                  onClick={() => setDisplayMode("detailed")}
-                  className={`relative p-6 rounded-lg border-2 transition-all text-left ${
-                    isDetailed
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50"
-                  }`}
+                  onClick={() => setDisplayMode(ViewMode.detailed)}
+                  className={`relative p-6 rounded-lg border-2 transition-all text-left ${isDetailed
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50"
+                    }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className={`p-2 rounded-lg ${isDetailed ? "bg-primary text-white" : "bg-muted"}`}>
@@ -183,12 +173,11 @@ export default function ConfiguracoesPage() {
 
                 {/* Modo Simplificado */}
                 <button
-                  onClick={() => setDisplayMode("simplified")}
-                  className={`relative p-6 rounded-lg border-2 transition-all text-left ${
-                    isSimplified
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50"
-                  }`}
+                  onClick={() => setDisplayMode(ViewMode.summary)}
+                  className={`relative p-6 rounded-lg border-2 transition-all text-left ${isSimplified
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50"
+                    }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className={`p-2 rounded-lg ${isSimplified ? "bg-primary text-white" : "bg-muted"}`}>
@@ -215,8 +204,8 @@ export default function ConfiguracoesPage() {
                   Sobre Acessibilidade
                 </h4>
                 <p className="text-sm text-muted-foreground">
-                  O modo simplificado foi projetado especialmente para pessoas neurodivergentes, 
-                  reduzindo estímulos visuais e mantendo apenas as informações essenciais para 
+                  O modo simplificado foi projetado especialmente para pessoas neurodivergentes,
+                  reduzindo estímulos visuais e mantendo apenas as informações essenciais para
                   o foco nas tarefas. Você pode alternar entre os modos a qualquer momento.
                 </p>
               </div>

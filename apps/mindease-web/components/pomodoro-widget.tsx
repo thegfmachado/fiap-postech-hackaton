@@ -4,15 +4,20 @@ import { Play, Pause, RotateCcw, Timer as TimerIcon, X, Coffee, Brain } from "lu
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 
-import { usePomodoroTimer } from "@/hooks/use-pomodoro-timer/use-pomodoro-timer";
 import { useDisplayMode } from "@/hooks/use-display-mode";
 import { Button, Card, CardContent } from "@mindease/design-system/components";
+import { usePomodoroTimer } from "@/hooks/use-pomodoro-timer/use-pomodoro-timer";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { useUserSettings } from "@/hooks/use-user-settings";
 
 export function PomodoroWidget() {
   const [isExpanded, setIsExpanded] = useState(false);
   const pathname = usePathname();
   const { isSimplified } = useDisplayMode();
-  
+
+  const { user } = useCurrentUser();
+  const { userSettings } = useUserSettings(user?.id);
+
   const {
     mode,
     timeLeft,
@@ -21,7 +26,7 @@ export function PomodoroWidget() {
     resetTimer,
     formatTime,
     changeMode,
-  } = usePomodoroTimer();
+  } = usePomodoroTimer(userSettings);
 
   // Não mostrar o widget na página de Pomodoro ou no modo simplificado
   if (pathname === "/pomodoro" || isSimplified) {

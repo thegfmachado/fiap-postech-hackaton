@@ -12,7 +12,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      profiles: {
+      settings: {
         Row: {
           contrast_intensity: string | null
           created_at: string | null

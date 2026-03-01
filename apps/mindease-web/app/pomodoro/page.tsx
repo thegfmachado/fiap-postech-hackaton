@@ -6,7 +6,9 @@ import { Header } from "@/components/template/header";
 import { Layout } from "@/components/template/layout";
 import { Main } from "@/components/template/main";
 import { Sidebar } from "@/components/template/sidebar";
-import { usePomodoroTimer } from "@/hooks/use-pomodoro-timer";
+
+import { useUserSettings } from "@/hooks/use-user-settings";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 import {
   Button,
@@ -15,20 +17,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@mindease/design-system/components";
+import { usePomodoroTimer } from "@/hooks/use-pomodoro-timer/use-pomodoro-timer";
 
 export default function PomodoroPage() {
+  const { user } = useCurrentUser();
+  const { userSettings } = useUserSettings(user?.id);
+
   const {
     mode,
     timeLeft,
     isRunning,
     sessionsCompleted,
-    settings,
     progress,
     toggleTimer,
     resetTimer,
     changeMode,
     formatTime,
-  } = usePomodoroTimer();
+  } = usePomodoroTimer(userSettings);
 
   const modeConfig = {
     work: {
@@ -123,11 +128,7 @@ export default function PomodoroPage() {
                   </div>
 
                   <div className="flex gap-4">
-                    <Button
-                      size="lg"
-                      onClick={toggleTimer}
-                      className="min-w-32"
-                    >
+                    <Button size="lg" onClick={toggleTimer} className="min-w-32">
                       {isRunning ? (
                         <>
                           <Pause className="h-5 w-5 mr-2" />
@@ -140,11 +141,7 @@ export default function PomodoroPage() {
                         </>
                       )}
                     </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      onClick={resetTimer}
-                    >
+                    <Button size="lg" variant="outline" onClick={resetTimer}>
                       <RotateCcw className="h-5 w-5" />
                     </Button>
                   </div>
@@ -158,14 +155,17 @@ export default function PomodoroPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex justify-center gap-2 flex-wrap">
-                  {Array.from({ length: settings.sessionsBeforeLongBreak }).map((_, i) => (
+                  {Array.from({
+                    length: userSettings.longBreakAfterPomodoros,
+                  }).map((_, i) => (
                     <div
                       key={i}
-                      className={`w-12 h-12 rounded-full border-2 flex items-center justify-center font-semibold ${
-                        i < sessionsCompleted % settings.sessionsBeforeLongBreak
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "border-muted-foreground/20 text-muted-foreground"
-                      }`}
+                      className={`w-12 h-12 rounded-full border-2 flex items-center justify-center font-semibold ${i <
+                        sessionsCompleted %
+                        userSettings.longBreakAfterPomodoros
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "border-muted-foreground/20 text-muted-foreground"
+                        }`}
                     >
                       {i + 1}
                     </div>

@@ -2,30 +2,59 @@ import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { DisplayModeProvider, DisplayModeContext } from './display-mode-context';
 import { useContext } from 'react';
+import { ViewMode, ContrastMode, Size, UserSettings } from '@mindease/models';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import { useUserSettings } from '@/hooks/use-user-settings';
+
+vi.mock('@/hooks/use-current-user');
+vi.mock('@/hooks/use-user-settings');
 
 describe('DisplayModeContext', () => {
-  let localStorageMock: Record<string, string>;
+  const mockUseCurrentUser = vi.mocked(useCurrentUser);
+  const mockUseUserSettings = vi.mocked(useUserSettings);
+  const updateSettingsMock = vi.fn();
+
+  let mockUserSettings: UserSettings = {
+    pomodoroDurationMinutes: 25,
+    shortBreakDurationMinutes: 5,
+    longBreakDurationMinutes: 15,
+    longBreakAfterPomodoros: 4,
+    viewMode: ViewMode.detailed,
+    contrastMode: ContrastMode.low,
+    spacing: Size.medium,
+    fontSize: Size.medium,
+  };
 
   beforeEach(() => {
-    // Mock localStorage
-    localStorageMock = {};
-    
-    vi.stubGlobal('localStorage', {
-      getItem: vi.fn((key: string) => localStorageMock[key] || null),
-      setItem: vi.fn((key: string, value: string) => {
-        localStorageMock[key] = value;
-      }),
-      removeItem: vi.fn((key: string) => {
-        delete localStorageMock[key];
-      }),
-      clear: vi.fn(() => {
-        localStorageMock = {};
-      }),
+    vi.clearAllMocks();
+
+    mockUserSettings = {
+      pomodoroDurationMinutes: 25,
+      shortBreakDurationMinutes: 5,
+      longBreakDurationMinutes: 15,
+      longBreakAfterPomodoros: 4,
+      viewMode: ViewMode.detailed,
+      contrastMode: ContrastMode.low,
+      spacing: Size.medium,
+      fontSize: Size.medium,
+    };
+
+    mockUseCurrentUser.mockReturnValue({
+      user: { id: 'user-1' } as any,
+      loading: false,
+    });
+
+    mockUseUserSettings.mockReturnValue({
+      userSettings: mockUserSettings,
+      updateSettings: updateSettingsMock,
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
     });
   });
 
   afterEach(() => {
-    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   test('should initialize with detailed mode by default', () => {
@@ -33,19 +62,19 @@ describe('DisplayModeContext', () => {
       wrapper: DisplayModeProvider,
     });
 
-    expect(result.current?.displayMode).toBe('detailed');
+    expect(result.current?.displayMode).toBe(ViewMode.detailed);
     expect(result.current?.isDetailed).toBe(true);
     expect(result.current?.isSimplified).toBe(false);
   });
 
-  test('should load saved mode from localStorage', () => {
-    localStorageMock['displayMode'] = 'simplified';
+  test('should load saved mode from hook', () => {
+    mockUserSettings.viewMode = ViewMode.summary;
 
     const { result } = renderHook(() => useContext(DisplayModeContext), {
       wrapper: DisplayModeProvider,
     });
 
-    expect(result.current?.displayMode).toBe('simplified');
+    expect(result.current?.displayMode).toBe(ViewMode.summary);
     expect(result.current?.isSimplified).toBe(true);
     expect(result.current?.isDetailed).toBe(false);
   });
@@ -56,48 +85,54 @@ describe('DisplayModeContext', () => {
     });
 
     act(() => {
-      result.current?.setDisplayMode('simplified');
+      result.current?.setDisplayMode(ViewMode.summary);
     });
 
-    expect(result.current?.displayMode).toBe('simplified');
-    expect(result.current?.isSimplified).toBe(true);
-    expect(result.current?.isDetailed).toBe(false);
+    expect(updateSettingsMock).toHaveBeenCalledWith({
+      ...mockUserSettings,
+      viewMode: ViewMode.summary,
+    });
   });
 
   test('should update display mode to detailed', () => {
-    localStorageMock['displayMode'] = 'simplified';
+    mockUserSettings.viewMode = ViewMode.summary;
 
     const { result } = renderHook(() => useContext(DisplayModeContext), {
       wrapper: DisplayModeProvider,
     });
 
     act(() => {
-      result.current?.setDisplayMode('detailed');
+      result.current?.setDisplayMode(ViewMode.detailed);
     });
 
-    expect(result.current?.displayMode).toBe('detailed');
-    expect(result.current?.isDetailed).toBe(true);
-    expect(result.current?.isSimplified).toBe(false);
+    expect(updateSettingsMock).toHaveBeenCalledWith({
+      ...mockUserSettings,
+      viewMode: ViewMode.detailed,
+    });
   });
 
-  test('should save mode to localStorage when changed', () => {
+  test('should save mode when changed (via updateSettings)', () => {
     const { result } = renderHook(() => useContext(DisplayModeContext), {
       wrapper: DisplayModeProvider,
     });
 
     act(() => {
-      result.current?.setDisplayMode('simplified');
+      result.current?.setDisplayMode(ViewMode.summary);
     });
 
-    expect(localStorage.setItem).toHaveBeenCalledWith('displayMode', 'simplified');
-    expect(localStorageMock['displayMode']).toBe('simplified');
+    expect(updateSettingsMock).toHaveBeenCalledWith({
+      ...mockUserSettings,
+      viewMode: ViewMode.summary,
+    });
 
     act(() => {
-      result.current?.setDisplayMode('detailed');
+      result.current?.setDisplayMode(ViewMode.detailed);
     });
 
-    expect(localStorage.setItem).toHaveBeenCalledWith('displayMode', 'detailed');
-    expect(localStorageMock['displayMode']).toBe('detailed');
+    expect(updateSettingsMock).toHaveBeenCalledWith({
+      ...mockUserSettings,
+      viewMode: ViewMode.detailed,
+    });
   });
 
   test('should compute isSimplified correctly', () => {
@@ -107,15 +142,17 @@ describe('DisplayModeContext', () => {
 
     expect(result.current?.isSimplified).toBe(false);
 
-    act(() => {
-      result.current?.setDisplayMode('simplified');
+    mockUserSettings.viewMode = ViewMode.summary;
+
+    const { result: displayMode } = renderHook(() => useContext(DisplayModeContext), {
+      wrapper: DisplayModeProvider,
     });
 
-    expect(result.current?.isSimplified).toBe(true);
+    expect(displayMode.current?.isSimplified).toBe(true);
   });
 
   test('should compute isDetailed correctly', () => {
-    localStorageMock['displayMode'] = 'simplified';
+    mockUserSettings.viewMode = ViewMode.summary;
 
     const { result } = renderHook(() => useContext(DisplayModeContext), {
       wrapper: DisplayModeProvider,
@@ -123,11 +160,13 @@ describe('DisplayModeContext', () => {
 
     expect(result.current?.isDetailed).toBe(false);
 
-    act(() => {
-      result.current?.setDisplayMode('detailed');
+    mockUserSettings.viewMode = ViewMode.detailed;
+
+    const { result: displayMode } = renderHook(() => useContext(DisplayModeContext), {
+      wrapper: DisplayModeProvider,
     });
 
-    expect(result.current?.isDetailed).toBe(true);
+    expect(displayMode.current?.isDetailed).toBe(true);
   });
 
   test('should provide context value to children', () => {
@@ -149,10 +188,6 @@ describe('DisplayModeContext', () => {
     });
 
     const firstSetDisplayMode = result.current?.setDisplayMode;
-
-    act(() => {
-      result.current?.setDisplayMode('simplified');
-    });
 
     rerender();
 

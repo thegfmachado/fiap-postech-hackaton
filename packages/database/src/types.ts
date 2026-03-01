@@ -10,4 +10,7 @@ export type ITask = TransformTasks<Tables<'tasks'>>;
 export type ITaskInsert = TransformTasks<TablesInsert<'tasks'>>;
 export type ITaskUpdate = TransformTasks<TablesUpdate<'tasks'>>;
 
+export type ISettings = TransformTasks<Tables<'settings'>>;
+export type ISettingsUpdate = TransformTasks<TablesUpdate<'settings'>>;
+
 export type { Database } from './generated-types.js';
