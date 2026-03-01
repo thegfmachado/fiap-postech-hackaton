@@ -1,4 +1,4 @@
-import { ContrastMode, UserSettings, Size, ViewMode } from "@mindease/models";
+import { ContrastMode, UserSettings, Size, ViewMode, defaultPomodoroSettings } from "@mindease/models";
 import { ISettings, ISettingsUpdate, TypedSupabaseClient } from "../../types.js";
 import { ISettingsQueries } from "./settings-queries.interface.js";
 
@@ -16,11 +16,43 @@ export class SettingsQueriesService implements ISettingsQueries {
       .from(SettingsQueriesService.TABLE_NAME)
       .select('*')
       .eq('id', id)
-      .single();
+      .limit(1)
+      .maybeSingle();
 
     if (error) {
       console.error('Supabase error:', error);
       throw new Error(`Error fetching settings: ${error.message}`);
+    }
+
+    if (!data) {
+      return this.create({
+        contrast_intensity: defaultPomodoroSettings.contrastMode,
+        email: '',
+        font_size: defaultPomodoroSettings.fontSize,
+        id: id,
+        long_break_after_pomodoros: defaultPomodoroSettings.longBreakAfterPomodoros,
+        long_break_minutes: defaultPomodoroSettings.longBreakDurationMinutes,
+        name: '',
+        pomodoro_duration_minutes: defaultPomodoroSettings.pomodoroDurationMinutes,
+        short_break_minutes: defaultPomodoroSettings.shortBreakDurationMinutes,
+        spacing: defaultPomodoroSettings.spacing,
+        view_mode: defaultPomodoroSettings.viewMode,
+      });
+    }
+
+    return this.dbSettingsToSettings(data);
+  }
+
+  async create(settingsToInsert: Omit<ISettings, 'created_at' | 'updated_at'>): Promise<UserSettings> {
+    const { data, error } = await this.client
+      .from(SettingsQueriesService.TABLE_NAME)
+      .insert(settingsToInsert)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      throw new Error(`Error creating settings: ${error.message}`);
     }
 
     return this.dbSettingsToSettings(data);
