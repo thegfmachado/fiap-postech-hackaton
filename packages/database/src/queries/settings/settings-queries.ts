@@ -27,12 +27,10 @@ export class SettingsQueriesService implements ISettingsQueries {
     if (!data) {
       return this.create({
         contrast_intensity: defaultPomodoroSettings.contrastMode,
-        email: '',
         font_size: defaultPomodoroSettings.fontSize,
         id: id,
         long_break_after_pomodoros: defaultPomodoroSettings.longBreakAfterPomodoros,
         long_break_minutes: defaultPomodoroSettings.longBreakDurationMinutes,
-        name: '',
         pomodoro_duration_minutes: defaultPomodoroSettings.pomodoroDurationMinutes,
         short_break_minutes: defaultPomodoroSettings.shortBreakDurationMinutes,
         spacing: defaultPomodoroSettings.spacing,

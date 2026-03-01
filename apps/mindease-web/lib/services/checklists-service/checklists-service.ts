@@ -19,9 +19,9 @@ export class ChecklistsService implements IChecklistsService {
     }
   }
 
-  async create(taskId: string, description: string): Promise<ChecklistItem> {
+  async create(taskId: string, descriptions: string[]): Promise<ChecklistItem[]> {
     try {
-      return await this.queries.create(taskId, description);
+      return await this.queries.create(taskId, descriptions);
     } catch (error) {
       console.error('Error creating checklist item:', error);
       throw new HttpError(500, 'Error creating checklist item');

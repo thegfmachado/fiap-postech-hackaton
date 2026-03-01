@@ -16,14 +16,14 @@ export async function GET(_req: NextRequest, { params }: RouteContext<'/api/task
 export async function POST(req: NextRequest, { params }: RouteContext<'/api/tasks/[id]/checklists'>) {
   try {
     const { id } = await params;
-    const { description } = await req.json();
+    const { descriptions } = await req.json();
 
-    if (!description || typeof description !== 'string') {
-      return new NextResponse('Invalid description', { status: 400 });
+    if (!descriptions || !Array.isArray(descriptions) || descriptions.some(desc => typeof desc !== 'string')) {
+      return new NextResponse('Invalid checklist items', { status: 400 });
     }
 
     const service = await createChecklistsService();
-    const checklist = await service.create(id, description);
+    const checklist = await service.create(id, descriptions);
     return NextResponse.json(checklist, { status: 201 });
   } catch (err) {
     return handleResponseError(err);

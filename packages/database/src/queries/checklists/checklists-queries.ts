@@ -26,23 +26,18 @@ export class ChecklistsQueriesService implements IChecklistsQueries {
     return (data ?? []).map(this.dbChecklistToChecklistItem);
   }
 
-  async create(taskId: string, description: string): Promise<ChecklistItem> {
+  async create(taskId: string, descriptions: string[]): Promise<ChecklistItem[]> {
     const { data, error } = await this.client
       .from(ChecklistsQueriesService.TABLE_NAME)
-      .insert({
-        task_id: taskId,
-        description,
-        completed: false,
-      })
-      .select()
-      .single();
+      .insert(descriptions.map(description => ({ task_id: taskId, description })))
+      .select();
 
     if (error) {
       console.error('Supabase error:', error);
       throw new Error(`Error creating checklist item: ${error.message}`);
     }
 
-    return this.dbChecklistToChecklistItem(data);
+    return (data ?? []).map(this.dbChecklistToChecklistItem);
   }
 
   async update(id: string, completed: boolean): Promise<ChecklistItem> {
