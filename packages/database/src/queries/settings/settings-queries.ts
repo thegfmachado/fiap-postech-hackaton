@@ -1,5 +1,5 @@
 import { ContrastMode, UserSettings, Size, ViewMode, defaultPomodoroSettings } from "@mindease/models";
-import { ISettings, ISettingsUpdate, TypedSupabaseClient } from "../../types.js";
+import { SettingsRow, SettingsRowUpdate, TypedSupabaseClient } from "../../types.js";
 import { ISettingsQueries } from "./settings-queries.interface.js";
 
 export class SettingsQueriesService implements ISettingsQueries {
@@ -41,7 +41,7 @@ export class SettingsQueriesService implements ISettingsQueries {
     return this.dbSettingsToSettings(data);
   }
 
-  async create(settingsToInsert: Omit<ISettings, 'created_at' | 'updated_at'>): Promise<UserSettings> {
+  async create(settingsToInsert: Omit<SettingsRow, 'created_at' | 'updated_at'>): Promise<UserSettings> {
     const { data, error } = await this.client
       .from(SettingsQueriesService.TABLE_NAME)
       .insert(settingsToInsert)
@@ -56,7 +56,7 @@ export class SettingsQueriesService implements ISettingsQueries {
     return this.dbSettingsToSettings(data);
   }
 
-  async update(id: string, settingsToUpdate: ISettingsUpdate): Promise<UserSettings> {
+  async update(id: string, settingsToUpdate: SettingsRowUpdate): Promise<UserSettings> {
     const { data, error } = await this.client
       .from(SettingsQueriesService.TABLE_NAME)
       .update(settingsToUpdate)
@@ -72,7 +72,7 @@ export class SettingsQueriesService implements ISettingsQueries {
     return this.dbSettingsToSettings(data);
   }
 
-  private dbSettingsToSettings(row: ISettings): UserSettings {
+  private dbSettingsToSettings(row: SettingsRow): UserSettings {
     return {
       pomodoroDurationMinutes: row.pomodoro_duration_minutes,
       shortBreakDurationMinutes: row.short_break_minutes,
