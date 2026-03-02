@@ -36,6 +36,18 @@ export default function HomeScreen() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
+  React.useEffect(() => {
+    if (!selectedTask) return;
+    const fresh = tasks.find((t) => t.id === selectedTask.id);
+    if (!fresh) {
+      setSelectedTask(null);
+      return;
+    }
+    if (fresh !== selectedTask) {
+      setSelectedTask(fresh);
+    }
+  }, [tasks, selectedTask]);
+
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchTasks();

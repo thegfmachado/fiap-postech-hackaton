@@ -1,5 +1,5 @@
 import { ChecklistItem } from '@mindease/models';
-import { IChecklists, TypedSupabaseClient } from '../../types.js';
+import { ChecklistRow, TypedSupabaseClient } from '../../types.js';
 import { IChecklistsQueries } from './checklists-queries.interface.js';
 
 export class ChecklistsQueriesService implements IChecklistsQueries {
@@ -72,7 +72,7 @@ export class ChecklistsQueriesService implements IChecklistsQueries {
     return this.dbChecklistToChecklistItem(data);
   }
 
-  dbChecklistToChecklistItem(row: IChecklists): ChecklistItem {
+  dbChecklistToChecklistItem(row: ChecklistRow): ChecklistItem {
     return {
       id: row.id,
       description: row.description,

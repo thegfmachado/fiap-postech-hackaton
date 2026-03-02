@@ -1,7 +1,7 @@
 import { ITasksQueries } from "@mindease/database/queries";
 import { HttpError } from "@mindease/services";
 import { ITaskService } from "./tasks-service.interface";
-import type { ITaskInsert } from '@mindease/database/types';
+import type { TaskRowInsert } from '@mindease/database/types';
 import { TaskToInsert } from "@mindease/models";
 
 export class TaskService implements ITaskService {
@@ -73,7 +73,7 @@ export class TaskService implements ITaskService {
     }
   }
 
-  private buildTaskToInsert(data: TaskToInsert): ITaskInsert {
+  private buildTaskToInsert(data: TaskToInsert): TaskRowInsert {
     return {
       description: data.description || '',
       title: data.title,

@@ -20,6 +20,9 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage"
   },
+  "dependencies": {
+    "@mindease/models": "file:../models"
+  },
   "devDependencies": {
     "@mindease/eslint-config": "file:../eslint-config",
     "@mindease/typescript-config": "file:../typescript-config",

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useAppColors } from "@/hooks/useAppColors";
 import type { PomodoroMode } from "@/hooks/usePomodoroTimer";
+import { useDisplayMode } from "@/contexts/display-mode-context";
 
 interface ModeSelectorProps {
   pomodoroMode: PomodoroMode;
@@ -18,7 +19,12 @@ export function ModeSelector({
   onSelectFree,
 }: ModeSelectorProps) {
   const { colors } = useAppColors();
+  const { isSimplified } = useDisplayMode();
   const activeColor = colors.primary;
+
+  if (isRunning && isSimplified) {
+    return null; // Hide mode selector when timer is running in simplified mode
+  }
 
   return (
     <View className="flex-row mx-6 mb-4 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
