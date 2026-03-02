@@ -4,6 +4,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Task, Status } from "@mindease/models";
 import { TaskCard } from "@/components/TaskCard";
 import { useAppColors } from "@/hooks/useAppColors";
+import type { MaterialIconName } from "@/types/icons";
 
 const columnTitles: Record<Status, string> = {
   [Status.todo]: "A Fazer",
@@ -11,7 +12,7 @@ const columnTitles: Record<Status, string> = {
   [Status.done]: "Concluído",
 };
 
-const columnIcons: Record<Status, string> = {
+const columnIcons: Record<Status, MaterialIconName> = {
   [Status.todo]: "radio-button-unchecked",
   [Status.doing]: "pending",
   [Status.done]: "check-circle",
@@ -32,7 +33,7 @@ export function Column({ status, tasks, onTaskPress, onTaskDelete }: ColumnProps
       <View className="flex-row items-center justify-between mb-3 px-2">
         <View className="flex-row items-center gap-2">
           <MaterialIcons
-            name={columnIcons[status] as any}
+            name={columnIcons[status]}
             size={20}
             color={colors.primary}
           />

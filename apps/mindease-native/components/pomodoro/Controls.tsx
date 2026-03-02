@@ -40,9 +40,9 @@ export function Controls({
 
       <TouchableOpacity
         onPress={onToggle}
-        disabled={!canStart}
+        disabled={!canStart || isTaskComplete}
         className={`px-8 py-3.5 rounded-2xl flex-row items-center ${
-          !canStart ? "opacity-50" : ""
+          !canStart || isTaskComplete ? "opacity-50" : ""
         }`}
         style={{ backgroundColor: accentColor }}
       >

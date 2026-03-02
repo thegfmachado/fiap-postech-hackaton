@@ -12,7 +12,7 @@ import { Task, Status, Priority } from "@mindease/models";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { ModalHeader } from "@/components/ui/ModalHeader";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { usePomodoroSettings } from "@/hooks/usePomodoroSettings";
+import { usePomodoroSettingsContext } from "@/contexts/pomodoro-settings-context";
 import { useAppColors } from "@/hooks/useAppColors";
 import { getPriorityConfig } from "@/constants/priority";
 
@@ -40,7 +40,7 @@ export function TaskDetailsModal({
   const [isEditing, setIsEditing] = useState(false);
   const [editedTask, setEditedTask] = useState(task);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const { work: sessionMinutes } = usePomodoroSettings();
+  const { settings: { work: sessionMinutes } } = usePomodoroSettingsContext();
   const { isDark, colors } = useAppColors();
   const priorityConfig = getPriorityConfig(isDark);
 

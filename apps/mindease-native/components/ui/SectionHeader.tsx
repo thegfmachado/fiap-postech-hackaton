@@ -2,9 +2,10 @@ import React from "react";
 import { View, Text } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useAppColors } from "@/hooks/useAppColors";
+import type { MaterialIconName } from "@/types/icons";
 
 interface SectionHeaderProps {
-  icon: React.ComponentProps<typeof MaterialIcons>["name"];
+  icon: MaterialIconName;
   title: string;
 }
 

@@ -3,6 +3,7 @@ import { View, Text, useWindowDimensions } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useAppColors } from "@/hooks/useAppColors";
+import type { MaterialIconName } from "@/types/icons";
 
 const STROKE_WIDTH = 10;
 
@@ -10,7 +11,7 @@ interface TimerModeConfig {
   label: string;
   color: string;
   bgColor: string;
-  icon: string;
+  icon: MaterialIconName;
 }
 
 interface TimerCircleProps {
@@ -41,7 +42,7 @@ export function TimerCircle({
       >
         <View className="flex-row items-center gap-2 mb-4">
           <MaterialIcons
-            name={config.icon as any}
+            name={config.icon}
             size={20}
             color={config.color}
           />

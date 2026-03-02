@@ -4,7 +4,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Task } from "@mindease/models";
 import { useDisplayMode } from "@/contexts/display-mode-context";
 import { ConfirmModal } from "@/components/ConfirmModal";
-import { usePomodoroSettings } from "@/hooks/usePomodoroSettings";
+import { usePomodoroSettingsContext } from "@/contexts/pomodoro-settings-context";
 import { useAppColors } from "@/hooks/useAppColors";
 import { getPriorityConfig } from "@/constants/priority";
 
@@ -19,7 +19,7 @@ export function TaskCard({ task, onPress, onDelete }: TaskCardProps) {
   const { isDark, colors } = useAppColors();
   const config = getPriorityConfig(isDark)[task.priority];
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const { work: sessionMinutes } = usePomodoroSettings();
+  const { settings: { work: sessionMinutes } } = usePomodoroSettingsContext();
   const elapsedMin = task.completedPomodoros * sessionMinutes;
   const totalMin = task.estimatedPomodoros * sessionMinutes;
 

@@ -1,18 +1,8 @@
 import { supabase } from "@/lib/supabase";
 import { Task, TaskToInsert, Priority, Status } from "@mindease/models";
+import type { Database } from "@mindease/database/types";
 
-type TaskRow = {
-  id: string;
-  title: string;
-  description: string | null;
-  status: string;
-  priority: "low" | "medium" | "high";
-  due_date: string | null;
-  estimated_pomodoros: number;
-  completed_pomodoros: number;
-  created_at: string | null;
-  updated_at: string | null;
-};
+type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
 
 function mapRowToTask(row: TaskRow): Task {
   return {

@@ -7,6 +7,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import type { MaterialIconName } from "@/types/icons";
 import {
   usePomodoroTimer,
   type TimerMode,
@@ -27,7 +28,7 @@ import { TaskPicker } from "@/components/pomodoro/TaskPicker";
 
 const getTimerModeConfig = (isDark: boolean): Record<
   TimerMode,
-  { label: string; color: string; bgColor: string; icon: string }
+  { label: string; color: string; bgColor: string; icon: MaterialIconName }
 > => ({
   work: {
     label: "Foco",
