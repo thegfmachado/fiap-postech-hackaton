@@ -1,5 +1,5 @@
 import { HttpError } from "@mindease/services";
-import type { ISettingsUpdate } from '@mindease/database/types';
+import type { SettingsRowUpdate } from '@mindease/database/types';
 import { UserSettings } from "@mindease/models";
 import { ISettingsQueries } from "@mindease/database/queries";
 import { ISettingsService } from "./settings-service.interface";
@@ -36,7 +36,7 @@ export class SettingsService implements ISettingsService {
     }
   }
 
-  private buildSettingsToInsert(data: UserSettings): ISettingsUpdate {
+  private buildSettingsToInsert(data: UserSettings): SettingsRowUpdate {
     return {
       pomodoro_duration_minutes: data.pomodoroDurationMinutes,
       short_break_minutes: data.shortBreakDurationMinutes,
