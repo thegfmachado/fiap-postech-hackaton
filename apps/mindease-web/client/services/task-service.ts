@@ -1,7 +1,7 @@
 import { GetAllTasksResponse } from "@mindease/database/queries";
 import { HTTPService } from "@mindease/services";
 import { ITaskService } from "./task-service.interface";
-import { Task, TaskToInsert } from "@mindease/models";
+import { Task, TaskToInsert, ChecklistItem } from "@mindease/models";
 import { toast } from "@mindease/design-system/components";
 import { ITaskUpdate } from "@mindease/database/types";
 
@@ -51,6 +51,51 @@ export class TasksService implements ITaskService {
     }
     catch (err) {
       toast.error("Erro ao deletar tarefa")
+      throw err;
+    }
+  }
+
+  async getChecklistItems(taskId: string): Promise<ChecklistItem[]> {
+    try {
+      return await this.httpService.get<ChecklistItem[]>(`/api/tasks/${taskId}/checklists`);
+    } catch (err) {
+      toast.error("Erro ao buscar itens do checklist");
+      throw err;
+    }
+  }
+
+  async createChecklistItem(taskId: string, descriptions: string[]): Promise<ChecklistItem[]> {
+    try {
+      const data = await this.httpService.post<ChecklistItem[]>(
+        `/api/tasks/${taskId}/checklists`,
+        { descriptions }
+      );
+
+      return data;
+    } catch (err) {
+      toast.error("Erro ao adicionar itens à checklist");
+      throw err;
+    }
+  }
+
+  async updateChecklistItem(taskId: string, itemId: string, completed: boolean): Promise<ChecklistItem> {
+    try {
+      const data = await this.httpService.patch<ChecklistItem>(
+        `/api/tasks/${taskId}/checklists/${itemId}`,
+        { completed }
+      );
+      return data;
+    } catch (err) {
+      toast.error("Erro ao atualizar item do checklist");
+      throw err;
+    }
+  }
+
+  async deleteChecklistItem(taskId: string, itemId: string): Promise<void> {
+    try {
+      await this.httpService.delete(`/api/tasks/${taskId}/checklists/${itemId}`);
+    } catch (err) {
+      toast.error("Erro ao remover item do checklist");
       throw err;
     }
   }

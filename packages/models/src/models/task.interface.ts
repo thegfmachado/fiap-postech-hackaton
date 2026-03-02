@@ -1,5 +1,6 @@
 import { Priority } from "../enums/priority.enum.js";
 import { Status } from "../enums/status.enum.js";
+import { ChecklistItem } from "./checklist-item.interface.js";
 
 export interface Task {
   id: string;
@@ -12,6 +13,7 @@ export interface Task {
   createdAt?: string;
   updatedAt?: string;
   priority: Priority;
+  checklistItems?: ChecklistItem[];
 }
 
 export interface TaskToInsert {
@@ -22,8 +24,6 @@ export interface TaskToInsert {
   dueDate?: string;
   estimatedPomodoros?: number;
   completedPomodoros?: number;
-  createdAt?: string;
-  updatedAt?: string;
   priority?: Priority;
-  userId?: string;
+  checklistItems?: Omit<ChecklistItem, "id">[];
 }

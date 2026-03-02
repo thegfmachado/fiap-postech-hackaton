@@ -2,12 +2,7 @@ import { createTaskService } from "@/lib/services/tasks-service.factory";
 import { handleResponseError } from "@mindease/services";
 import { NextRequest, NextResponse } from "next/server";
 
-
-interface RouteParams {
-  id: string;
-}
-
-export async function GET(_req: NextRequest, { params }: { params: Promise<RouteParams> }) {
+export async function GET(_req: NextRequest, { params }: RouteContext<'/api/tasks/[id]'>) {
   try {
     const { id } = await params;
     const service = await createTaskService();
@@ -18,10 +13,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<Route
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<RouteParams> }) {
+export async function PATCH(req: NextRequest, { params }: RouteContext<'/api/tasks/[id]'>) {
   try {
     const { id } = await params;
     const data = await req.json();
+
     if (!data || Object.keys(data).length === 0) {
       return new NextResponse('Invalid or empty update data', { status: 400 });
     }
@@ -34,7 +30,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<Rout
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<RouteParams> }) {
+export async function DELETE(_req: NextRequest, { params }: RouteContext<'/api/tasks/[id]'>) {
   try {
     const { id } = await params;
     const service = await createTaskService();
