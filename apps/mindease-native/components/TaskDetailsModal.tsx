@@ -8,11 +8,12 @@ import {
   TextInput,
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Task, Status, Priority } from "@mindease/models";
+import { Task, Status, Priority, ChecklistItem } from "@mindease/models";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { ModalHeader } from "@/components/ui/ModalHeader";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { usePomodoroSettingsContext } from "@/contexts/pomodoro-settings-context";
+import { useTasks } from "@/contexts/tasks-context";
 import { useAppColors } from "@/hooks/useAppColors";
 import { getPriorityConfig } from "@/constants/priority";
 
@@ -40,13 +41,16 @@ export function TaskDetailsModal({
   const [isEditing, setIsEditing] = useState(false);
   const [editedTask, setEditedTask] = useState(task);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [newChecklistItemText, setNewChecklistItemText] = useState("");
   const { settings: { work: sessionMinutes } } = usePomodoroSettingsContext();
+  const { toggleChecklistItem, addChecklistItem, removeChecklistItem, updateChecklistItem } = useTasks();
   const { isDark, colors } = useAppColors();
   const priorityConfig = getPriorityConfig(isDark);
 
   React.useEffect(() => {
     setEditedTask(task);
     setIsEditing(false);
+    setNewChecklistItemText("");
   }, [task]);
 
   const deriveStatus = (completed: number, estimated: number): Status => {
@@ -60,7 +64,41 @@ export function TaskDetailsModal({
     setEditedTask((prev) => ({ ...prev, completedPomodoros: completed, estimatedPomodoros: estimated, status }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    const originalItems = task.checklistItems ?? [];
+    const editedItems = editedTask.checklistItems ?? [];
+
+    for (const original of originalItems) {
+      if (!editedItems.some((i) => i.id === original.id)) {
+        await removeChecklistItem(task.id, original.id);
+      }
+    }
+
+    for (const item of editedItems) {
+      // Novo item
+      if (item.id.startsWith("temp-")) {
+        await addChecklistItem(task.id, item.description);
+        continue;
+      }
+
+      const original = originalItems.find((i) => i.id === item.id);
+      if (!original) continue;
+
+      const changes: { description?: string; completed?: boolean } = {};
+
+      if (original.description !== item.description) {
+        changes.description = item.description;
+      }
+
+      if (original.completed !== item.completed) {
+        changes.completed = item.completed;
+      }
+
+      if (Object.keys(changes).length) {
+        await updateChecklistItem(task.id, item.id, changes);
+      }
+    }
+
     onSave(editedTask);
     setIsEditing(false);
   };
@@ -81,251 +119,379 @@ export function TaskDetailsModal({
 
   return (
     <>
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
-      <View className="flex-1 bg-white dark:bg-gray-900">
-        <ModalHeader title="Detalhes da Tarefa" onClose={onClose} safeTop />
+      <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+        <View className="flex-1 bg-white dark:bg-gray-900">
+          <ModalHeader title="Detalhes da Tarefa" onClose={onClose} safeTop />
 
-        <ScrollView className="flex-1 px-6 pt-6" contentContainerStyle={{ paddingBottom: 40 }}>
-          <View className="mb-5">
-            <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">Título</Text>
-            {isEditing ? (
-              <TextInput
-                value={editedTask.title}
-                onChangeText={(text) => setEditedTask({ ...editedTask, title: text })}
-                className="border-2 border-primary rounded-lg px-4 py-3 text-base text-gray-900 dark:text-gray-100 dark:bg-gray-800"
-              />
-            ) : (
-              <Text className="text-xl font-bold text-gray-900 dark:text-gray-100">{task.title}</Text>
-            )}
-          </View>
-
-          <View className="mb-5">
-            <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">Descrição</Text>
-            {isEditing ? (
-              <TextInput
-                value={editedTask.description || ""}
-                onChangeText={(text) => setEditedTask({ ...editedTask, description: text })}
-                multiline
-                numberOfLines={3}
-                textAlignVertical="top"
-                className="border-2 border-primary rounded-lg px-4 py-3 text-base text-gray-900 dark:text-gray-100 dark:bg-gray-800 min-h-[80px]"
-                placeholder="Adicione uma descrição..."
-                placeholderTextColor={colors.grayLight}
-              />
-            ) : (
-              <Text className="text-base text-gray-600 dark:text-gray-300">
-                {task.description || "Sem descrição"}
-              </Text>
-            )}
-          </View>
-
-          <View className="flex-row gap-4 mb-5">
-            <View className="flex-1">
-              <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2 flex-row items-center">
-                <MaterialIcons name="check-circle" size={14} color={colors.icon} />{" "}
-                Status
-              </Text>
+          <ScrollView className="flex-1 px-6 pt-6" contentContainerStyle={{ paddingBottom: 40 }}>
+            <View className="mb-5">
+              <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">Título</Text>
               {isEditing ? (
-                <View className="gap-1">
-                  {Object.values(Status).map((s) => (
-                    <TouchableOpacity
-                      key={s}
-                      onPress={() => setEditedTask({ ...editedTask, status: s })}
-                      className={`py-2 px-3 rounded-lg border ${
-                        editedTask.status === s
-                          ? "border-primary bg-primary/10"
-                          : "border-gray-200 dark:border-gray-600"
-                      }`}
-                    >
-                      <Text
-                        className={`text-sm ${
-                          editedTask.status === s ? "text-primary font-semibold" : "text-gray-600 dark:text-gray-300"
-                        }`}
+                <TextInput
+                  value={editedTask.title}
+                  onChangeText={(text) => setEditedTask({ ...editedTask, title: text })}
+                  className="border-2 border-primary rounded-lg px-4 py-3 text-base text-gray-900 dark:text-gray-100 dark:bg-gray-800"
+                />
+              ) : (
+                <Text className="text-xl font-bold text-gray-900 dark:text-gray-100">{task.title}</Text>
+              )}
+            </View>
+
+            <View className="mb-5">
+              <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">Descrição</Text>
+              {isEditing ? (
+                <TextInput
+                  value={editedTask.description || ""}
+                  onChangeText={(text) => setEditedTask({ ...editedTask, description: text })}
+                  multiline
+                  numberOfLines={3}
+                  textAlignVertical="top"
+                  className="border-2 border-primary rounded-lg px-4 py-3 text-base text-gray-900 dark:text-gray-100 dark:bg-gray-800 min-h-[80px]"
+                  placeholder="Adicione uma descrição..."
+                  placeholderTextColor={colors.grayLight}
+                />
+              ) : (
+                <Text className="text-base text-gray-600 dark:text-gray-300">
+                  {task.description || "Sem descrição"}
+                </Text>
+              )}
+            </View>
+
+            <View className="flex-row gap-4 mb-5">
+              <View className="flex-1">
+                <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2 flex-row items-center">
+                  <MaterialIcons name="check-circle" size={14} color={colors.icon} />{" "}
+                  Status
+                </Text>
+                {isEditing ? (
+                  <View className="gap-1">
+                    {Object.values(Status).map((s) => (
+                      <TouchableOpacity
+                        key={s}
+                        onPress={() => setEditedTask({ ...editedTask, status: s })}
+                        className={`py-2 px-3 rounded-lg border ${editedTask.status === s
+                            ? "border-primary bg-primary/10"
+                            : "border-gray-200 dark:border-gray-600"
+                          }`}
                       >
-                        {statusLabels[s]}
+                        <Text
+                          className={`text-sm ${editedTask.status === s ? "text-primary font-semibold" : "text-gray-600 dark:text-gray-300"
+                            }`}
+                        >
+                          {statusLabels[s]}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ) : (
+                  <Text className="text-base text-gray-700 dark:text-gray-300">{statusLabels[task.status]}</Text>
+                )}
+              </View>
+
+              <View className="flex-1">
+                <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">
+                  <MaterialIcons name="label" size={14} color={colors.icon} />{" "}
+                  Prioridade
+                </Text>
+                {isEditing ? (
+                  <View className="gap-1">
+                    {Object.values(Priority).map((p) => (
+                      <TouchableOpacity
+                        key={p}
+                        onPress={() => setEditedTask({ ...editedTask, priority: p })}
+                        className={`py-2 px-3 rounded-lg border ${editedTask.priority === p
+                            ? "border-primary bg-primary/10"
+                            : "border-gray-200 dark:border-gray-600"
+                          }`}
+                      >
+                        <Text
+                          className={`text-sm ${editedTask.priority === p ? "text-primary font-semibold" : "text-gray-600 dark:text-gray-300"
+                            }`}
+                        >
+                          {priorityConfig[p].label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ) : (
+                  <View
+                    className="self-start px-3 py-1 rounded-full"
+                    style={{
+                      backgroundColor: priorityConfig[task.priority].bg,
+                      borderColor: priorityConfig[task.priority].border,
+                      borderWidth: 1,
+                    }}
+                  >
+                    <Text style={{ color: priorityConfig[task.priority].text, fontSize: 13, fontWeight: "600" }}>
+                      {priorityConfig[task.priority].label}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            <View className="mb-5">
+              <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
+                <MaterialIcons name="timer" size={14} color={colors.icon} />{" "}
+                Pomodoros
+              </Text>
+
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-sm text-gray-500 dark:text-gray-400">Estimados</Text>
+                {isEditing ? (
+                  <View className="flex-row items-center gap-2">
+                    <TouchableOpacity
+                      onPress={() => {
+                        const newEst = Math.max(1, editedTask.estimatedPomodoros - 1);
+                        const newComp = Math.min(editedTask.completedPomodoros, newEst);
+                        updatePomodoros(newComp, newEst);
+                      }}
+                      className="w-8 h-8 rounded-md border border-gray-200 dark:border-gray-600 items-center justify-center"
+                    >
+                      <Text className="text-gray-600 dark:text-gray-300 font-bold">-</Text>
+                    </TouchableOpacity>
+                    <Text className="font-semibold w-8 text-center dark:text-gray-100">{editedTask.estimatedPomodoros}</Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        const newEst = Math.min(10, editedTask.estimatedPomodoros + 1);
+                        updatePomodoros(editedTask.completedPomodoros, newEst);
+                      }}
+                      className="w-8 h-8 rounded-md border border-gray-200 dark:border-gray-600 items-center justify-center"
+                    >
+                      <Text className="text-gray-600 dark:text-gray-300 font-bold">+</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <Text className="font-semibold text-gray-900 dark:text-gray-100">{task.estimatedPomodoros}</Text>
+                )}
+              </View>
+
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-sm text-gray-500 dark:text-gray-400">Completados</Text>
+                {isEditing ? (
+                  <View className="flex-row items-center gap-2">
+                    <TouchableOpacity
+                      onPress={() => {
+                        const newComp = Math.max(0, editedTask.completedPomodoros - 1);
+                        updatePomodoros(newComp, editedTask.estimatedPomodoros);
+                      }}
+                      disabled={editedTask.completedPomodoros === 0}
+                      className="w-8 h-8 rounded-md border border-gray-200 dark:border-gray-600 items-center justify-center"
+                    >
+                      <Text className="text-gray-600 dark:text-gray-300 font-bold">-</Text>
+                    </TouchableOpacity>
+                    <Text className="font-semibold w-8 text-center dark:text-gray-100">
+                      {editedTask.completedPomodoros}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        const newComp = Math.min(editedTask.estimatedPomodoros, editedTask.completedPomodoros + 1);
+                        updatePomodoros(newComp, editedTask.estimatedPomodoros);
+                      }}
+                      disabled={editedTask.completedPomodoros >= editedTask.estimatedPomodoros}
+                      className="w-8 h-8 rounded-md border border-gray-200 dark:border-gray-600 items-center justify-center"
+                    >
+                      <Text className="text-gray-600 dark:text-gray-300 font-bold">+</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <Text className="font-semibold text-gray-900 dark:text-gray-100">{task.completedPomodoros}</Text>
+                )}
+              </View>
+
+              <ProgressBar percent={progressPercent} />
+              <View className="flex-row items-center justify-between">
+                <Text className="text-xs text-gray-400">
+                  {(isEditing ? editedTask : task).completedPomodoros * sessionMinutes}min / {(isEditing ? editedTask : task).estimatedPomodoros * sessionMinutes}min
+                </Text>
+                <Text className="text-xs text-gray-400">{progressPercent}% completo</Text>
+              </View>
+            </View>
+
+            {((task.checklistItems && task.checklistItems.length > 0) || isEditing) && (
+              <View className="mb-5">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400">
+                    <MaterialIcons name="checklist" size={14} color={colors.icon} />{" "}
+                    Checklist
+                  </Text>
+                  {isEditing && editedTask.checklistItems && editedTask.checklistItems.length > 0 && (
+                    <Text className="text-xs text-gray-400">
+                      {editedTask.checklistItems.filter((i) => i.completed).length}/{editedTask.checklistItems.length}
+                    </Text>
+                  )}
+                </View>
+
+                {isEditing ? (
+                  <>
+                    {editedTask.checklistItems?.map((item) => (
+                      <View key={item.id} className="flex-row items-center mb-2 gap-2">
+                        <TouchableOpacity
+                          onPress={() => {
+                            setEditedTask((prev) => ({
+                              ...prev,
+                              checklistItems: prev.checklistItems?.map((i) =>
+                                i.id === item.id ? { ...i, completed: !i.completed } : i
+                              ),
+                            }));
+                          }}
+                          className="p-1"
+                        >
+                          <MaterialIcons
+                            name={item.completed ? "check-box" : "check-box-outline-blank"}
+                            size={22}
+                            color={item.completed ? colors.primary : colors.grayLight}
+                          />
+                        </TouchableOpacity>
+                        <TextInput
+                          value={item.description}
+                          onChangeText={(text) => {
+                            setEditedTask((prev) => ({
+                              ...prev,
+                              checklistItems: prev.checklistItems?.map((i) =>
+                                i.id === item.id ? { ...i, description: text } : i
+                              ),
+                            }));
+                          }}
+                          className="flex-1 border-b border-gray-200 dark:border-gray-600 py-1 text-base text-gray-900 dark:text-gray-100"
+                        />
+                        <TouchableOpacity
+                          onPress={() => {
+                            setEditedTask((prev) => ({
+                              ...prev,
+                              checklistItems: prev.checklistItems?.filter((i) => i.id !== item.id),
+                            }));
+                          }}
+                          className="p-1"
+                        >
+                          <MaterialIcons name="close" size={18} color={colors.destructive} />
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                    <View className="flex-row items-center gap-2 mt-1">
+                      <TextInput
+                        value={newChecklistItemText}
+                        onChangeText={setNewChecklistItemText}
+                        placeholder="Novo item..."
+                        placeholderTextColor={colors.grayLight}
+                        className="flex-1 border-2 border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                        onSubmitEditing={() => {
+                          const text = newChecklistItemText.trim();
+                          if (!text) return;
+                          const tempItem: ChecklistItem = {
+                            id: `temp-${Date.now()}`,
+                            description: text,
+                            completed: false,
+                          };
+                          setEditedTask((prev) => ({
+                            ...prev,
+                            checklistItems: [...(prev.checklistItems ?? []), tempItem],
+                          }));
+                          setNewChecklistItemText("");
+                        }}
+                        returnKeyType="done"
+                      />
+                      <TouchableOpacity
+                        onPress={() => {
+                          const text = newChecklistItemText.trim();
+                          if (!text) return;
+                          const tempItem: ChecklistItem = {
+                            id: `temp-${Date.now()}`,
+                            description: text,
+                            completed: false,
+                          };
+                          setEditedTask((prev) => ({
+                            ...prev,
+                            checklistItems: [...(prev.checklistItems ?? []), tempItem],
+                          }));
+                          setNewChecklistItemText("");
+                        }}
+                        disabled={!newChecklistItemText.trim()}
+                        className={`w-8 h-8 rounded-lg items-center justify-center ${newChecklistItemText.trim() ? "bg-primary" : "bg-gray-200 dark:bg-gray-700"
+                          }`}
+                      >
+                        <MaterialIcons name="add" size={18} color={newChecklistItemText.trim() ? "#fff" : colors.grayLight} />
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                ) : (
+                  task.checklistItems?.map((item) => (
+                    <TouchableOpacity
+                      key={item.id}
+                      onPress={() => toggleChecklistItem(task.id, item.id, !item.completed)}
+                      className="flex-row items-center mb-2 gap-2 py-1"
+                    >
+                      <MaterialIcons
+                        name={item.completed ? "check-box" : "check-box-outline-blank"}
+                        size={22}
+                        color={item.completed ? colors.primary : colors.grayLight}
+                      />
+                      <Text
+                        className={`flex-1 text-base ${item.completed
+                            ? "text-gray-400 line-through"
+                            : "text-gray-700 dark:text-gray-300"
+                          }`}
+                      >
+                        {item.description}
                       </Text>
                     </TouchableOpacity>
-                  ))}
-                </View>
-              ) : (
-                <Text className="text-base text-gray-700 dark:text-gray-300">{statusLabels[task.status]}</Text>
-              )}
-            </View>
+                  ))
+                )}
+              </View>
+            )}
+          </ScrollView>
 
-            <View className="flex-1">
-              <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">
-                <MaterialIcons name="label" size={14} color={colors.icon} />{" "}
-                Prioridade
-              </Text>
-              {isEditing ? (
-                <View className="gap-1">
-                  {Object.values(Priority).map((p) => (
-                    <TouchableOpacity
-                      key={p}
-                      onPress={() => setEditedTask({ ...editedTask, priority: p })}
-                      className={`py-2 px-3 rounded-lg border ${
-                        editedTask.priority === p
-                          ? "border-primary bg-primary/10"
-                          : "border-gray-200 dark:border-gray-600"
-                      }`}
-                    >
-                      <Text
-                        className={`text-sm ${
-                          editedTask.priority === p ? "text-primary font-semibold" : "text-gray-600 dark:text-gray-300"
-                        }`}
-                      >
-                        {priorityConfig[p].label}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              ) : (
-                <View
-                  className="self-start px-3 py-1 rounded-full"
-                  style={{
-                    backgroundColor: priorityConfig[task.priority].bg,
-                    borderColor: priorityConfig[task.priority].border,
-                    borderWidth: 1,
-                  }}
-                >
-                  <Text style={{ color: priorityConfig[task.priority].text, fontSize: 13, fontWeight: "600" }}>
-                    {priorityConfig[task.priority].label}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </View>
-
-          <View className="mb-5">
-            <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
-              <MaterialIcons name="timer" size={14} color={colors.icon} />{" "}
-              Pomodoros
-            </Text>
-
-            <View className="flex-row items-center justify-between mb-2">
-              <Text className="text-sm text-gray-500 dark:text-gray-400">Estimados</Text>
-              {isEditing ? (
-                <View className="flex-row items-center gap-2">
-                  <TouchableOpacity
-                    onPress={() => {
-                      const newEst = Math.max(1, editedTask.estimatedPomodoros - 1);
-                      const newComp = Math.min(editedTask.completedPomodoros, newEst);
-                      updatePomodoros(newComp, newEst);
-                    }}
-                    className="w-8 h-8 rounded-md border border-gray-200 dark:border-gray-600 items-center justify-center"
-                  >
-                    <Text className="text-gray-600 dark:text-gray-300 font-bold">-</Text>
-                  </TouchableOpacity>
-                  <Text className="font-semibold w-8 text-center dark:text-gray-100">{editedTask.estimatedPomodoros}</Text>
-                  <TouchableOpacity
-                    onPress={() => {
-                      const newEst = Math.min(10, editedTask.estimatedPomodoros + 1);
-                      updatePomodoros(editedTask.completedPomodoros, newEst);
-                    }}
-                    className="w-8 h-8 rounded-md border border-gray-200 dark:border-gray-600 items-center justify-center"
-                  >
-                    <Text className="text-gray-600 dark:text-gray-300 font-bold">+</Text>
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <Text className="font-semibold text-gray-900 dark:text-gray-100">{task.estimatedPomodoros}</Text>
-              )}
-            </View>
-
-            <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-sm text-gray-500 dark:text-gray-400">Completados</Text>
-              {isEditing ? (
-                <View className="flex-row items-center gap-2">
-                  <TouchableOpacity
-                    onPress={() => {
-                      const newComp = Math.max(0, editedTask.completedPomodoros - 1);
-                      updatePomodoros(newComp, editedTask.estimatedPomodoros);
-                    }}
-                    disabled={editedTask.completedPomodoros === 0}
-                    className="w-8 h-8 rounded-md border border-gray-200 dark:border-gray-600 items-center justify-center"
-                  >
-                    <Text className="text-gray-600 dark:text-gray-300 font-bold">-</Text>
-                  </TouchableOpacity>
-                  <Text className="font-semibold w-8 text-center dark:text-gray-100">
-                    {editedTask.completedPomodoros}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => {
-                      const newComp = Math.min(editedTask.estimatedPomodoros, editedTask.completedPomodoros + 1);
-                      updatePomodoros(newComp, editedTask.estimatedPomodoros);
-                    }}
-                    disabled={editedTask.completedPomodoros >= editedTask.estimatedPomodoros}
-                    className="w-8 h-8 rounded-md border border-gray-200 dark:border-gray-600 items-center justify-center"
-                  >
-                    <Text className="text-gray-600 dark:text-gray-300 font-bold">+</Text>
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <Text className="font-semibold text-gray-900 dark:text-gray-100">{task.completedPomodoros}</Text>
-              )}
-            </View>
-
-            <ProgressBar percent={progressPercent} />
-            <View className="flex-row items-center justify-between">
-              <Text className="text-xs text-gray-400">
-                {(isEditing ? editedTask : task).completedPomodoros * sessionMinutes}min / {(isEditing ? editedTask : task).estimatedPomodoros * sessionMinutes}min
-              </Text>
-              <Text className="text-xs text-gray-400">{progressPercent}% completo</Text>
-            </View>
-          </View>
-        </ScrollView>
-
-        <View className="px-6 pb-10 pt-4 border-t border-gray-100 dark:border-gray-700">
-          {isEditing ? (
-            <View className="flex-row gap-3">
-              <TouchableOpacity
-                onPress={handleCancel}
-                className="flex-1 py-3 rounded-lg items-center border-2 border-gray-200 dark:border-gray-600"
-              >
-                <Text className="font-semibold text-gray-600 dark:text-gray-300">Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleSave}
-                className="flex-1 py-3 rounded-lg items-center bg-primary"
-              >
-                <Text className="font-semibold text-white">Salvar</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View className="flex-row gap-3">
-              <TouchableOpacity
-                onPress={() => setIsEditing(true)}
-                className="flex-1 py-3 rounded-lg items-center bg-primary"
-              >
-                <Text className="font-semibold text-white">Editar</Text>
-              </TouchableOpacity>
-              {onDelete && (
+          <View className="px-6 pb-10 pt-4 border-t border-gray-100 dark:border-gray-700">
+            {isEditing ? (
+              <View className="flex-row gap-3">
                 <TouchableOpacity
-                  onPress={handleDelete}
-                  className="flex-1 py-3 rounded-lg items-center border-2 border-red-400"
+                  onPress={handleCancel}
+                  className="flex-1 py-3 rounded-lg items-center border-2 border-gray-200 dark:border-gray-600"
                 >
-                  <Text className="font-semibold text-red-500">Deletar</Text>
+                  <Text className="font-semibold text-gray-600 dark:text-gray-300">Cancelar</Text>
                 </TouchableOpacity>
-              )}
-            </View>
-          )}
+                <TouchableOpacity
+                  onPress={handleSave}
+                  className="flex-1 py-3 rounded-lg items-center bg-primary"
+                >
+                  <Text className="font-semibold text-white">Salvar</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View className="flex-row gap-3">
+                <TouchableOpacity
+                  onPress={() => setIsEditing(true)}
+                  className="flex-1 py-3 rounded-lg items-center bg-primary"
+                >
+                  <Text className="font-semibold text-white">Editar</Text>
+                </TouchableOpacity>
+                {onDelete && (
+                  <TouchableOpacity
+                    onPress={handleDelete}
+                    className="flex-1 py-3 rounded-lg items-center border-2 border-red-400"
+                  >
+                    <Text className="font-semibold text-red-500">Deletar</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+          </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
 
-    <ConfirmModal
-      visible={showDeleteConfirm}
-      title="Deletar tarefa"
-      message="Tem certeza que deseja deletar esta tarefa? Esta ação não pode ser desfeita."
-      confirmLabel="Excluir"
-      cancelLabel="Cancelar"
-      destructive
-      onConfirm={() => {
-        setShowDeleteConfirm(false);
-        onDelete?.(task.id);
-      }}
-      onCancel={() => setShowDeleteConfirm(false)}
-    />
+      <ConfirmModal
+        visible={showDeleteConfirm}
+        title="Deletar tarefa"
+        message="Tem certeza que deseja deletar esta tarefa? Esta ação não pode ser desfeita."
+        confirmLabel="Excluir"
+        cancelLabel="Cancelar"
+        destructive
+        onConfirm={() => {
+          setShowDeleteConfirm(false);
+          onDelete?.(task.id);
+        }}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </>
   );
 }
