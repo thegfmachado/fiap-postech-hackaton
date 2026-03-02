@@ -1,5 +1,5 @@
 import { Priority, Status, Task } from "@mindease/models";
-import { ITask, ITaskInsert, ITaskUpdate, TypedSupabaseClient } from "../../types.js";
+import { TaskRow, TaskRowInsert, TaskRowUpdate, TypedSupabaseClient } from "../../types.js";
 import { GetAllTasksResponse, ITasksQueries } from "./tasks-queries.interface.js";
 
 export class TasksQueriesService implements ITasksQueries {
@@ -46,7 +46,7 @@ export class TasksQueriesService implements ITasksQueries {
     return this.dbTaskToTask(data);
   }
 
-  async create(taskToInsert: ITaskInsert): Promise<Task> {
+  async create(taskToInsert: TaskRowInsert): Promise<Task> {
     const { data, error } = await this.client
       .from(TasksQueriesService.TABLE_NAME)
       .insert(taskToInsert)
@@ -61,7 +61,7 @@ export class TasksQueriesService implements ITasksQueries {
     return this.dbTaskToTask(data);
   }
 
-  async update(id: string, taskToUpdate: ITaskUpdate): Promise<Task> {
+  async update(id: string, taskToUpdate: TaskRowUpdate): Promise<Task> {
     const { data, error } = await this.client
       .from(TasksQueriesService.TABLE_NAME)
       .update(taskToUpdate)
@@ -93,7 +93,7 @@ export class TasksQueriesService implements ITasksQueries {
     return this.dbTaskToTask(data);
   }
 
-  dbTaskToTask(row: ITask): Task {
+  dbTaskToTask(row: TaskRow): Task {
     let checklistItems = [];
 
     if ('checklists' in row && Array.isArray(row.checklists)) {

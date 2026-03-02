@@ -1,5 +1,5 @@
 import { ContrastMode, defaultPomodoroSettings, UserSettings, Size, ViewMode } from "@mindease/models";
-import { ISettings, ISettingsUpdate, TypedSupabaseClient } from "../../types.js";
+import { SettingsRow, SettingsRowUpdate, TypedSupabaseClient } from "../../types.js";
 import { ISettingsQueries } from "./settings-queries.interface.js";
 
 export class SettingsQueriesService implements ISettingsQueries {
@@ -40,7 +40,7 @@ export class SettingsQueriesService implements ISettingsQueries {
     return this.dbSettingsToSettings(data);
   }
 
-  async upsert(id: string, settingsToUpdate: ISettingsUpdate): Promise<UserSettings> {
+  async upsert(id: string, settingsToUpdate: SettingsRowUpdate): Promise<UserSettings> {
     const { data: { user }, error: authError } = await this.client.auth.getUser();
 
     if (authError || !user) {
@@ -65,7 +65,7 @@ export class SettingsQueriesService implements ISettingsQueries {
     return this.dbSettingsToSettings(data);
   }
 
-  private dbSettingsToSettings(row: ISettings): UserSettings {
+  private dbSettingsToSettings(row: SettingsRow): UserSettings {
     return {
       pomodoroDurationMinutes: row.pomodoro_duration_minutes,
       shortBreakDurationMinutes: row.short_break_minutes,
