@@ -6,8 +6,7 @@ import {
   TouchableOpacityProps,
 } from 'react-native';
 
-import { cva } from 'class-variance-authority';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { useAppColors } from '@/hooks/useAppColors';
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
@@ -16,46 +15,17 @@ interface ButtonProps extends TouchableOpacityProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const buttonVariants = cva('rounded-lg items-center justify-center flex-row', {
-  variants: {
-    variant: {
-      primary: 'bg-primary text-primary-foreground',
-      secondary: 'bg-secondary text-secondary-foreground',
-      ghost: 'bg-transparent text-primary',
-    },
-    size: {
-      sm: 'px-4 py-2 text-sm',
-      md: 'px-6 py-3 text-base',
-      lg: 'px-8 py-4 text-lg',
-    },
-    disabled: {
-      true: 'opacity-50',
-    },
-  },
-  defaultVariants: {
-    variant: 'primary',
-    size: 'lg',
-  },
-});
+const variantStyles = {
+  primary: { button: 'bg-primary', text: 'text-white font-semibold' },
+  secondary: { button: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-800 dark:text-gray-200 font-semibold' },
+  ghost: { button: 'bg-transparent', text: 'text-primary font-medium' },
+};
 
-const textVariants = cva('', {
-  variants: {
-    variant: {
-      primary: 'text-primary-foreground font-semibold',
-      secondary: 'text-secondary-foreground font-semibold',
-      ghost: 'text-primary font-medium',
-    },
-    size: {
-      sm: 'text-sm',
-      md: 'text-base',
-      lg: 'text-lg',
-    },
-  },
-  defaultVariants: {
-    variant: 'primary',
-    size: 'lg',
-  },
-});
+const sizeStyles = {
+  sm: { button: 'px-4 py-2', text: 'text-sm' },
+  md: { button: 'px-6 py-3', text: 'text-base' },
+  lg: { button: 'px-8 py-4', text: 'text-lg' },
+};
 
 export function Button({
   title,
@@ -66,9 +36,10 @@ export function Button({
   className,
   ...props
 }: ButtonProps) {
+  const { colors } = useAppColors();
   const isDisabled = disabled || loading;
-  const tintColor = useThemeColor({}, 'tint');
-  const textOnPrimary = useThemeColor({}, 'textOnPrimary');
+  const vs = variantStyles[variant];
+  const ss = sizeStyles[size];
 
   return (
     <TouchableOpacity
@@ -77,21 +48,18 @@ export function Button({
       accessibilityLabel={title}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
-      className={`
-        ${buttonVariants({ variant, size, disabled: isDisabled })}
-        ${className || ''}
-      `}
+      className={`rounded-xl items-center justify-center flex-row ${vs.button} ${ss.button} ${isDisabled ? 'opacity-50' : ''} ${className || ''}`}
+      activeOpacity={0.8}
     >
       {loading && (
         <ActivityIndicator
           accessibilityLabel="Carregando"
-          color={variant === 'primary' ? textOnPrimary : tintColor}
+          color={variant === 'primary' ? '#FFFFFF' : colors.primary}
           size="small"
-          className="mr-2"
+          style={{ marginRight: 8 }}
         />
       )}
-
-      <Text className={textVariants({ variant, size })}>
+      <Text className={`${vs.text} ${ss.text}`}>
         {title}
       </Text>
     </TouchableOpacity>

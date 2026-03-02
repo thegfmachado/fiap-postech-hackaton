@@ -1,23 +1,11 @@
-import { Text, type TextProps } from 'react-native';
-
+import { Text, type TextProps, StyleSheet } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
   type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
-};
-
-const TYPE_CLASS_MAP: Record<string, string> = {
-  title: 'text-[32px] font-bold leading-tight',
-  subtitle: 'text-xl font-bold',
-  defaultSemiBold: 'text-base leading-6 font-semibold',
-  link: 'text-base leading-[30px] text-primary font-semibold',
-  default: 'text-base leading-6',
-} ;
-
-const getTypeClassName = (type: string) => {
-  return TYPE_CLASS_MAP[type] || TYPE_CLASS_MAP.default;
+  className?: string;
 };
 
 export function ThemedText({
@@ -25,16 +13,24 @@ export function ThemedText({
   darkColor,
   type = 'default',
   className,
+  style,
   ...rest
-}: Omit<ThemedTextProps, 'style'> & { className?: string }) {
+}: ThemedTextProps) {
   const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
-  const typeClassName = getTypeClassName(type);
 
   return (
     <Text
-      style={{ color }}
-      className={`${typeClassName}${className ? ` ${className}` : ''}`}
+      style={[{ color }, styles[type], style]}
+      className={className}
       {...rest}
     />
   );
 }
+
+const styles = StyleSheet.create({
+  default: { fontSize: 16, lineHeight: 24 },
+  title: { fontSize: 32, fontWeight: 'bold', lineHeight: 38 },
+  defaultSemiBold: { fontSize: 16, lineHeight: 24, fontWeight: '600' },
+  subtitle: { fontSize: 20, fontWeight: 'bold' },
+  link: { fontSize: 16, lineHeight: 30, fontWeight: '600' },
+});
