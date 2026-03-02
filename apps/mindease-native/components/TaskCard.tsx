@@ -8,6 +8,7 @@ import { ConfirmModal } from "@/components/ConfirmModal";
 import { usePomodoroSettingsContext } from "@/contexts/pomodoro-settings-context";
 import { useAppColors } from "@/hooks/useAppColors";
 import { getPriorityConfig } from "@/constants/priority";
+import { getChecklistProgress } from "@mindease/utils";
 
 interface TaskCardProps {
   task: Task;
@@ -24,6 +25,7 @@ export function TaskCard({ task, onPress, onDelete }: TaskCardProps) {
   const { settings: { work: sessionMinutes } } = usePomodoroSettingsContext();
   const elapsedMin = task.completedPomodoros * sessionMinutes;
   const totalMin = task.estimatedPomodoros * sessionMinutes;
+  const checklistProgress = getChecklistProgress(task);
 
   return (
     <>
@@ -70,6 +72,15 @@ export function TaskCard({ task, onPress, onDelete }: TaskCardProps) {
           {task.description}
         </Text>
       ) : null}
+
+      {!isSimplified && task.checklistItems && task.checklistItems.length > 0 && (
+        <View className="flex-row items-center gap-1 mb-2">
+          <MaterialIcons name="checklist" size={12} color={colors.grayLight} />
+          <Text className="text-xs text-gray-400">
+            {checklistProgress.completed}/{checklistProgress.total}
+          </Text>
+        </View>
+      )}
 
       <View className="flex-row items-center justify-between">
         <View

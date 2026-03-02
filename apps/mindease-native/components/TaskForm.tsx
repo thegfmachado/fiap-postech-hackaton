@@ -37,6 +37,19 @@ export function TaskForm({ onSubmit, onCancel, initialValues }: TaskFormProps) {
   const [estimatedPomodoros, setEstimatedPomodoros] = useState(
     initialValues?.estimatedPomodoros || 1
   );
+  const [checklistItems, setChecklistItems] = useState<{ tempId: string; description: string }[]>([]);
+  const [newItemText, setNewItemText] = useState("");
+
+  const handleAddItem = () => {
+    const text = newItemText.trim();
+    if (!text) return;
+    setChecklistItems((prev) => [...prev, { tempId: Date.now().toString(), description: text }]);
+    setNewItemText("");
+  };
+
+  const handleRemoveItem = (tempId: string) => {
+    setChecklistItems((prev) => prev.filter((i) => i.tempId !== tempId));
+  };
 
   const handleSubmit = async () => {
     if (!title.trim()) return;
@@ -48,6 +61,9 @@ export function TaskForm({ onSubmit, onCancel, initialValues }: TaskFormProps) {
       priority,
       estimatedPomodoros,
       completedPomodoros: initialValues?.completedPomodoros || 0,
+      checklistItems: checklistItems.length > 0
+        ? checklistItems.map((i) => ({ description: i.description, completed: false }))
+        : undefined,
     });
   };
 
@@ -121,6 +137,46 @@ export function TaskForm({ onSubmit, onCancel, initialValues }: TaskFormProps) {
                 </Text>
               </TouchableOpacity>
             ))}
+          </View>
+        </View>
+
+        <View style={{ marginBottom: 16 * spacingScale }}>
+          <Text className="text-sm font-medium" style={{ fontSize: 14 * fontScale, marginBottom: 8 * spacingScale, color: colors.text }}>Checklist</Text>
+          {checklistItems.map((item) => (
+            <View key={item.tempId} className="flex-row items-center gap-2" style={{ marginBottom: 8 * spacingScale }}>
+              <View className="flex-1 border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800" style={{ paddingHorizontal: 16 * spacingScale, paddingVertical: 8 * spacingScale, ...(isHighContrast ? { borderColor: colors.border } : {}) }}>
+                <Text style={{ fontSize: 16 * fontScale, color: colors.text }}>{item.description}</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => handleRemoveItem(item.tempId)}
+                style={{ padding: 8 * spacingScale }}
+                accessibilityLabel="Remover item"
+              >
+                <MaterialIcons name="close" size={20} color={colors.destructive} />
+              </TouchableOpacity>
+            </View>
+          ))}
+          <View className="flex-row items-center" style={{ gap: 8 * spacingScale }}>
+            <TextInput
+              value={newItemText}
+              onChangeText={setNewItemText}
+              placeholder="Adicionar item..."
+              placeholderTextColor={colors.grayLight}
+              className="flex-1 border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
+              style={{ paddingHorizontal: 16 * spacingScale, paddingVertical: 8 * spacingScale, fontSize: 16 * fontScale, color: colors.text, ...(isHighContrast ? { borderColor: colors.border } : {}) }}
+              onSubmitEditing={handleAddItem}
+              returnKeyType="done"
+            />
+            <TouchableOpacity
+              onPress={handleAddItem}
+              disabled={!newItemText.trim()}
+              className={`w-10 h-10 rounded-lg items-center justify-center ${
+                newItemText.trim() ? "bg-primary" : "bg-gray-200 dark:bg-gray-700"
+              }`}
+              accessibilityLabel="Adicionar item ao checklist"
+            >
+              <MaterialIcons name="add" size={20} color={newItemText.trim() ? "#fff" : colors.grayLight} />
+            </TouchableOpacity>
           </View>
         </View>
 

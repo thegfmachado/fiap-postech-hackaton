@@ -1,6 +1,7 @@
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { TypedSupabaseClient } from "@mindease/database/types";
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
@@ -21,7 +22,7 @@ export function getSupabase(): SupabaseClient {
   return _supabase;
 }
 
-export const supabase = new Proxy({} as SupabaseClient, {
+export const supabase = new Proxy({} as TypedSupabaseClient, {
   get(_target, prop) {
     return (getSupabase() as any)[prop];
   },
