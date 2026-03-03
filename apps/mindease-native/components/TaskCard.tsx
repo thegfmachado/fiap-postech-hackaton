@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Task } from "@mindease/models";
 import { useDisplayMode } from "@/contexts/display-mode-context";
+import { useAccessibility } from "@/contexts/accessibility-context";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { usePomodoroSettingsContext } from "@/contexts/pomodoro-settings-context";
 import { useAppColors } from "@/hooks/useAppColors";
@@ -17,6 +18,7 @@ interface TaskCardProps {
 export function TaskCard({ task, onPress, onDelete }: TaskCardProps) {
   const { isSimplified } = useDisplayMode();
   const { isDark, colors } = useAppColors();
+  const { fontScale, isHighContrast } = useAccessibility();
   const config = getPriorityConfig(isDark)[task.priority];
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { settings: { work: sessionMinutes } } = usePomodoroSettingsContext();
@@ -35,11 +37,13 @@ export function TaskCard({ task, onPress, onDelete }: TaskCardProps) {
           shadowOpacity: 0.04,
           shadowRadius: 2,
           elevation: 1,
+          ...(isHighContrast ? { borderColor: colors.border, borderWidth: 2 } : {}),
         }}
       >
       <View className="flex-row items-center justify-between mb-1">
         <Text
-          className="font-semibold text-xs text-gray-900 dark:text-gray-100 flex-1 mr-2"
+          className="font-semibold text-gray-900 dark:text-gray-100 flex-1 mr-2"
+          style={{ fontSize: 12 * fontScale, color: colors.text }}
           numberOfLines={1}
         >
           {task.title}
@@ -60,7 +64,7 @@ export function TaskCard({ task, onPress, onDelete }: TaskCardProps) {
       </View>
 
       {!isSimplified && task.description ? (
-        <Text className="text-xs text-gray-500 dark:text-gray-400 mb-2" numberOfLines={1}>
+        <Text className="text-gray-500 dark:text-gray-400 mb-2" style={{ fontSize: 12 * fontScale, color: colors.mutedForeground }} numberOfLines={1}>
           {task.description}
         </Text>
       ) : null}
@@ -70,7 +74,7 @@ export function TaskCard({ task, onPress, onDelete }: TaskCardProps) {
           className="px-1.5 py-0.5 rounded-full"
           style={{ backgroundColor: config.bg, borderColor: config.border, borderWidth: 1 }}
         >
-          <Text style={{ color: config.text, fontSize: 10, fontWeight: "600" }}>
+          <Text style={{ color: config.text, fontSize: 10 * fontScale, fontWeight: "600" }}>
             {config.label}
           </Text>
         </View>
@@ -78,7 +82,7 @@ export function TaskCard({ task, onPress, onDelete }: TaskCardProps) {
         {!isSimplified && (
           <View className="flex-row items-center gap-1">
             <MaterialIcons name="timer" size={12} color={colors.grayLight} />
-            <Text className="text-xs text-gray-400">
+            <Text className="text-gray-400" style={{ fontSize: 12 * fontScale, color: colors.mutedForeground }}>
               {task.completedPomodoros}/{task.estimatedPomodoros} · {elapsedMin}min/{totalMin}min
             </Text>
           </View>

@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { useAccessibility } from "@/contexts/accessibility-context";
+import { useAppColors } from "@/hooks/useAppColors";
 
 interface ChipSelectorProps<T extends string | number> {
   options: T[];
@@ -16,6 +18,8 @@ export function ChipSelector<T extends string | number>({
   formatLabel,
   scrollable = false,
 }: ChipSelectorProps<T>) {
+  const { fontScale, isHighContrast } = useAccessibility();
+  const { colors } = useAppColors();
   const label = (v: T) => (formatLabel ? formatLabel(v) : `${v} min`);
 
   const chips = (
@@ -29,6 +33,7 @@ export function ChipSelector<T extends string | number>({
               ? "border-primary bg-primary/10"
               : "border-gray-200 dark:border-gray-600"
           }`}
+          style={isHighContrast && selected !== opt ? { borderColor: colors.border } : undefined}
         >
           <Text
             className={`text-sm font-medium ${
@@ -36,6 +41,10 @@ export function ChipSelector<T extends string | number>({
                 ? "text-primary"
                 : "text-gray-600 dark:text-gray-300"
             }`}
+            style={{
+              fontSize: 14 * fontScale,
+              ...(isHighContrast && selected !== opt ? { color: colors.mutedForeground } : {}),
+            }}
           >
             {label(opt)}
           </Text>
