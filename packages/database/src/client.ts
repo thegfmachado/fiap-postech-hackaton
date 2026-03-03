@@ -1,10 +1,13 @@
 import { createBrowserClient } from '@supabase/ssr'
-import type { Database } from './types.js'
+import type { Database, TypedSupabaseClient } from './types.js'
+import { getSupabaseEnv } from './env.js'
 
-export function createClient() {
+export function createClient(): TypedSupabaseClient {
+  const { url, anonKey } = getSupabaseEnv()
+
   return createBrowserClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    anonKey,
     {
       realtime: {
         params: {

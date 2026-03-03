@@ -1,8 +1,8 @@
 import { ITasksQueries } from "@mindease/database/queries";
 import { HttpError } from "@mindease/services";
 import { ITaskService } from "./tasks-service.interface";
-import type { ITaskInsert, ITaskUpdate } from '@mindease/database/types';
-import { Priority, Status, TaskToInsert } from "@mindease/models";
+import type { ITaskInsert } from '@mindease/database/types';
+import { TaskToInsert } from "@mindease/models";
 
 export class TaskService implements ITaskService {
   private readonly queries: ITasksQueries

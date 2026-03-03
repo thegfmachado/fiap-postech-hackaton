@@ -4,13 +4,16 @@ import type { Database, Tables, TablesInsert, TablesUpdate } from "./generated-t
 
 export type TypedSupabaseClient = SupabaseClient<Database>;
 
-type TransformTasks<T> = Omit<T, 'created_at' | 'updated_at'>;
+export type ITask = Tables<'tasks'>;
+export type ITaskInsert = TablesInsert<'tasks'>;
+export type ITaskUpdate = TablesUpdate<'tasks'>;
 
-export type ITask = TransformTasks<Tables<'tasks'>>;
-export type ITaskInsert = TransformTasks<TablesInsert<'tasks'>>;
-export type ITaskUpdate = TransformTasks<TablesUpdate<'tasks'>>;
+export type ISettings = Tables<'settings'>;
+export type ISettingsInsert = TablesInsert<'settings'>;
+export type ISettingsUpdate = TablesUpdate<'settings'>;
 
-export type ISettings = TransformTasks<Tables<'settings'>>;
-export type ISettingsUpdate = TransformTasks<TablesUpdate<'settings'>>;
+export type IChecklists = Tables<'checklists'>;
+export type IChecklistsInsert = TablesInsert<'checklists'>;
+export type IChecklistsUpdate = TablesUpdate<'checklists'>;
 
 export type { Database } from './generated-types.js';

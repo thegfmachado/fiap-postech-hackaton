@@ -17,6 +17,7 @@ export class SettingsQueriesService implements ISettingsQueries {
       .from(SettingsQueriesService.TABLE_NAME)
       .select('*')
       .eq('id', id)
+      .limit(1)
       .maybeSingle();
 
     if (error) {
@@ -25,7 +26,32 @@ export class SettingsQueriesService implements ISettingsQueries {
     }
 
     if (!data) {
-      return { ...defaultPomodoroSettings };
+      return this.create({
+        contrast_intensity: defaultPomodoroSettings.contrastMode,
+        font_size: defaultPomodoroSettings.fontSize,
+        id: id,
+        long_break_after_pomodoros: defaultPomodoroSettings.longBreakAfterPomodoros,
+        long_break_minutes: defaultPomodoroSettings.longBreakDurationMinutes,
+        pomodoro_duration_minutes: defaultPomodoroSettings.pomodoroDurationMinutes,
+        short_break_minutes: defaultPomodoroSettings.shortBreakDurationMinutes,
+        spacing: defaultPomodoroSettings.spacing,
+        view_mode: defaultPomodoroSettings.viewMode,
+      });
+    }
+
+    return this.dbSettingsToSettings(data);
+  }
+
+  async create(settingsToInsert: Omit<ISettings, 'created_at' | 'updated_at'>): Promise<UserSettings> {
+    const { data, error } = await this.client
+      .from(SettingsQueriesService.TABLE_NAME)
+      .insert(settingsToInsert)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      throw new Error(`Error creating settings: ${error.message}`);
     }
 
     return this.dbSettingsToSettings(data);

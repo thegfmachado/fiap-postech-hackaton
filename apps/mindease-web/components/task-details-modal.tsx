@@ -1,15 +1,18 @@
 "use client";
 
-import { X, Clock, Calendar, Tag, CheckCircle2 } from "lucide-react";
+import { X, Clock, Tag, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { Button, Card, CardContent, CardHeader, Label, Input } from "@mindease/design-system/components";
 import { Task } from "@mindease/models";
+import { ChecklistItemComponent } from "./checklist-item";
 
 interface TaskDetailsModalProps {
   task: Task;
   onClose: () => void;
   onSave: (task: Task) => void;
   onDelete?: (taskId: string) => void;
+  onChecklistToggle?: (taskId: string, itemId: string, completed: boolean) => Promise<void>;
+  onChecklistDelete?: (taskId: string, itemId: string) => Promise<void>;
 }
 
 const priorityColors = {
@@ -30,7 +33,14 @@ const statusLabels = {
   done: "Concluído",
 };
 
-export function TaskDetailsModal({ task, onClose, onSave, onDelete }: TaskDetailsModalProps) {
+export function TaskDetailsModal({ 
+  task, 
+  onClose, 
+  onSave, 
+  onDelete,
+  onChecklistToggle,
+  onChecklistDelete 
+}: TaskDetailsModalProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTask, setEditedTask] = useState(task);
 
@@ -217,16 +227,41 @@ export function TaskDetailsModal({ task, onClose, onSave, onDelete }: TaskDetail
                   <div
                     className="bg-primary rounded-full h-2 transition-all"
                     style={{
-                      width: `${(task.completedPomodoros / task.estimatedPomodoros) * 100}%`,
+                      width: `${Math.min((task.completedPomodoros / task.estimatedPomodoros) * 100, 100)}%`,
                     }}
                   />
                 </div>
                 <p className="text-xs text-muted-foreground text-right">
-                  {Math.round((task.completedPomodoros / task.estimatedPomodoros) * 100)}% completo
+                  {Math.round(Math.min((task.completedPomodoros / task.estimatedPomodoros) * 100, 100))}% completo
                 </p>
               </div>
             </div>
           </div>
+
+          {/* Checklist */}
+          {task.checklistItems && task.checklistItems.length > 0 && (
+            <div>
+              <Label className="text-sm font-semibold mb-3 block">Checklist</Label>
+              <div className="space-y-2">
+                {task.checklistItems.map((item) => (
+                  <ChecklistItemComponent
+                    key={item.id}
+                    item={item}
+                    onToggle={async (completed) => {
+                      if (onChecklistToggle) {
+                        await onChecklistToggle(task.id, item.id, completed);
+                      }
+                    }}
+                    onDelete={async () => {
+                      if (onChecklistDelete) {
+                        await onChecklistDelete(task.id, item.id);
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex gap-2 pt-4 border-t">
@@ -264,3 +299,4 @@ export function TaskDetailsModal({ task, onClose, onSave, onDelete }: TaskDetail
     </div>
   );
 }
+

@@ -30,11 +30,21 @@ export default function Home() {
   const [showForm, setShowForm] = useState(false);
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
-      const response = await tasksService.get();
-      setTasks(response.data);
+      try {
+        const response = await tasksService.get();
+        setTasks(response.data);
+        setError(null);
+      } catch (err) {
+        console.error("Erro ao buscar tarefas", err);
+        setError("Não foi possível carregar as tarefas. Tente novamente.");
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     void fetchTasks();
@@ -42,8 +52,16 @@ export default function Home() {
 
   const handleAddTask = async (data: TaskToInsert) => {
     try {
-      const createdTask = await tasksService.create(data);
-      setTasks([...tasks, createdTask]);
+      const { checklistItems, ...taskData } = data;
+      const createdTask = await tasksService.create(taskData);
+      
+      if (checklistItems && checklistItems.length > 0) {
+        const createdItems = await tasksService.createChecklistItem(createdTask.id, checklistItems.map(item => item.description));
+
+        createdTask.checklistItems = createdItems;
+      }
+      
+      setTasks((prev) => [...prev, createdTask]);
     } catch (error) {
       console.error("Erro ao criar nova tarefa", error);
     } finally {
@@ -54,7 +72,7 @@ export default function Home() {
   const handleDeleteTask = async (taskId: string) => {
     try {
       await tasksService.delete(taskId);
-      setTasks(tasks.filter((task) => task.id !== taskId));
+      setTasks((prev) => prev.filter((task) => task.id !== taskId));
     } catch (error) {
       console.error("Erro ao deletar tarefa", error);
     }
@@ -64,11 +82,7 @@ export default function Home() {
     try {
       const savedTask = await tasksService.update(updatedTask.id, updatedTask);
 
-      setTasks(
-        tasks.map((task) =>
-          task.id === savedTask.id ? savedTask : task
-        )
-      );
+      setTasks((prev) => prev.map((task) => (task.id === savedTask.id ? savedTask : task)));
 
       setSelectedTask(null);
     } catch (error) {
@@ -78,6 +92,68 @@ export default function Home() {
 
   const handleViewTask = (task: Task) => {
     setSelectedTask(task);
+  };
+
+  const handleChecklistToggle = async (taskId: string, itemId: string, completed: boolean) => {
+    try {
+      const updatedItem = await tasksService.updateChecklistItem(taskId, itemId, completed);
+      setTasks((prev) =>
+        prev.map((task) => {
+          if (task.id === taskId && task.checklistItems) {
+            return {
+              ...task,
+              checklistItems: task.checklistItems.map((item) =>
+                item.id === itemId ? updatedItem : item
+              ),
+            };
+          }
+          return task;
+        })
+      );
+      
+      setSelectedTask((current) => {
+        if (current && current.id === taskId && current.checklistItems) {
+          return {
+            ...current,
+            checklistItems: current.checklistItems.map((item) =>
+              item.id === itemId ? updatedItem : item
+            ),
+          };
+        }
+        return current;
+      });
+    } catch (error) {
+      console.error("Erro ao atualizar item da checklist", error);
+    }
+  };
+
+  const handleChecklistDelete = async (taskId: string, itemId: string) => {
+    try {
+      await tasksService.deleteChecklistItem(taskId, itemId);
+      setTasks((prev) =>
+        prev.map((task) => {
+          if (task.id === taskId && task.checklistItems) {
+            return {
+              ...task,
+              checklistItems: task.checklistItems.filter((item) => item.id !== itemId),
+            };
+          }
+          return task;
+        })
+      );
+      
+      setSelectedTask((current) => {
+        if (current && current.id === taskId && current.checklistItems) {
+          return {
+            ...current,
+            checklistItems: current.checklistItems.filter((item) => item.id !== itemId),
+          };
+        }
+        return current;
+      });
+    } catch (error) {
+      console.error("Erro ao deletar item da checklist", error);
+    }
   };
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, taskId: string) => {
@@ -100,11 +176,7 @@ export default function Home() {
         status: newStatus,
       });
 
-      setTasks((prevTasks) =>
-        prevTasks.map((task) =>
-          task.id === updatedTask.id ? updatedTask : task
-        )
-      );
+      setTasks((prevTasks) => prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task)));
     } catch (error) {
       console.error("Erro ao atualizar status da tarefa", error);
     } finally {
@@ -140,6 +212,22 @@ export default function Home() {
               onSubmit={handleAddTask}
               onCancel={() => setShowForm(false)}
             />
+          )}
+
+          {isLoading && (
+            <Card>
+              <CardContent className="py-6 text-sm text-muted-foreground">
+                Carregando tarefas...
+              </CardContent>
+            </Card>
+          )}
+
+          {error && !isLoading && (
+            <Card className="border-destructive/40 bg-destructive/5">
+              <CardContent className="py-6 text-sm text-destructive">
+                {error}
+              </CardContent>
+            </Card>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
@@ -187,6 +275,8 @@ export default function Home() {
               onClose={() => setSelectedTask(null)}
               onSave={handleUpdateTask}
               onDelete={handleDeleteTask}
+              onChecklistToggle={handleChecklistToggle}
+              onChecklistDelete={handleChecklistDelete}
             />
           )}
         </div>

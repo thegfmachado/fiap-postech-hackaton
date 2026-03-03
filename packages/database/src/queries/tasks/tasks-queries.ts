@@ -1,7 +1,6 @@
 import { Priority, Status, Task } from "@mindease/models";
 import { ITask, ITaskInsert, ITaskUpdate, TypedSupabaseClient } from "../../types.js";
-import { Tables } from "../../generated-types.js";
-import { GetAllTasksParams, ITasksQueries } from "./tasks-queries.interface.js";
+import { GetAllTasksResponse, ITasksQueries } from "./tasks-queries.interface.js";
 
 export class TasksQueriesService implements ITasksQueries {
   static TABLE_NAME = 'tasks' as const
@@ -12,11 +11,10 @@ export class TasksQueriesService implements ITasksQueries {
     this.client = client
   }
 
-  async get(params?: GetAllTasksParams): Promise<{ data: Task[]; count: number }> {
-
-    let query = this.client
+  async get(): Promise<GetAllTasksResponse> {
+    const query = this.client
       .from(TasksQueriesService.TABLE_NAME)
-      .select('*', { count: 'exact' })
+      .select(`*, checklists(id, description, completed)`, { count: 'exact' })
       .order('priority', { ascending: false })
       .order('created_at', { ascending: false })
 
@@ -95,7 +93,13 @@ export class TasksQueriesService implements ITasksQueries {
     return this.dbTaskToTask(data);
   }
 
-  private dbTaskToTask(row: Tables<'tasks'>): Task {
+  dbTaskToTask(row: ITask): Task {
+    let checklistItems = [];
+
+    if ('checklists' in row && Array.isArray(row.checklists)) {
+      checklistItems = row.checklists;
+    }
+
     return {
       id: row.id,
       title: row.title,
@@ -107,6 +111,8 @@ export class TasksQueriesService implements ITasksQueries {
       createdAt: row.created_at ?? undefined,
       updatedAt: row.updated_at ?? undefined,
       priority: row.priority as Priority,
+      checklistItems,
     }
   }
 }
+
