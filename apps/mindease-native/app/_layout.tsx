@@ -9,6 +9,7 @@ import { DisplayModeProvider } from "@/contexts/display-mode-context";
 import { TasksProvider } from "@/contexts/tasks-context";
 import { ThemeProvider, useTheme } from "@/contexts/theme-context";
 import { PomodoroSettingsProvider } from "@/contexts/pomodoro-settings-context";
+import { AccessibilityProvider } from "@/contexts/accessibility-context";
 
 function InnerLayout() {
   const { isDark } = useTheme();
@@ -34,7 +35,9 @@ export default function RootLayout() {
             <DisplayModeProvider>
               <TasksProvider>
                 <PomodoroSettingsProvider>
-                  <InnerLayout />
+                  <AccessibilityProvider>
+                    <InnerLayout />
+                  </AccessibilityProvider>
                 </PomodoroSettingsProvider>
               </TasksProvider>
             </DisplayModeProvider>
