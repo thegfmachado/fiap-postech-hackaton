@@ -1,8 +1,7 @@
 'use client'
 
 import { createContext, useMemo, useCallback, type ReactNode } from 'react'
-import { useUserSettings } from '@/hooks/use-user-settings'
-import { useCurrentUser } from '@/hooks/use-current-user'
+import { useUserSettingsContext } from '@/contexts/user-settings-context'
 import { ViewMode } from '@mindease/models'
 
 export interface DisplayModeContextType {
@@ -19,8 +18,7 @@ interface DisplayModeProviderProps {
 }
 
 export function DisplayModeProvider({ children }: DisplayModeProviderProps) {
-  const { user } = useCurrentUser()
-  const { userSettings, updateSettings } = useUserSettings(user?.id)
+  const { userSettings, updateSettings } = useUserSettingsContext()
 
   const setDisplayMode = useCallback(
     (mode: ViewMode) => {
