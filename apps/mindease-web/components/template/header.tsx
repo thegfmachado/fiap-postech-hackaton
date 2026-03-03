@@ -30,7 +30,7 @@ export function Header() {
   };
 
   return (
-    <header className="p-4 shadow-lg bg-white z-20 md:fixed w-full md:col-span-2">
+    <header className="p-4 shadow-lg bg-background z-20 md:fixed w-full md:col-span-2">
       <div className="flex justify-between items-center">
         {/* Logo Desktop */}
         <Link href="/home" className="hidden sm:flex items-center gap-2">
@@ -74,7 +74,7 @@ export function Header() {
                 onClick={() => setUserMenuOpen(false)}
               />
               {/* Menu */}
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border z-50">
+              <div className="absolute right-0 mt-2 w-56 bg-background rounded-md shadow-lg border z-50">
                 <div className="p-2 border-b">
                   <p className="text-sm font-medium">Minha conta</p>
                 </div>
