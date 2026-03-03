@@ -1,14 +1,15 @@
 "use client";
 
-import { Settings, Eye, EyeOff, Timer, Clock, View } from "lucide-react";
+import { Settings, Eye, EyeOff, Timer, Clock, Contrast, Type, Rows3, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
 
 import { Header } from "@/components/template/header";
 import { Layout } from "@/components/template/layout";
 import { Main } from "@/components/template/main";
 import { Sidebar } from "@/components/template/sidebar";
 import { useDisplayMode } from "@/hooks/use-display-mode";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import { useUserSettings } from "@/hooks/use-user-settings";
+import { useUserSettingsContext } from "@/contexts/user-settings-context";
 
 import {
   Card,
@@ -18,12 +19,14 @@ import {
   CardTitle,
   Label,
 } from "@mindease/design-system/components";
-import { ViewMode } from "@mindease/models";
+import { ContrastMode, Size, ViewMode } from "@mindease/models";
 
 export default function ConfiguracoesPage() {
   const { displayMode, setDisplayMode, isSimplified, isDetailed } = useDisplayMode();
-  const { user } = useCurrentUser();
-  const { userSettings, updateSettings, loading } = useUserSettings(user?.id);
+  const { userSettings, updateSettings, loading } = useUserSettingsContext();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   return (
     <Layout>
@@ -144,6 +147,44 @@ export default function ConfiguracoesPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Tema claro/escuro */}
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2 text-sm font-medium">
+                  <Sun className="h-4 w-4" />
+                  Tema
+                </Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {[
+                    { value: "light", label: "Claro", description: "Interface com fundo branco", icon: Sun },
+                    { value: "dark", label: "Escuro", description: "Interface com fundo escuro, menos cansativo para os olhos", icon: Moon },
+                  ].map(({ value, label, description, icon: Icon }) => {
+                    const isActive = mounted && theme === value;
+                    return (
+                      <button
+                        key={value}
+                        onClick={() => setTheme(value)}
+                        className={`relative p-4 rounded-lg border-2 transition-all text-left ${isActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`p-2 rounded-lg ${isActive ? "bg-primary text-white" : "bg-muted"}`}>
+                            <Icon className="h-4 w-4" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-sm mb-0.5">{label}</h3>
+                            <p className="text-xs text-muted-foreground">{description}</p>
+                          </div>
+                        </div>
+                        {isActive && (
+                          <div className="absolute top-3 right-3 h-4 w-4 rounded-full bg-primary flex items-center justify-center">
+                            <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Modo Detalhado */}
                 <button
@@ -208,6 +249,125 @@ export default function ConfiguracoesPage() {
                   reduzindo estímulos visuais e mantendo apenas as informações essenciais para
                   o foco nas tarefas. Você pode alternar entre os modos a qualquer momento.
                 </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Contrast className="h-5 w-5" />
+                Acessibilidade
+              </CardTitle>
+              <CardDescription>
+                Ajuste contraste, tamanho da fonte e espaçamento para melhor legibilidade
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Contraste */}
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2 text-sm font-medium">
+                  <Contrast className="h-4 w-4" />
+                  Contraste
+                </Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {[
+                    { value: ContrastMode.low, label: "Baixo Contraste", description: "Aparência padrão com suavidade visual" },
+                    { value: ContrastMode.high, label: "Alto Contraste", description: "Bordas e textos mais fortes para maior legibilidade" },
+                  ].map(({ value, label, description }) => {
+                    const isActive = userSettings.contrastMode === value;
+                    return (
+                      <button
+                        key={value}
+                        onClick={() => updateSettings({ ...userSettings, contrastMode: value })}
+                        className={`relative p-4 rounded-lg border-2 transition-all text-left ${isActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`p-2 rounded-lg ${isActive ? "bg-primary text-white" : "bg-muted"}`}>
+                            <Contrast className="h-4 w-4" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-sm mb-0.5">{label}</h3>
+                            <p className="text-xs text-muted-foreground">{description}</p>
+                          </div>
+                        </div>
+                        {isActive && (
+                          <div className="absolute top-3 right-3 h-4 w-4 rounded-full bg-primary flex items-center justify-center">
+                            <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Tamanho da Fonte */}
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2 text-sm font-medium">
+                  <Type className="h-4 w-4" />
+                  Tamanho da Fonte
+                </Label>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { value: Size.small, label: "Pequeno" },
+                    { value: Size.medium, label: "Médio" },
+                    { value: Size.large, label: "Grande" },
+                  ].map(({ value, label }) => {
+                    const isActive = userSettings.fontSize === value;
+                    return (
+                      <button
+                        key={value}
+                        onClick={() => updateSettings({ ...userSettings, fontSize: value })}
+                        className={`relative p-4 rounded-lg border-2 transition-all text-center ${isActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
+                      >
+                        <div className={`p-2 rounded-lg mx-auto w-fit mb-2 ${isActive ? "bg-primary text-white" : "bg-muted"}`}>
+                          <Type className="h-4 w-4" />
+                        </div>
+                        <span className="font-semibold text-sm">{label}</span>
+                        {isActive && (
+                          <div className="absolute top-2 right-2 h-4 w-4 rounded-full bg-primary flex items-center justify-center">
+                            <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Espaçamento */}
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2 text-sm font-medium">
+                  <Rows3 className="h-4 w-4" />
+                  Espaçamento
+                </Label>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { value: Size.small, label: "Compacto" },
+                    { value: Size.medium, label: "Padrão" },
+                    { value: Size.large, label: "Espaçoso" },
+                  ].map(({ value, label }) => {
+                    const isActive = userSettings.spacing === value;
+                    return (
+                      <button
+                        key={value}
+                        onClick={() => updateSettings({ ...userSettings, spacing: value })}
+                        className={`relative p-4 rounded-lg border-2 transition-all text-center ${isActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
+                      >
+                        <div className={`p-2 rounded-lg mx-auto w-fit mb-2 ${isActive ? "bg-primary text-white" : "bg-muted"}`}>
+                          <Rows3 className="h-4 w-4" />
+                        </div>
+                        <span className="font-semibold text-sm">{label}</span>
+                        {isActive && (
+                          <div className="absolute top-2 right-2 h-4 w-4 rounded-full bg-primary flex items-center justify-center">
+                            <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </CardContent>
           </Card>
