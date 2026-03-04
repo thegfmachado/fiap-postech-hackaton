@@ -12,10 +12,10 @@ interface SectionHeaderProps {
 
 export function SectionHeader({ icon, title }: SectionHeaderProps) {
   const { colors } = useAppColors();
-  const { fontScale } = useAccessibility();
+  const { fontScale, spacingScale } = useAccessibility();
 
   return (
-    <View className="flex-row items-center gap-2 mb-4">
+    <View className="flex-row items-center gap-2" style={{ marginBottom: 16 * spacingScale }}>
       <MaterialIcons name={icon} size={20} color={colors.primary} />
       <Text
         className="text-base font-bold text-gray-900 dark:text-gray-100"

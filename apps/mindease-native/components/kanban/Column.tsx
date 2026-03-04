@@ -28,11 +28,11 @@ interface ColumnProps {
 
 export function Column({ status, tasks, onTaskPress, onTaskDelete }: ColumnProps) {
   const { colors } = useAppColors();
-  const { fontScale, isHighContrast } = useAccessibility();
+  const { fontScale, spacingScale, isHighContrast } = useAccessibility();
 
   return (
     <>
-      <View className="flex-row items-center justify-between mb-3 px-2">
+      <View className="flex-row items-center justify-between px-2" style={{ marginBottom: 12 * spacingScale }}>
         <View className="flex-row items-center gap-2">
           <MaterialIcons
             name={columnIcons[status]}
@@ -60,7 +60,7 @@ export function Column({ status, tasks, onTaskPress, onTaskDelete }: ColumnProps
         className="flex-1"
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{ paddingBottom: 20 * spacingScale }}
       >
         {tasks.length === 0 ? (
           <View

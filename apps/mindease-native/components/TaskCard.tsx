@@ -18,7 +18,7 @@ interface TaskCardProps {
 export function TaskCard({ task, onPress, onDelete }: TaskCardProps) {
   const { isSimplified } = useDisplayMode();
   const { isDark, colors } = useAppColors();
-  const { fontScale, isHighContrast } = useAccessibility();
+  const { fontScale, spacingScale, isHighContrast } = useAccessibility();
   const config = getPriorityConfig(isDark)[task.priority];
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { settings: { work: sessionMinutes } } = usePomodoroSettingsContext();
@@ -30,8 +30,10 @@ export function TaskCard({ task, onPress, onDelete }: TaskCardProps) {
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={() => onPress?.(task)}
-        className="bg-white dark:bg-gray-800 rounded-lg p-3 mb-2 border border-gray-100 dark:border-gray-700"
+        className="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700"
         style={{
+          padding: 12 * spacingScale,
+          marginBottom: 8 * spacingScale,
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 1 },
           shadowOpacity: 0.04,

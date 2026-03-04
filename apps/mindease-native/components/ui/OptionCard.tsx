@@ -20,17 +20,20 @@ export function OptionCard({
   onPress,
 }: OptionCardProps) {
   const { colors } = useAppColors();
-  const { fontScale, isHighContrast } = useAccessibility();
+  const { fontScale, spacingScale, isHighContrast } = useAccessibility();
 
   return (
     <TouchableOpacity
       onPress={onPress}
-      className={`p-4 rounded-2xl border-2 ${
+      className={`rounded-2xl border-2 ${
         selected
           ? "border-primary bg-primary/5"
           : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
       }`}
-      style={isHighContrast && !selected ? { borderColor: colors.border } : undefined}
+      style={{
+        padding: 16 * spacingScale,
+        ...(isHighContrast && !selected ? { borderColor: colors.border } : {}),
+      }}
     >
       <View className="flex-row items-start gap-3">
         <View
