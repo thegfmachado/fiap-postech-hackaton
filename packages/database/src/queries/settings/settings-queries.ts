@@ -1,6 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
 import { ContrastMode, defaultPomodoroSettings, UserSettings, Size, ViewMode } from "@mindease/models";
-import { Database, ISettings, ISettingsUpdate, TypedSupabaseClient } from "../../types.js";
+import { ISettings, ISettingsUpdate, TypedSupabaseClient } from "../../types.js";
 import { ISettingsQueries } from "./settings-queries.interface.js";
 
 export class SettingsQueriesService implements ISettingsQueries {
@@ -26,10 +25,9 @@ export class SettingsQueriesService implements ISettingsQueries {
     }
 
     if (!data) {
-      return this.create({
+      return this.upsert(id, {
         contrast_intensity: defaultPomodoroSettings.contrastMode,
         font_size: defaultPomodoroSettings.fontSize,
-        id: id,
         long_break_after_pomodoros: defaultPomodoroSettings.longBreakAfterPomodoros,
         long_break_minutes: defaultPomodoroSettings.longBreakDurationMinutes,
         pomodoro_duration_minutes: defaultPomodoroSettings.pomodoroDurationMinutes,
@@ -37,21 +35,6 @@ export class SettingsQueriesService implements ISettingsQueries {
         spacing: defaultPomodoroSettings.spacing,
         view_mode: defaultPomodoroSettings.viewMode,
       });
-    }
-
-    return this.dbSettingsToSettings(data);
-  }
-
-  async create(settingsToInsert: Omit<ISettings, 'created_at' | 'updated_at'>): Promise<UserSettings> {
-    const { data, error } = await this.client
-      .from(SettingsQueriesService.TABLE_NAME)
-      .insert(settingsToInsert)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Supabase error:', error);
-      throw new Error(`Error creating settings: ${error.message}`);
     }
 
     return this.dbSettingsToSettings(data);
@@ -68,18 +51,9 @@ export class SettingsQueriesService implements ISettingsQueries {
       throw new Error('Settings ID does not match authenticated user');
     }
 
-    // Use service role client to bypass RLS for upsert — the settings table
-    // only has SELECT/UPDATE policies; INSERT requires elevated privileges.
-    const adminClient = createClient<Database>(
-      process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-      process.env['SUPABASE_SERVICE_ROLE_KEY']!,
-    );
-
-    const { data, error } = await adminClient
+    const { data, error } = await this.client
       .from(SettingsQueriesService.TABLE_NAME)
-      // Os tipos gerados incluem email/name (de outro projeto), mas a tabela real não tem essas colunas.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .upsert({ id, ...settingsToUpdate } as any, { onConflict: 'id' })
+      .upsert({ id, ...settingsToUpdate }, { onConflict: 'id' })
       .select()
       .single();
 
@@ -87,24 +61,6 @@ export class SettingsQueriesService implements ISettingsQueries {
       console.error('Supabase error:', error);
       throw new Error(`Error upserting settings: ${error.message}`);
     }
-
-    return this.dbSettingsToSettings(data);
-  }
-
-  async update(id: string, settingsToUpdate: ISettingsUpdate): Promise<UserSettings | null> {
-    const { data, error } = await this.client
-      .from(SettingsQueriesService.TABLE_NAME)
-      .update(settingsToUpdate)
-      .eq('id', id)
-      .select()
-      .maybeSingle();
-
-    if (error) {
-      console.error('Supabase error:', error);
-      throw new Error(`Error updating settings: ${error.message}`);
-    }
-
-    if (!data) return null;
 
     return this.dbSettingsToSettings(data);
   }
