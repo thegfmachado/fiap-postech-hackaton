@@ -164,34 +164,20 @@ export default function ConfiguracoesPage() {
                     Tema
                   </Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {[
-                      { value: "light", label: "Claro", description: "Interface com fundo branco", icon: Sun },
-                      { value: "dark", label: "Escuro", description: "Interface com fundo escuro, menos cansativo para os olhos", icon: Moon },
-                    ].map(({ value, label, description, icon: Icon }) => {
-                      const isActive = mounted && theme === value;
-                      return (
-                        <button
-                          key={value}
-                          onClick={() => setTheme(value)}
-                          className={`relative p-4 rounded-lg border-2 transition-all text-left ${isActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className={`p-2 rounded-lg ${isActive ? "bg-primary text-white" : "bg-muted"}`}>
-                              <Icon className="h-4 w-4" />
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-sm mb-0.5">{label}</h3>
-                              <p className="text-xs text-muted-foreground">{description}</p>
-                            </div>
-                          </div>
-                          {isActive && (
-                            <div className="absolute top-3 right-3 h-4 w-4 rounded-full bg-primary flex items-center justify-center">
-                              <div className="h-1.5 w-1.5 rounded-full bg-white" />
-                            </div>
-                          )}
-                        </button>
-                      );
-                    })}
+                    <SelectModeButton
+                      icon={<Sun className="h-5 w-5" />}
+                      title="Claro"
+                      description="Interface com fundo branco"
+                      selected={mounted && theme === "light"}
+                      onClick={() => setTheme("light")}
+                    />
+                    <SelectModeButton
+                      icon={<Moon className="h-5 w-5" />}
+                      title="Escuro"
+                      description="Interface com fundo escuro, menos cansativo para os olhos"
+                      selected={mounted && theme === "dark"}
+                      onClick={() => setTheme("dark")}
+                    />
                   </div>
                 </div>
 
