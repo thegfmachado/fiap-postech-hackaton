@@ -1,6 +1,8 @@
 import React from "react";
 import { View, Text } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useAppColors } from "@/hooks/useAppColors";
+import { useAccessibility } from "@/contexts/accessibility-context";
 import type { PomodoroMode, PomodoroSettings } from "@/hooks/usePomodoroTimer";
 
 interface SessionIndicatorProps {
@@ -16,6 +18,9 @@ export function SessionIndicator({
   targetPomodoros,
   settings,
 }: SessionIndicatorProps) {
+  const { colors } = useAppColors();
+  const { fontScale, spacingScale, isHighContrast } = useAccessibility();
+
   const isTaskMode = pomodoroMode === "task" && targetPomodoros > 0;
   const count = isTaskMode
     ? targetPomodoros
@@ -27,12 +32,15 @@ export function SessionIndicator({
       : index < sessionsCompleted % settings.sessionsBeforeLongBreak;
 
   return (
-    <View className="mt-6 items-center px-6">
-      <Text className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+    <View className="items-center" style={{ marginTop: 24 * spacingScale, paddingHorizontal: 24 * spacingScale }}>
+      <Text
+        className="font-semibold"
+        style={{ fontSize: 14 * fontScale, marginBottom: 12 * spacingScale, color: colors.text }}
+      >
         {isTaskMode ? "Progresso da Tarefa" : "Sessões Completadas"}
       </Text>
 
-      <View className="flex-row gap-2 flex-wrap justify-center">
+      <View className="flex-row flex-wrap justify-center" style={{ gap: 8 * spacingScale }}>
         {Array.from({ length: count }).map((_, i) => (
           <View
             key={i}
@@ -41,14 +49,14 @@ export function SessionIndicator({
                 ? "bg-primary border-primary"
                 : "border-gray-200 dark:border-gray-600"
             }`}
+            style={isHighContrast && !isCompleted(i) ? { borderColor: colors.border } : undefined}
           >
             {isTaskMode && isCompleted(i) ? (
               <MaterialIcons name="check" size={16} color="#FFF" />
             ) : (
               <Text
-                className={`font-semibold text-xs ${
-                  isCompleted(i) ? "text-white" : "text-gray-400"
-                }`}
+                className={`font-semibold ${isCompleted(i) ? "text-white" : ""}`}
+                style={{ fontSize: 12 * fontScale, ...(isCompleted(i) ? {} : { color: colors.mutedForeground }) }}
               >
                 {i + 1}
               </Text>
@@ -57,7 +65,9 @@ export function SessionIndicator({
         ))}
       </View>
 
-      <Text className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+      <Text
+        style={{ fontSize: 12 * fontScale, marginTop: 8 * spacingScale, color: colors.mutedForeground }}
+      >
         Total: {sessionsCompleted} pomodoro
         {sessionsCompleted !== 1 ? "s" : ""}
       </Text>
