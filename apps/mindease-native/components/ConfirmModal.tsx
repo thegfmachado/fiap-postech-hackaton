@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, Modal } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useAppColors } from "@/hooks/useAppColors";
+import { useAccessibility } from "@/contexts/accessibility-context";
 
 interface ConfirmModalProps {
   visible: boolean;
@@ -27,6 +28,7 @@ export function ConfirmModal({
   infoOnly = false,
 }: ConfirmModalProps) {
   const { isDark, colors } = useAppColors();
+  const { fontScale, spacingScale, isHighContrast } = useAccessibility();
 
   return (
     <Modal
@@ -47,9 +49,10 @@ export function ConfirmModal({
             shadowOpacity: 0.15,
             shadowRadius: 24,
             elevation: 10,
+            ...(isHighContrast ? { borderColor: colors.border, borderWidth: 2 } : {}),
           }}
         >
-          <View className="px-6 pt-6 pb-2 items-center">
+          <View className="items-center" style={{ paddingHorizontal: 24 * spacingScale, paddingTop: 24 * spacingScale, paddingBottom: 8 * spacingScale }}>
             <View
               className="w-12 h-12 rounded-full items-center justify-center mb-3"
               style={{
@@ -64,44 +67,68 @@ export function ConfirmModal({
                 color={destructive ? colors.destructive : colors.primary}
               />
             </View>
-            <Text className="text-lg font-bold text-gray-900 dark:text-gray-100 text-center">
+            <Text
+              className="text-lg font-bold text-gray-900 dark:text-gray-100 text-center"
+              style={{ fontSize: 18 * fontScale, color: colors.text }}
+            >
               {title}
             </Text>
           </View>
 
-          <View className="px-6 pb-6 pt-2">
-            <Text className="text-sm text-gray-500 dark:text-gray-400 text-center leading-5">
+          <View style={{ paddingHorizontal: 24 * spacingScale, paddingTop: 8 * spacingScale, paddingBottom: 24 * spacingScale }}>
+            <Text
+              className="text-sm text-gray-500 dark:text-gray-400 text-center leading-5"
+              style={{ fontSize: 14 * fontScale, color: colors.mutedForeground }}
+            >
               {message}
             </Text>
           </View>
 
-          <View className="border-t border-gray-100 dark:border-gray-700 px-6 py-4">
+          <View
+            className="border-t border-gray-100 dark:border-gray-700"
+            style={{
+              paddingHorizontal: 24 * spacingScale,
+              paddingVertical: 16 * spacingScale,
+              ...(isHighContrast ? { borderTopColor: colors.border } : {}),
+            }}
+          >
             {infoOnly ? (
               <TouchableOpacity
                 onPress={onConfirm}
-                className="py-3 rounded-xl items-center bg-primary"
+                className="rounded-xl items-center bg-primary"
+                style={{ paddingVertical: 12 * spacingScale }}
                 accessibilityLabel="Fechar"
               >
-                <Text className="font-semibold text-white text-sm">{confirmLabel}</Text>
+                <Text className="font-semibold text-white text-sm" style={{ fontSize: 14 * fontScale }}>
+                  {confirmLabel}
+                </Text>
               </TouchableOpacity>
             ) : (
               <View className="flex-row gap-3">
                 <TouchableOpacity
                   onPress={onCancel}
-                  className="flex-1 py-3 rounded-xl items-center border-2 border-gray-200 dark:border-gray-600"
+                  className="flex-1 rounded-xl items-center border-2 border-gray-200 dark:border-gray-600"
+                  style={{
+                    paddingVertical: 12 * spacingScale,
+                    ...(isHighContrast ? { borderColor: colors.border } : {}),
+                  }}
                 >
-                  <Text className="font-semibold text-gray-600 dark:text-gray-300 text-sm">
+                  <Text
+                    className="font-semibold text-gray-600 dark:text-gray-300 text-sm"
+                    style={{ fontSize: 14 * fontScale, color: colors.mutedForeground }}
+                  >
                     {cancelLabel}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={onConfirm}
-                  className="flex-1 py-3 rounded-xl items-center"
+                  className="flex-1 rounded-xl items-center"
                   style={{
+                    paddingVertical: 12 * spacingScale,
                     backgroundColor: destructive ? colors.destructive : colors.primary,
                   }}
                 >
-                  <Text className="font-semibold text-white text-sm">
+                  <Text className="font-semibold text-white text-sm" style={{ fontSize: 14 * fontScale }}>
                     {confirmLabel}
                   </Text>
                 </TouchableOpacity>

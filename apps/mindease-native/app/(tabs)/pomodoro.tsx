@@ -18,6 +18,7 @@ import { Task, Status } from "@mindease/models";
 import { Colors } from "@/constants/Colors";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { useAppColors } from "@/hooks/useAppColors";
+import { useAccessibility } from "@/contexts/accessibility-context";
 import { ModeSelector } from "@/components/pomodoro/ModeSelector";
 import { TaskCard as PomodoroTaskCard } from "@/components/pomodoro/TaskCard";
 import { TimerModeSelector } from "@/components/pomodoro/TimerModeSelector";
@@ -52,6 +53,7 @@ const getTimerModeConfig = (isDark: boolean): Record<
 
 export default function PomodoroScreen() {
   const { isDark } = useAppColors();
+  const { fontScale, spacingScale } = useAccessibility();
   const timerModeConfig = useMemo(() => getTimerModeConfig(isDark), [isDark]);
   const { tasks, updateTask } = useTasks();
   const { settings: contextSettings } = usePomodoroSettingsContext();
@@ -195,13 +197,13 @@ export default function PomodoroScreen() {
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 30 }}
+        contentContainerStyle={{ paddingBottom: 30 * spacingScale }}
       >
-        <View className="px-6 pt-2 pb-3">
-          <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        <View style={{ paddingHorizontal: 24 * spacingScale, paddingTop: 8 * spacingScale, paddingBottom: 12 * spacingScale }}>
+          <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100" style={{ fontSize: 24 * fontScale }}>
             Timer Pomodoro
           </Text>
-          <Text className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <Text className="text-sm text-gray-500 dark:text-gray-400" style={{ fontSize: 14 * fontScale, marginTop: 4 * spacingScale }}>
             {pomodoroMode === "task"
               ? "Modo vinculado à tarefa"
               : "Modo livre — ciclos infinitos"}
@@ -233,10 +235,11 @@ export default function PomodoroScreen() {
         {pomodoroMode === "task" && !selectedTask && (
           <TouchableOpacity
             onPress={() => setShowTaskPicker(true)}
-            className="mx-6 mb-4 p-4 border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-xl items-center"
+            className="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-xl items-center"
+            style={{ marginHorizontal: 24 * spacingScale, marginBottom: 16 * spacingScale, padding: 16 * spacingScale }}
           >
             <MaterialIcons name="add-task" size={28} color="#9CA3AF" />
-            <Text className="text-sm text-gray-400 mt-1 font-medium">
+            <Text className="text-gray-400 font-medium" style={{ fontSize: 14 * fontScale, marginTop: 4 * spacingScale }}>
               Selecione uma tarefa
             </Text>
           </TouchableOpacity>

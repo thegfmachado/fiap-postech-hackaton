@@ -16,9 +16,11 @@ import { TaskDetailsModal } from "@/components/TaskDetailsModal";
 import { Board } from "@/components/kanban/Board";
 import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { useAppColors } from "@/hooks/useAppColors";
+import { useAccessibility } from "@/contexts/accessibility-context";
 
 export default function HomeScreen() {
   const { colors } = useAppColors();
+  const { spacingScale, fontScale } = useAccessibility();
   const { user } = useAuth();
   const {
     tasks,
@@ -82,11 +84,11 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900" edges={["top"]}>
-      <View className="px-6 pt-2 pb-4">
-        <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+      <View style={{ paddingHorizontal: 24 * spacingScale, paddingTop: 8 * spacingScale, paddingBottom: 16 * spacingScale }}>
+        <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100" style={{ fontSize: 24 * fontScale, color: colors.text }}>
           Olá, {firstName} 👋
         </Text>
-        <Text className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <Text className="text-sm text-gray-500 dark:text-gray-400 mt-1" style={{ fontSize: 14 * fontScale, color: colors.mutedForeground }}>
           Organize suas tarefas de forma visual
         </Text>
       </View>
@@ -99,13 +101,14 @@ export default function HomeScreen() {
         />
       )}
 
-      <View className="px-6 mb-4">
+      <View style={{ paddingHorizontal: 24 * spacingScale, marginBottom: 16 * spacingScale }}>
         <TouchableOpacity
           onPress={() => setShowForm(true)}
-          className="bg-primary flex-row items-center justify-center py-3 rounded-xl"
+          className="bg-primary flex-row items-center justify-center rounded-xl"
+          style={{ paddingVertical: 12 * spacingScale, gap: 8 * spacingScale }}
         >
           <MaterialIcons name="add" size={20} color="#FFF" />
-          <Text className="text-white font-semibold ml-2">Nova Tarefa</Text>
+          <Text className="text-white font-semibold" style={{ fontSize: 14 * fontScale }}>Nova Tarefa</Text>
         </TouchableOpacity>
       </View>
 

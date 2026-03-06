@@ -8,6 +8,7 @@ import {
   type NativeScrollEvent,
 } from "react-native";
 import { Task, Status } from "@mindease/models";
+import { useAccessibility } from "@/contexts/accessibility-context";
 import { Column } from "./Column";
 
 const statuses = Object.values(Status);
@@ -28,6 +29,7 @@ export function Board({
   onTaskDelete,
 }: BoardProps) {
   const { width: screenWidth } = useWindowDimensions();
+  const { spacingScale } = useAccessibility();
   const [activeIndex, setActiveIndex] = useState(0);
 
   const handleScroll = useCallback(
@@ -46,7 +48,7 @@ export function Board({
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <View className="flex-row items-center justify-center gap-2 pb-3">
+      <View className="flex-row items-center justify-center" style={{ gap: 8 * spacingScale, paddingBottom: 12 * spacingScale }}>
         {statuses.map((s, i) => (
           <View
             key={s}
@@ -66,7 +68,7 @@ export function Board({
         scrollEventThrottle={16}
       >
         {statuses.map((status) => (
-          <View key={status} style={{ width: screenWidth }} className="px-4">
+          <View key={status} style={{ width: screenWidth, paddingHorizontal: 16 * spacingScale }}>
             <Column
               status={status}
               tasks={tasksByStatus[status]}

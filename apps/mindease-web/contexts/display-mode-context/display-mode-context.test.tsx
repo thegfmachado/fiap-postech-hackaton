@@ -3,15 +3,12 @@ import { renderHook, act } from '@testing-library/react';
 import { DisplayModeProvider, DisplayModeContext } from './display-mode-context';
 import { useContext } from 'react';
 import { ViewMode, ContrastMode, Size, UserSettings } from '@mindease/models';
-import { useCurrentUser } from '@/hooks/use-current-user';
-import { useUserSettings } from '@/hooks/use-user-settings';
+import { useUserSettingsContext } from '@/contexts/user-settings-context';
 
-vi.mock('@/hooks/use-current-user');
-vi.mock('@/hooks/use-user-settings');
+vi.mock('@/contexts/user-settings-context');
 
 describe('DisplayModeContext', () => {
-  const mockUseCurrentUser = vi.mocked(useCurrentUser);
-  const mockUseUserSettings = vi.mocked(useUserSettings);
+  const mockUseUserSettingsContext = vi.mocked(useUserSettingsContext);
   const updateSettingsMock = vi.fn();
 
   let mockUserSettings: UserSettings = {
@@ -39,17 +36,10 @@ describe('DisplayModeContext', () => {
       fontSize: Size.medium,
     };
 
-    mockUseCurrentUser.mockReturnValue({
-      user: { id: 'user-1' } as any,
-      loading: false,
-    });
-
-    mockUseUserSettings.mockReturnValue({
+    mockUseUserSettingsContext.mockReturnValue({
       userSettings: mockUserSettings,
       updateSettings: updateSettingsMock,
       loading: false,
-      error: null,
-      refetch: vi.fn(),
     });
   });
 

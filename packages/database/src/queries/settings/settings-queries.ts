@@ -1,4 +1,4 @@
-import { ContrastMode, UserSettings, Size, ViewMode, defaultPomodoroSettings } from "@mindease/models";
+import { ContrastMode, defaultPomodoroSettings, UserSettings, Size, ViewMode } from "@mindease/models";
 import { ISettings, ISettingsUpdate, TypedSupabaseClient } from "../../types.js";
 import { ISettingsQueries } from "./settings-queries.interface.js";
 
@@ -25,10 +25,9 @@ export class SettingsQueriesService implements ISettingsQueries {
     }
 
     if (!data) {
-      return this.create({
+      return this.upsert(id, {
         contrast_intensity: defaultPomodoroSettings.contrastMode,
         font_size: defaultPomodoroSettings.fontSize,
-        id: id,
         long_break_after_pomodoros: defaultPomodoroSettings.longBreakAfterPomodoros,
         long_break_minutes: defaultPomodoroSettings.longBreakDurationMinutes,
         pomodoro_duration_minutes: defaultPomodoroSettings.pomodoroDurationMinutes,
@@ -41,32 +40,26 @@ export class SettingsQueriesService implements ISettingsQueries {
     return this.dbSettingsToSettings(data);
   }
 
-  async create(settingsToInsert: Omit<ISettings, 'created_at' | 'updated_at'>): Promise<UserSettings> {
-    const { data, error } = await this.client
-      .from(SettingsQueriesService.TABLE_NAME)
-      .insert(settingsToInsert)
-      .select()
-      .single();
+  async upsert(id: string, settingsToUpdate: ISettingsUpdate): Promise<UserSettings> {
+    const { data: { user }, error: authError } = await this.client.auth.getUser();
 
-    if (error) {
-      console.error('Supabase error:', error);
-      throw new Error(`Error creating settings: ${error.message}`);
+    if (authError || !user) {
+      throw new Error('Unable to get authenticated user for settings upsert');
     }
 
-    return this.dbSettingsToSettings(data);
-  }
+    if (id !== user.id) {
+      throw new Error('Settings ID does not match authenticated user');
+    }
 
-  async update(id: string, settingsToUpdate: ISettingsUpdate): Promise<UserSettings> {
     const { data, error } = await this.client
       .from(SettingsQueriesService.TABLE_NAME)
-      .update(settingsToUpdate)
-      .eq('id', id)
+      .upsert({ id, ...settingsToUpdate }, { onConflict: 'id' })
       .select()
       .single();
 
     if (error) {
       console.error('Supabase error:', error);
-      throw new Error(`Error updating settings: ${error.message}`);
+      throw new Error(`Error upserting settings: ${error.message}`);
     }
 
     return this.dbSettingsToSettings(data);

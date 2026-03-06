@@ -28,7 +28,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex grow max-w-[228px] shadow-lg flex-col bg-white z-10 h-full md:row-start-2 md:col-start-1">
+    <aside className="hidden md:flex grow max-w-[228px] shadow-lg flex-col bg-background z-10 h-full md:row-start-2 md:col-start-1">
       <nav className="flex-1 p-4">
         {sidebarItems.map(({ href, label, icon: Icon }) => (
           <Link href={href} key={href}>

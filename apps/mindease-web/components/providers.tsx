@@ -4,6 +4,8 @@ import { ThemeProvider as NextThemesProvider } from "next-themes"
 import * as React from "react"
 
 import { AuthProvider } from "@/contexts/auth-context"
+import { UserSettingsProvider } from "@/contexts/user-settings-context"
+import { AccessibilityProvider } from "@/contexts/accessibility-context"
 import { DisplayModeProvider } from "@/contexts/display-mode-context/display-mode-context"
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -11,12 +13,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <NextThemesProvider
       attribute="class"
       defaultTheme="light"
-      forcedTheme="light"
+      enableSystem={false}
     >
       <AuthProvider>
-        <DisplayModeProvider>
-          {children}
-        </DisplayModeProvider>
+        <UserSettingsProvider>
+          <DisplayModeProvider>
+            <AccessibilityProvider>
+              {children}
+            </AccessibilityProvider>
+          </DisplayModeProvider>
+        </UserSettingsProvider>
       </AuthProvider>
     </NextThemesProvider>
   )

@@ -1,1 +1,31 @@
 @import "@mindease/design-system/globals.css";
+
+/* ── Acessibilidade ─────────────────────────────────────── */
+
+/* Tamanho da fonte base (escala rem) */
+[data-font-size="small"]  { font-size: 14px; }
+[data-font-size="medium"] { font-size: 16px; }
+[data-font-size="large"]  { font-size: 18px; }
+
+/* Alto contraste — sobrescreve tokens semânticos usados pelo Tailwind via @theme inline */
+[data-contrast="high"] {
+  --foreground: oklch(0% 0 0);
+  --muted-foreground: oklch(15% 0 0);
+  --border: oklch(25% 0 0);
+  --input: oklch(25% 0 0);
+  --ring: oklch(25% 0 0);
+}
+
+.dark[data-contrast="high"],
+.dark [data-contrast="high"] {
+  --foreground: oklch(100% 0 0);
+  --muted-foreground: oklch(88% 0 0);
+  --border: oklch(80% 0 0);
+  --input: oklch(80% 0 0);
+  --ring: oklch(80% 0 0);
+}
+
+/* Espaçamento */
+[data-spacing="small"]  { --spacing: 0.22rem; }
+[data-spacing="medium"] { --spacing: 0.25rem; }
+[data-spacing="large"]  { --spacing: 0.32rem; }

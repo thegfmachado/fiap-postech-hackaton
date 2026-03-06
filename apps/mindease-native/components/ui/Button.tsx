@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 
 import { useAppColors } from '@/hooks/useAppColors';
+import { useAccessibility } from '@/contexts/accessibility-context';
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
@@ -17,14 +18,8 @@ interface ButtonProps extends TouchableOpacityProps {
 
 const variantStyles = {
   primary: { button: 'bg-primary', text: 'text-white font-semibold' },
-  secondary: { button: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-800 dark:text-gray-200 font-semibold' },
+  secondary: { button: 'bg-gray-100 dark:bg-gray-700', text: 'font-semibold' },
   ghost: { button: 'bg-transparent', text: 'text-primary font-medium' },
-};
-
-const sizeStyles = {
-  sm: { button: 'px-4 py-2', text: 'text-sm' },
-  md: { button: 'px-6 py-3', text: 'text-base' },
-  lg: { button: 'px-8 py-4', text: 'text-lg' },
 };
 
 export function Button({
@@ -37,9 +32,17 @@ export function Button({
   ...props
 }: ButtonProps) {
   const { colors } = useAppColors();
+  const { fontScale, spacingScale } = useAccessibility();
   const isDisabled = disabled || loading;
   const vs = variantStyles[variant];
-  const ss = sizeStyles[size];
+
+  const sizeStyle = {
+    sm: { paddingHorizontal: 16 * spacingScale, paddingVertical: 8 * spacingScale, fontSize: 14 * fontScale },
+    md: { paddingHorizontal: 24 * spacingScale, paddingVertical: 12 * spacingScale, fontSize: 16 * fontScale },
+    lg: { paddingHorizontal: 32 * spacingScale, paddingVertical: 16 * spacingScale, fontSize: 18 * fontScale },
+  }[size];
+
+  const textColor = variant === 'secondary' ? colors.text : undefined;
 
   return (
     <TouchableOpacity
@@ -48,7 +51,8 @@ export function Button({
       accessibilityLabel={title}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
-      className={`rounded-xl items-center justify-center flex-row ${vs.button} ${ss.button} ${isDisabled ? 'opacity-50' : ''} ${className || ''}`}
+      className={`rounded-xl items-center justify-center flex-row ${vs.button} ${isDisabled ? 'opacity-50' : ''} ${className || ''}`}
+      style={{ paddingHorizontal: sizeStyle.paddingHorizontal, paddingVertical: sizeStyle.paddingVertical }}
       activeOpacity={0.8}
     >
       {loading && (
@@ -56,10 +60,13 @@ export function Button({
           accessibilityLabel="Carregando"
           color={variant === 'primary' ? '#FFFFFF' : colors.primary}
           size="small"
-          style={{ marginRight: 8 }}
+          style={{ marginRight: 8 * spacingScale }}
         />
       )}
-      <Text className={`${vs.text} ${ss.text}`}>
+      <Text
+        className={vs.text}
+        style={{ fontSize: sizeStyle.fontSize, ...(textColor ? { color: textColor } : {}) }}
+      >
         {title}
       </Text>
     </TouchableOpacity>

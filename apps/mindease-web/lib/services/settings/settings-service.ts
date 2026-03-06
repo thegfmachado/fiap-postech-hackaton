@@ -1,6 +1,6 @@
 import { HttpError } from "@mindease/services";
-import type { ISettingsUpdate, ITaskInsert, ITaskUpdate } from '@mindease/database/types';
-import { Priority, UserSettings, Status, TaskToInsert } from "@mindease/models";
+import type { ISettingsUpdate } from '@mindease/database/types';
+import { UserSettings } from "@mindease/models";
 import { ISettingsQueries } from "@mindease/database/queries";
 import { ISettingsService } from "./settings-service.interface";
 
@@ -21,18 +21,13 @@ export class SettingsService implements ISettingsService {
     } catch (error) {
       if (error instanceof HttpError) throw error;
       console.error('Error fetching settings:', error);
-      throw new HttpError(500, 'Error fetching task');
+      throw new HttpError(500, 'Error fetching settings');
     }
   }
 
   async update(id: string, data: UserSettings) {
     try {
-      const updatedSettings = await this.queries.update(id, this.buildSettingsToInsert(data));
-
-      if (!updatedSettings) {
-        throw new HttpError(404, 'settings not found');
-      }
-
+      const updatedSettings = await this.queries.upsert(id, this.buildSettingsToInsert(data));
       return updatedSettings;
     } catch (error) {
       if (error instanceof HttpError) throw error;

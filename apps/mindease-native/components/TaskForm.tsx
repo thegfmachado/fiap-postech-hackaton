@@ -11,6 +11,7 @@ import {
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Priority, Status, TaskToInsert } from "@mindease/models";
 import { useAppColors } from "@/hooks/useAppColors";
+import { useAccessibility } from "@/contexts/accessibility-context";
 
 interface TaskFormProps {
   onSubmit: (task: TaskToInsert) => void | Promise<void>;
@@ -29,6 +30,7 @@ const MAX_POMODOROS = 10;
 
 export function TaskForm({ onSubmit, onCancel, initialValues }: TaskFormProps) {
   const { colors } = useAppColors();
+  const { fontScale, spacingScale, isHighContrast } = useAccessibility();
   const [title, setTitle] = useState(initialValues?.title || "");
   const [description, setDescription] = useState(initialValues?.description || "");
   const [priority, setPriority] = useState<Priority>(initialValues?.priority || Priority.medium);
@@ -60,31 +62,32 @@ export function TaskForm({ onSubmit, onCancel, initialValues }: TaskFormProps) {
     >
       <ScrollView
         className="flex-1 bg-white dark:bg-gray-900"
-        contentContainerStyle={{ padding: 24 }}
+        contentContainerStyle={{ padding: 24 * spacingScale }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="flex-row items-center justify-between mb-6">
-          <Text className="text-xl font-bold text-gray-900 dark:text-gray-100">
+        <View className="flex-row items-center justify-between" style={{ marginBottom: 24 * spacingScale }}>
+          <Text className="text-xl font-bold" style={{ fontSize: 20 * fontScale, color: colors.text }}>
             {initialValues ? "Editar Tarefa" : "Nova Tarefa"}
           </Text>
-          <TouchableOpacity onPress={onCancel} className="p-1" accessibilityLabel="Fechar">
+          <TouchableOpacity onPress={onCancel} style={{ padding: 4 * spacingScale }} accessibilityLabel="Fechar">
             <MaterialIcons name="close" size={24} color={colors.icon} />
           </TouchableOpacity>
         </View>
 
-        <View className="mb-4">
-          <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Título *</Text>
+        <View style={{ marginBottom: 16 * spacingScale }}>
+          <Text className="text-sm font-medium" style={{ fontSize: 14 * fontScale, marginBottom: 8 * spacingScale, color: colors.text }}>Título *</Text>
           <TextInput
             value={title}
             onChangeText={setTitle}
             placeholder="Digite o título da tarefa"
             placeholderTextColor={colors.grayLight}
-            className="border-2 border-gray-200 dark:border-gray-600 rounded-lg px-4 py-3 text-base bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            className="border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
+            style={{ paddingHorizontal: 16 * spacingScale, paddingVertical: 12 * spacingScale, fontSize: 16 * fontScale, color: colors.text, ...(isHighContrast ? { borderColor: colors.border } : {}) }}
           />
         </View>
 
-        <View className="mb-4">
-          <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Descrição</Text>
+        <View style={{ marginBottom: 16 * spacingScale }}>
+          <Text className="text-sm font-medium" style={{ fontSize: 14 * fontScale, marginBottom: 8 * spacingScale, color: colors.text }}>Descrição</Text>
           <TextInput
             value={description}
             onChangeText={setDescription}
@@ -93,25 +96,26 @@ export function TaskForm({ onSubmit, onCancel, initialValues }: TaskFormProps) {
             multiline
             numberOfLines={3}
             textAlignVertical="top"
-            className="border-2 border-gray-200 dark:border-gray-600 rounded-lg px-4 py-3 text-base bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-h-[80px]"
+            className="border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 min-h-[80px]"
+            style={{ paddingHorizontal: 16 * spacingScale, paddingVertical: 12 * spacingScale, fontSize: 16 * fontScale, color: colors.text, ...(isHighContrast ? { borderColor: colors.border } : {}) }}
           />
         </View>
 
-        <View className="mb-4">
-          <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prioridade</Text>
-          <View className="flex-row gap-2">
+        <View style={{ marginBottom: 16 * spacingScale }}>
+          <Text className="text-sm font-medium" style={{ fontSize: 14 * fontScale, marginBottom: 8 * spacingScale, color: colors.text }}>Prioridade</Text>
+          <View className="flex-row" style={{ gap: 8 * spacingScale }}>
             {priorities.map((p) => (
               <TouchableOpacity
                 key={p.value}
                 onPress={() => setPriority(p.value)}
-                className={`flex-1 py-3 rounded-lg items-center border-2 ${
+                className={`flex-1 rounded-lg items-center border-2 ${
                   priority === p.value ? "border-primary bg-primary/10" : "border-gray-200 dark:border-gray-600"
                 }`}
+                style={{ paddingVertical: 12 * spacingScale, ...(isHighContrast && priority !== p.value ? { borderColor: colors.border } : {}) }}
               >
                 <Text
-                  className={`font-medium text-sm ${
-                    priority === p.value ? "text-primary" : "text-gray-600 dark:text-gray-300"
-                  }`}
+                  className="font-medium text-sm"
+                  style={{ fontSize: 14 * fontScale, color: priority === p.value ? colors.primary : colors.mutedForeground }}
                 >
                   {p.label}
                 </Text>
@@ -120,17 +124,18 @@ export function TaskForm({ onSubmit, onCancel, initialValues }: TaskFormProps) {
           </View>
         </View>
 
-        <View className="mb-6">
-          <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <View style={{ marginBottom: 24 * spacingScale }}>
+          <Text className="text-sm font-medium" style={{ fontSize: 14 * fontScale, marginBottom: 8 * spacingScale, color: colors.text }}>
             Pomodoros Estimados
           </Text>
-          <View className="flex-row items-center gap-4">
+          <View className="flex-row items-center" style={{ gap: 16 * spacingScale }}>
             <TouchableOpacity
               onPress={() => adjustPomodoros(-1)}
               disabled={estimatedPomodoros <= MIN_POMODOROS}
               className={`w-10 h-10 rounded-lg items-center justify-center border-2 ${
                 estimatedPomodoros <= MIN_POMODOROS ? "border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800" : "border-gray-200 dark:border-gray-600"
               }`}
+              style={isHighContrast && estimatedPomodoros > MIN_POMODOROS ? { borderColor: colors.border } : undefined}
             >
               <MaterialIcons
                 name="remove"
@@ -138,7 +143,7 @@ export function TaskForm({ onSubmit, onCancel, initialValues }: TaskFormProps) {
                 color={estimatedPomodoros <= MIN_POMODOROS ? colors.border : colors.icon}
               />
             </TouchableOpacity>
-            <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100 w-10 text-center">
+            <Text className="text-2xl font-bold w-10 text-center" style={{ fontSize: 24 * fontScale, color: colors.text }}>
               {estimatedPomodoros}
             </Text>
             <TouchableOpacity
@@ -147,6 +152,7 @@ export function TaskForm({ onSubmit, onCancel, initialValues }: TaskFormProps) {
               className={`w-10 h-10 rounded-lg items-center justify-center border-2 ${
                 estimatedPomodoros >= MAX_POMODOROS ? "border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800" : "border-gray-200 dark:border-gray-600"
               }`}
+              style={isHighContrast && estimatedPomodoros < MAX_POMODOROS ? { borderColor: colors.border } : undefined}
             >
               <MaterialIcons
                 name="add"
@@ -157,21 +163,23 @@ export function TaskForm({ onSubmit, onCancel, initialValues }: TaskFormProps) {
           </View>
         </View>
 
-        <View className="flex-row gap-3">
+        <View className="flex-row" style={{ gap: 12 * spacingScale }}>
           <TouchableOpacity
             onPress={onCancel}
-            className="flex-1 py-3 rounded-lg items-center border-2 border-gray-200 dark:border-gray-600"
+            className="flex-1 rounded-lg items-center border-2 border-gray-200 dark:border-gray-600"
+            style={{ paddingVertical: 12 * spacingScale, ...(isHighContrast ? { borderColor: colors.border } : {}) }}
           >
-            <Text className="font-semibold text-gray-600 dark:text-gray-300">Cancelar</Text>
+            <Text className="font-semibold" style={{ fontSize: 14 * fontScale, color: colors.mutedForeground }}>Cancelar</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSubmit}
             disabled={!title.trim()}
-            className={`flex-1 py-3 rounded-lg items-center ${
+            className={`flex-1 rounded-lg items-center ${
               title.trim() ? "bg-primary" : "bg-gray-300"
             }`}
+            style={{ paddingVertical: 12 * spacingScale }}
           >
-            <Text className="font-semibold text-white">
+            <Text className="font-semibold text-white" style={{ fontSize: 14 * fontScale }}>
               {initialValues ? "Salvar" : "Adicionar"}
             </Text>
           </TouchableOpacity>

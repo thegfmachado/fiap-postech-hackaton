@@ -4,6 +4,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Task, Status } from "@mindease/models";
 import { TaskCard } from "@/components/TaskCard";
 import { useAppColors } from "@/hooks/useAppColors";
+import { useAccessibility } from "@/contexts/accessibility-context";
 import type { MaterialIconName } from "@/types/icons";
 
 const columnTitles: Record<Status, string> = {
@@ -27,22 +28,29 @@ interface ColumnProps {
 
 export function Column({ status, tasks, onTaskPress, onTaskDelete }: ColumnProps) {
   const { colors } = useAppColors();
+  const { fontScale, spacingScale, isHighContrast } = useAccessibility();
 
   return (
     <>
-      <View className="flex-row items-center justify-between mb-3 px-2">
-        <View className="flex-row items-center gap-2">
+      <View className="flex-row items-center justify-between" style={{ paddingHorizontal: 8 * spacingScale, marginBottom: 12 * spacingScale }}>
+        <View className="flex-row items-center" style={{ gap: 8 * spacingScale }}>
           <MaterialIcons
             name={columnIcons[status]}
             size={20}
             color={colors.primary}
           />
-          <Text className="text-base font-bold text-gray-800 dark:text-gray-200">
+          <Text
+            className="text-base font-bold text-gray-800 dark:text-gray-200"
+            style={{ fontSize: 16 * fontScale, color: colors.text }}
+          >
             {columnTitles[status]}
           </Text>
         </View>
-        <View className="bg-gray-200 dark:bg-gray-700 rounded-full px-2 py-0.5">
-          <Text className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+        <View className="bg-gray-200 dark:bg-gray-700 rounded-full" style={{ paddingHorizontal: 8 * spacingScale, paddingVertical: 2 * spacingScale }}>
+          <Text
+            className="text-xs font-semibold text-gray-600 dark:text-gray-300"
+            style={{ fontSize: 12 * fontScale, color: colors.mutedForeground }}
+          >
             {tasks.length}
           </Text>
         </View>
@@ -52,12 +60,15 @@ export function Column({ status, tasks, onTaskPress, onTaskDelete }: ColumnProps
         className="flex-1"
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{ paddingBottom: 20 * spacingScale }}
       >
         {tasks.length === 0 ? (
-          <View className="items-center justify-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-dashed border-gray-200 dark:border-gray-700">
+          <View
+            className="items-center justify-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-dashed border-gray-200 dark:border-gray-700"
+            style={isHighContrast ? { borderColor: colors.border, borderWidth: 2 } : undefined}
+          >
             <MaterialIcons name="inbox" size={36} color={colors.grayLight} />
-            <Text className="text-sm text-gray-400 mt-2">Nenhuma tarefa</Text>
+            <Text className="text-sm text-gray-400 mt-2" style={{ fontSize: 14 * fontScale, color: colors.mutedForeground }}>Nenhuma tarefa</Text>
           </View>
         ) : (
           tasks.map((task) => (

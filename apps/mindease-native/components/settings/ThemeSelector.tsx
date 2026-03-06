@@ -2,6 +2,7 @@ import React from "react";
 import { View } from "react-native";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { OptionCard } from "@/components/ui/OptionCard";
+import { useAccessibility } from "@/contexts/accessibility-context";
 
 interface ThemeSelectorProps {
   isDark: boolean;
@@ -14,10 +15,12 @@ export function ThemeSelector({
   onSelectLight,
   onSelectDark,
 }: ThemeSelectorProps) {
+  const { spacingScale } = useAccessibility();
+
   return (
-    <View className="mx-6 mb-6">
+    <View className="mx-6" style={{ marginBottom: 24 * spacingScale }}>
       <SectionHeader icon="palette" title="Tema" />
-      <View className="gap-3">
+      <View style={{ gap: 12 * spacingScale }}>
         <OptionCard
           icon="light-mode"
           title="Modo Claro"

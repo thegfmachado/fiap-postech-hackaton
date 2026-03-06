@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { useAccessibility } from "@/contexts/accessibility-context";
+import { useAppColors } from "@/hooks/useAppColors";
 
 interface ChipSelectorProps<T extends string | number> {
   options: T[];
@@ -16,19 +18,26 @@ export function ChipSelector<T extends string | number>({
   formatLabel,
   scrollable = false,
 }: ChipSelectorProps<T>) {
+  const { fontScale, spacingScale, isHighContrast } = useAccessibility();
+  const { colors } = useAppColors();
   const label = (v: T) => (formatLabel ? formatLabel(v) : `${v} min`);
 
   const chips = (
-    <View className="flex-row gap-2">
+    <View className="flex-row" style={{ gap: 8 * spacingScale }}>
       {options.map((opt) => (
         <TouchableOpacity
           key={String(opt)}
           onPress={() => onSelect(opt)}
-          className={`px-4 py-2 rounded-lg border ${
+          className={`rounded-lg border ${
             selected === opt
               ? "border-primary bg-primary/10"
               : "border-gray-200 dark:border-gray-600"
           }`}
+          style={{
+            paddingHorizontal: 16 * spacingScale,
+            paddingVertical: 8 * spacingScale,
+            ...(isHighContrast && selected !== opt ? { borderColor: colors.border } : {}),
+          }}
         >
           <Text
             className={`text-sm font-medium ${
@@ -36,6 +45,10 @@ export function ChipSelector<T extends string | number>({
                 ? "text-primary"
                 : "text-gray-600 dark:text-gray-300"
             }`}
+            style={{
+              fontSize: 14 * fontScale,
+              ...(isHighContrast && selected !== opt ? { color: colors.mutedForeground } : {}),
+            }}
           >
             {label(opt)}
           </Text>
