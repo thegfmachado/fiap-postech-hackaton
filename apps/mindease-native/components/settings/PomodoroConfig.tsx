@@ -31,12 +31,15 @@ export function PomodoroConfig({
         style={isHighContrast ? { borderColor: colors.border, borderWidth: 2 } : undefined}
       >
         <View
-          className="p-4 border-b border-gray-50 dark:border-gray-700"
-          style={isHighContrast ? { borderBottomColor: colors.border } : undefined}
+          className="border-b border-gray-50 dark:border-gray-700"
+          style={{
+            padding: 16 * spacingScale,
+            ...(isHighContrast ? { borderBottomColor: colors.border } : {}),
+          }}
         >
           <Text
-            className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
-            style={{ fontSize: 14 * fontScale, color: colors.text }}
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            style={{ fontSize: 14 * fontScale, color: colors.text, marginBottom: 12 * spacingScale }}
           >
             Tempo de Foco
           </Text>
@@ -49,12 +52,15 @@ export function PomodoroConfig({
         </View>
 
         <View
-          className="p-4 border-b border-gray-50 dark:border-gray-700"
-          style={isHighContrast ? { borderBottomColor: colors.border } : undefined}
+          className="border-b border-gray-50 dark:border-gray-700"
+          style={{
+            padding: 16 * spacingScale,
+            ...(isHighContrast ? { borderBottomColor: colors.border } : {}),
+          }}
         >
           <Text
-            className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
-            style={{ fontSize: 14 * fontScale, color: colors.text }}
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            style={{ fontSize: 14 * fontScale, color: colors.text, marginBottom: 12 * spacingScale }}
           >
             Pausa Curta
           </Text>
@@ -65,10 +71,10 @@ export function PomodoroConfig({
           />
         </View>
 
-        <View className="p-4">
+        <View style={{ padding: 16 * spacingScale }}>
           <Text
-            className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
-            style={{ fontSize: 14 * fontScale, color: colors.text }}
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            style={{ fontSize: 14 * fontScale, color: colors.text, marginBottom: 12 * spacingScale }}
           >
             Pausa Longa
           </Text>
@@ -81,8 +87,8 @@ export function PomodoroConfig({
       </View>
 
       <View
-        className="bg-primary/5 rounded-xl p-3 mt-3 border border-primary/10"
-        style={isHighContrast ? { borderColor: colors.border } : undefined}
+        className="bg-primary/5 rounded-xl border border-primary/10"
+        style={{ padding: 12 * spacingScale, marginTop: 12 * spacingScale, ...(isHighContrast ? { borderColor: colors.border } : {}) }}
       >
         <Text
           className="text-xs text-gray-600 dark:text-gray-300"

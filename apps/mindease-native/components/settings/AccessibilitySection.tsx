@@ -52,16 +52,19 @@ export function AccessibilitySection({
       >
         {/* Contraste */}
         <View
-          className="p-4 border-b border-gray-50 dark:border-gray-700"
-          style={isHighContrast ? { borderBottomColor: colors.border } : undefined}
+          className="border-b border-gray-50 dark:border-gray-700"
+          style={{
+            padding: 16 * spacingScale,
+            ...(isHighContrast ? { borderBottomColor: colors.border } : {}),
+          }}
         >
           <Text
-            className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
-            style={{ fontSize: 14 * fontScale, color: colors.text }}
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            style={{ fontSize: 14 * fontScale, color: colors.text, marginBottom: 12 * spacingScale }}
           >
             Contraste
           </Text>
-          <View className="gap-3">
+          <View style={{ gap: 12 * spacingScale }}>
             <OptionCard
               icon="contrast"
               title="Baixo Contraste"
@@ -81,12 +84,15 @@ export function AccessibilitySection({
 
         {/* Tamanho da Fonte */}
         <View
-          className="p-4 border-b border-gray-50 dark:border-gray-700"
-          style={isHighContrast ? { borderBottomColor: colors.border } : undefined}
+          className="border-b border-gray-50 dark:border-gray-700"
+          style={{
+            padding: 16 * spacingScale,
+            ...(isHighContrast ? { borderBottomColor: colors.border } : {}),
+          }}
         >
           <Text
-            className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
-            style={{ fontSize: 14 * fontScale, color: colors.text }}
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            style={{ fontSize: 14 * fontScale, color: colors.text, marginBottom: 12 * spacingScale }}
           >
             Tamanho da Fonte
           </Text>
@@ -99,10 +105,10 @@ export function AccessibilitySection({
         </View>
 
         {/* Espaçamento */}
-        <View className="p-4">
+        <View style={{ padding: 16 * spacingScale }}>
           <Text
-            className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
-            style={{ fontSize: 14 * fontScale, color: colors.text }}
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            style={{ fontSize: 14 * fontScale, color: colors.text, marginBottom: 12 * spacingScale }}
           >
             Espaçamento
           </Text>
@@ -116,8 +122,8 @@ export function AccessibilitySection({
       </View>
 
       <View
-        className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 mt-3 border border-blue-100 dark:border-blue-800"
-        style={isHighContrast ? { borderColor: colors.border } : undefined}
+        className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800"
+        style={{ padding: 12 * spacingScale, marginTop: 12 * spacingScale, ...(isHighContrast ? { borderColor: colors.border } : {}) }}
       >
         <Text className="text-xs text-gray-600 dark:text-gray-300" style={{ fontSize: 12 * fontScale, color: colors.mutedForeground }}>
           <Text className="font-bold" style={{ color: colors.text }}>♿ Acessibilidade: </Text>
