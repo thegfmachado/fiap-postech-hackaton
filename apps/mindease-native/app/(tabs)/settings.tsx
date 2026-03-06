@@ -40,7 +40,7 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900" edges={["top"]}>
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 40 * spacingScale }}>
-        <View className="px-6 pt-2 pb-4">
+        <View style={{ paddingHorizontal: 24 * spacingScale, paddingTop: 8 * spacingScale, paddingBottom: 16 * spacingScale }}>
           <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100" style={{ fontSize: 24 * fontScale, color: colors.text }}>Configurações</Text>
           <Text className="text-sm text-gray-500 dark:text-gray-400 mt-1" style={{ fontSize: 14 * fontScale, color: colors.mutedForeground }}>
             Personalize sua experiência
@@ -77,11 +77,15 @@ export default function SettingsScreen() {
           onSpacingChange={setSpacing}
         />
 
-        <View className="mx-6 mt-4">
+        <View style={{ marginHorizontal: 24 * spacingScale, marginTop: 16 * spacingScale }}>
           <TouchableOpacity
             onPress={handleSignOut}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-4 flex-row items-center justify-center gap-2 border border-red-200 dark:border-red-800"
-            style={isHighContrast ? { borderColor: colors.destructive, borderWidth: 2 } : undefined}
+            className="bg-white dark:bg-gray-800 rounded-2xl flex-row items-center justify-center border border-red-200 dark:border-red-800"
+            style={{
+              padding: 16 * spacingScale,
+              gap: 8 * spacingScale,
+              ...(isHighContrast ? { borderColor: colors.destructive, borderWidth: 2 } : {}),
+            }}
           >
             <MaterialIcons name="logout" size={20} color={colors.destructive} />
             <Text className="font-semibold text-red-500 dark:text-red-400" style={{ fontSize: 14 * fontScale, color: colors.destructive }}>Sair da conta</Text>
