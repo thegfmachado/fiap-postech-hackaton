@@ -104,10 +104,11 @@ export default function HomeScreen() {
       <View style={{ paddingHorizontal: 24 * spacingScale, marginBottom: 16 * spacingScale }}>
         <TouchableOpacity
           onPress={() => setShowForm(true)}
-          className="bg-primary flex-row items-center justify-center py-3 rounded-xl"
+          className="bg-primary flex-row items-center justify-center rounded-xl"
+          style={{ paddingVertical: 12 * spacingScale, gap: 8 * spacingScale }}
         >
           <MaterialIcons name="add" size={20} color="#FFF" />
-          <Text className="text-white font-semibold ml-2">Nova Tarefa</Text>
+          <Text className="text-white font-semibold" style={{ fontSize: 14 * fontScale }}>Nova Tarefa</Text>
         </TouchableOpacity>
       </View>
 
