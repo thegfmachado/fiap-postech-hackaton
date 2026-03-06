@@ -18,6 +18,8 @@ import {
   type ForgotPasswordSchema,
 } from "@mindease/validation-schemas";
 import { useAuth } from "@/contexts/auth-context";
+import { useAppColors } from "@/hooks/useAppColors";
+import { useAccessibility } from "@/contexts/accessibility-context";
 import { GradientLogo } from "@/components/ui/GradientLogo";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -30,6 +32,8 @@ export default function ForgotPasswordScreen() {
   const [modalMsg, setModalMsg] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalAction, setModalAction] = useState<(() => void) | null>(null);
+  const { colors } = useAppColors();
+  const { fontScale, spacingScale } = useAccessibility();
 
   const {
     control,
@@ -77,11 +81,16 @@ export default function ForgotPasswordScreen() {
         >
           <GradientLogo />
 
-          <View className="px-6 pt-8 pb-6 flex-1">
-            <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+          <View style={{ paddingHorizontal: 24 * spacingScale, paddingTop: 32 * spacingScale, paddingBottom: 24 * spacingScale, flex: 1 }}>
+            <Text
+              className="font-bold"
+              style={{ fontSize: 24 * fontScale, marginBottom: 4 * spacingScale, color: colors.text }}
+            >
               Redefinir senha
             </Text>
-            <Text className="text-base text-gray-500 dark:text-gray-400 mb-8">
+            <Text
+              style={{ fontSize: 16 * fontScale, marginBottom: 32 * spacingScale, color: colors.mutedForeground }}
+            >
               Digite seu email para receber instruções de redefinição
             </Text>
 
@@ -103,7 +112,7 @@ export default function ForgotPasswordScreen() {
               )}
             />
 
-            <View className="mt-2">
+            <View style={{ marginTop: 8 * spacingScale }}>
               <Button
                 title="Enviar"
                 variant="primary"
@@ -113,10 +122,15 @@ export default function ForgotPasswordScreen() {
               />
             </View>
 
-            <View className="flex-row items-center justify-center mt-6 gap-1">
-              <Text className="text-gray-500 dark:text-gray-400">Lembrou a senha?</Text>
+            <View
+              className="flex-row items-center justify-center"
+              style={{ marginTop: 24 * spacingScale, gap: 4 * spacingScale }}
+            >
+              <Text style={{ fontSize: 14 * fontScale, color: colors.mutedForeground }}>
+                Lembrou a senha?
+              </Text>
               <TouchableOpacity onPress={() => router.back()}>
-                <Text className="text-primary font-semibold">
+                <Text className="text-primary font-semibold" style={{ fontSize: 14 * fontScale }}>
                   Voltar para login
                 </Text>
               </TouchableOpacity>
