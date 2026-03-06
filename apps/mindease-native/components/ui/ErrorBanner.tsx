@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useAccessibility } from "@/contexts/accessibility-context";
 
 interface ErrorBannerProps {
   message: string;
@@ -9,11 +10,21 @@ interface ErrorBannerProps {
 }
 
 export function ErrorBanner({ message, onDismiss, iconColor = "#DB5141" }: ErrorBannerProps) {
+  const { fontScale, spacingScale } = useAccessibility();
+
   return (
-    <View className="mx-6 mb-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-xl px-4 py-3 flex-row items-center justify-between">
-      <View className="flex-1 flex-row items-center gap-2">
+    <View
+      className="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-xl flex-row items-center justify-between"
+      style={{
+        marginHorizontal: 24 * spacingScale,
+        marginBottom: 12 * spacingScale,
+        paddingHorizontal: 16 * spacingScale,
+        paddingVertical: 12 * spacingScale,
+      }}
+    >
+      <View className="flex-1 flex-row items-center" style={{ gap: 8 * spacingScale }}>
         <MaterialIcons name="error-outline" size={18} color={iconColor} />
-        <Text className="text-red-700 dark:text-red-300 text-sm flex-shrink">
+        <Text className="text-red-700 dark:text-red-300 flex-shrink" style={{ fontSize: 14 * fontScale }}>
           {message}
         </Text>
       </View>

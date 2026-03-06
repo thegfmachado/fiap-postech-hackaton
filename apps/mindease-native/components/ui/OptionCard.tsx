@@ -35,7 +35,7 @@ export function OptionCard({
         ...(isHighContrast && !selected ? { borderColor: colors.border } : {}),
       }}
     >
-      <View className="flex-row items-start gap-3">
+      <View className="flex-row items-start" style={{ gap: 12 * spacingScale }}>
         <View
           className={`p-2 rounded-lg ${
             selected ? "bg-primary" : "bg-gray-100 dark:bg-gray-700"

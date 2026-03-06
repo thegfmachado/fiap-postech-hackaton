@@ -15,7 +15,7 @@ export function SectionHeader({ icon, title }: SectionHeaderProps) {
   const { fontScale, spacingScale } = useAccessibility();
 
   return (
-    <View className="flex-row items-center gap-2" style={{ marginBottom: 16 * spacingScale }}>
+    <View className="flex-row items-center" style={{ gap: 8 * spacingScale, marginBottom: 16 * spacingScale }}>
       <MaterialIcons name={icon} size={20} color={colors.primary} />
       <Text
         className="text-base font-bold text-gray-900 dark:text-gray-100"

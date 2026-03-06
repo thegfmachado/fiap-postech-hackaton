@@ -18,22 +18,26 @@ export function ChipSelector<T extends string | number>({
   formatLabel,
   scrollable = false,
 }: ChipSelectorProps<T>) {
-  const { fontScale, isHighContrast } = useAccessibility();
+  const { fontScale, spacingScale, isHighContrast } = useAccessibility();
   const { colors } = useAppColors();
   const label = (v: T) => (formatLabel ? formatLabel(v) : `${v} min`);
 
   const chips = (
-    <View className="flex-row gap-2">
+    <View className="flex-row" style={{ gap: 8 * spacingScale }}>
       {options.map((opt) => (
         <TouchableOpacity
           key={String(opt)}
           onPress={() => onSelect(opt)}
-          className={`px-4 py-2 rounded-lg border ${
+          className={`rounded-lg border ${
             selected === opt
               ? "border-primary bg-primary/10"
               : "border-gray-200 dark:border-gray-600"
           }`}
-          style={isHighContrast && selected !== opt ? { borderColor: colors.border } : undefined}
+          style={{
+            paddingHorizontal: 16 * spacingScale,
+            paddingVertical: 8 * spacingScale,
+            ...(isHighContrast && selected !== opt ? { borderColor: colors.border } : {}),
+          }}
         >
           <Text
             className={`text-sm font-medium ${
