@@ -20,7 +20,7 @@ export function ThemeSelector({
   return (
     <View className="mx-6" style={{ marginBottom: 24 * spacingScale }}>
       <SectionHeader icon="palette" title="Tema" />
-      <View className="gap-3">
+      <View style={{ gap: 12 * spacingScale }}>
         <OptionCard
           icon="light-mode"
           title="Modo Claro"

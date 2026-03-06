@@ -14,9 +14,13 @@ export function UserCard({ name, email }: UserCardProps) {
 
   return (
     <View
-      className="mx-6 bg-white dark:bg-gray-800 rounded-2xl p-4 flex-row items-center gap-4 border border-gray-100 dark:border-gray-700"
-      style={[{ marginBottom: 24 * spacingScale }, isHighContrast ? { borderColor: colors.border, borderWidth: 2 } : undefined]}
-      style={isHighContrast ? { borderColor: colors.border, borderWidth: 2 } : undefined}
+      className="mx-6 bg-white dark:bg-gray-800 rounded-2xl flex-row items-center border border-gray-100 dark:border-gray-700"
+      style={{
+        padding: 16 * spacingScale,
+        gap: 16 * spacingScale,
+        marginBottom: 24 * spacingScale,
+        ...(isHighContrast ? { borderColor: colors.border, borderWidth: 2 } : {}),
+      }}
     >
       <View className="w-12 h-12 rounded-full bg-primary items-center justify-center">
         <Text className="text-white font-bold text-lg" style={{ fontSize: 18 * fontScale }}>

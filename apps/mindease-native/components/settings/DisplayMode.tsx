@@ -22,7 +22,7 @@ export function DisplayModeSection({
     <View className="mx-6" style={{ marginBottom: 24 * spacingScale }}>
       <SectionHeader icon="visibility" title="Modo de Exibição" />
 
-      <View className="gap-3">
+      <View style={{ gap: 12 * spacingScale }}>
         <OptionCard
           icon="visibility"
           title="Modo Detalhado"
@@ -40,8 +40,8 @@ export function DisplayModeSection({
       </View>
 
       <View
-        className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 mt-3 border border-blue-100 dark:border-blue-800"
-        style={isHighContrast ? { borderColor: colors.border } : undefined}
+        className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800"
+        style={{ padding: 12 * spacingScale, marginTop: 12 * spacingScale, ...(isHighContrast ? { borderColor: colors.border } : {}) }}
       >
         <Text
           className="text-xs text-gray-600 dark:text-gray-300"
