@@ -32,8 +32,8 @@ export function Column({ status, tasks, onTaskPress, onTaskDelete }: ColumnProps
 
   return (
     <>
-      <View className="flex-row items-center justify-between px-2" style={{ marginBottom: 12 * spacingScale }}>
-        <View className="flex-row items-center gap-2">
+      <View className="flex-row items-center justify-between" style={{ paddingHorizontal: 8 * spacingScale, marginBottom: 12 * spacingScale }}>
+        <View className="flex-row items-center" style={{ gap: 8 * spacingScale }}>
           <MaterialIcons
             name={columnIcons[status]}
             size={20}
@@ -46,7 +46,7 @@ export function Column({ status, tasks, onTaskPress, onTaskDelete }: ColumnProps
             {columnTitles[status]}
           </Text>
         </View>
-        <View className="bg-gray-200 dark:bg-gray-700 rounded-full px-2 py-0.5">
+        <View className="bg-gray-200 dark:bg-gray-700 rounded-full" style={{ paddingHorizontal: 8 * spacingScale, paddingVertical: 2 * spacingScale }}>
           <Text
             className="text-xs font-semibold text-gray-600 dark:text-gray-300"
             style={{ fontSize: 12 * fontScale, color: colors.mutedForeground }}
