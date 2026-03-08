@@ -13,5 +13,5 @@ export interface ITasksQueries {
   getById: (id: string) => Promise<Task>;
   create: (data: TaskRowInsert) => Promise<Task>;
   update: (id: string, data: TaskRowUpdate) => Promise<Task>;
-  delete: (id: string) => Promise<Task>;
+  delete: (id: string) => Promise<void>;
 }
