@@ -74,9 +74,9 @@ export function TaskCard({ task, onPress, onDelete }: TaskCardProps) {
       ) : null}
 
       {!isSimplified && task.checklistItems && task.checklistItems.length > 0 && (
-        <View className="flex-row items-center gap-1 mb-2">
+        <View className="flex-row items-center" style={{ gap: 4 * spacingScale, marginBottom: 8 * spacingScale }}>
           <MaterialIcons name="checklist" size={12} color={colors.grayLight} />
-          <Text className="text-xs text-gray-400">
+          <Text style={{ fontSize: 10 * fontScale, color: colors.mutedForeground }}>
             {checklistProgress.completed}/{checklistProgress.total}
           </Text>
         </View>

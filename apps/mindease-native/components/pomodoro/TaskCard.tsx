@@ -58,7 +58,7 @@ export function TaskCard({
               {sessionsCompleted}/{targetPomodoros} pomodoros
             </Text>
             {hasChecklist && (
-              <Text className="text-xs text-gray-400">
+              <Text style={{ fontSize: 12 * fontScale, color: colors.mutedForeground }}>
                 ✓ {checklistProgress!.completed}/{checklistProgress!.total}
               </Text>
             )}
@@ -110,6 +110,7 @@ export function TaskCardChecklist({ task }: { task: Task }) {
   const { colors } = useAppColors();
   const { isSimplified } = useDisplayMode();
   const { toggleChecklistItem } = useTasks();
+  const { fontScale, spacingScale, isHighContrast } = useAccessibility();
   const hasChecklist = task.checklistItems && task.checklistItems.length > 0;
   if (!hasChecklist) return null;
 
@@ -121,21 +122,24 @@ export function TaskCardChecklist({ task }: { task: Task }) {
     : null;
 
   return (
-    <View className="mx-6 mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
-      <View className="flex-row items-center justify-between mb-2">
-        <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+    <View
+      className="bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700"
+      style={{ marginHorizontal: 24 * spacingScale, marginTop: 16 * spacingScale, padding: 12 * spacingScale, ...(isHighContrast ? { borderColor: colors.border, borderWidth: 2 } : {}) }}
+    >
+      <View className="flex-row items-center justify-between" style={{ marginBottom: 8 * spacingScale }}>
+        <Text className="font-semibold" style={{ fontSize: 14 * fontScale, color: colors.text }}>
           Checklist
         </Text>
-        <Text className="text-xs text-gray-400">
+        <Text style={{ fontSize: 12 * fontScale, color: colors.mutedForeground }}>
           {checklistProgress.completed}/{checklistProgress.total}
         </Text>
       </View>
 
       {isSimplified ? (
         allChecklistDone ? (
-          <View className="flex-row items-center gap-2 py-1">
+          <View className="flex-row items-center" style={{ gap: 8 * spacingScale, paddingVertical: 4 * spacingScale }}>
             <MaterialIcons name="check-circle" size={20} color={colors.primary} />
-            <Text className="text-sm font-semibold text-primary">
+            <Text className="font-semibold" style={{ fontSize: 12 * fontScale, color: colors.primary }}>
               Todos os itens concluídos
             </Text>
           </View>
@@ -144,10 +148,11 @@ export function TaskCardChecklist({ task }: { task: Task }) {
             {lastCompletedItem && (
               <TouchableOpacity
                 onPress={() => toggleChecklistItem(task.id, lastCompletedItem.id, false)}
-                className="flex-row items-center gap-2 py-1 opacity-60"
+                className="flex-row items-center opacity-60"
+                style={{ gap: 8 * spacingScale, paddingVertical: 4 * spacingScale }}
               >
                 <MaterialIcons name="check-box" size={20} color={colors.primary} />
-                <Text className="flex-1 text-sm text-gray-400 line-through">
+                <Text className="flex-1 line-through" style={{ fontSize: 12 * fontScale, color: colors.grayLight }}>
                   {lastCompletedItem.description}
                 </Text>
               </TouchableOpacity>
@@ -155,14 +160,15 @@ export function TaskCardChecklist({ task }: { task: Task }) {
             {nextItem && (
               <TouchableOpacity
                 onPress={() => toggleChecklistItem(task.id, nextItem.id, true)}
-                className="flex-row items-center gap-2 py-1"
+                className="flex-row items-center"
+                style={{ gap: 8 * spacingScale, paddingVertical: 4 * spacingScale }}
               >
                 <MaterialIcons
                   name="check-box-outline-blank"
                   size={20}
                   color={colors.grayLight}
                 />
-                <Text className="flex-1 text-sm text-gray-700 dark:text-gray-300">
+                <Text className="flex-1" style={{ fontSize: 14 * fontScale, color: colors.text }}>
                   {nextItem.description}
                 </Text>
               </TouchableOpacity>
@@ -174,7 +180,8 @@ export function TaskCardChecklist({ task }: { task: Task }) {
           <TouchableOpacity
             key={item.id}
             onPress={() => toggleChecklistItem(task.id, item.id, !item.completed)}
-            className="flex-row items-center gap-2 py-1"
+            className="flex-row items-center"
+            style={{ gap: 8 * spacingScale, paddingVertical: 4 * spacingScale }}
           >
             <MaterialIcons
               name={item.completed ? "check-box" : "check-box-outline-blank"}
@@ -182,11 +189,8 @@ export function TaskCardChecklist({ task }: { task: Task }) {
               color={item.completed ? colors.primary : colors.grayLight}
             />
             <Text
-              className={`flex-1 text-sm ${
-                item.completed
-                  ? "text-gray-400 line-through"
-                  : "text-gray-700 dark:text-gray-300"
-              }`}
+              className={item.completed ? "flex-1 line-through" : "flex-1"}
+              style={{ fontSize: 14 * fontScale, color: item.completed ? colors.mutedForeground : colors.text }}
             >
               {item.description}
             </Text>
