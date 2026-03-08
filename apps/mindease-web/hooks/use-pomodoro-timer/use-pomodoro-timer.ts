@@ -88,40 +88,37 @@ export function usePomodoroTimer(
     setIsRunning(false);
 
     if (mode === "work") {
-      setSessionsCompleted((prev) => {
-        const newSessions = prev + 1;
+      const newSessions = sessionsCompleted + 1;
+      setSessionsCompleted(newSessions);
 
-        callbacksRef.current?.onPomodoroComplete?.(newSessions);
+      const isTaskComplete = pomodoroMode === "task" && targetPomodoros > 0 && newSessions >= targetPomodoros;
 
-        if (pomodoroMode === "task" && targetPomodoros > 0) {
-          if (newSessions >= targetPomodoros) {
-            callbacksRef.current?.onAllPomodorosComplete?.();
-            return newSessions;
-          }
-        }
+      if (isTaskComplete) {
+        callbacksRef.current?.onAllPomodorosComplete?.();
+        return;
+      }
 
-        if (
-          newSessions % settings.longBreakAfterPomodoros ===
-          0
-        ) {
-          setMode("longBreak");
-          setTimeLeft(minutesToSeconds(settings.longBreakDurationMinutes));
-        } else {
-          setMode("break");
-          setTimeLeft(minutesToSeconds(settings.shortBreakDurationMinutes));
-        }
+      callbacksRef.current?.onPomodoroComplete?.(newSessions);
 
-        setIsRunning(true);
+      if (
+        newSessions % settings.longBreakAfterPomodoros ===
+        0
+      ) {
+        setMode("longBreak");
+        setTimeLeft(minutesToSeconds(settings.longBreakDurationMinutes));
+      } else {
+        setMode("break");
+        setTimeLeft(minutesToSeconds(settings.shortBreakDurationMinutes));
+      }
 
-        return newSessions;
-      });
+      setIsRunning(true);
     } else {
       setMode("work");
       setTimeLeft(minutesToSeconds(settings.pomodoroDurationMinutes));
 
       setIsRunning(true);
     }
-  }, [mode, settings, pomodoroMode, targetPomodoros]);
+  }, [mode, settings, pomodoroMode, targetPomodoros, sessionsCompleted]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
