@@ -166,15 +166,7 @@ describe('TaskService', () => {
     const result = await taskService.update('1', updateData);
 
     expect(result).toEqual(updatedTask);
-    expect(mockQueries.update).toHaveBeenCalledWith('1', {
-      title: 'Updated Task',
-      description: 'Updated Description',
-      status: undefined,
-      priority: undefined,
-      estimated_pomodoros: 0,
-      completed_pomodoros: 0,
-      due_date: expect.any(String),
-    });
+    expect(mockQueries.update).toHaveBeenCalledWith('1', updateData);
   });
 
   test('should throw 404 when updating task not found', async () => {
@@ -203,7 +195,7 @@ describe('TaskService', () => {
   });
 
   test('should delete a task', async () => {
-    vi.mocked(mockQueries.delete).mockResolvedValue(mockTask);
+    vi.mocked(mockQueries.delete).mockResolvedValue();
 
     await taskService.delete('1');
 

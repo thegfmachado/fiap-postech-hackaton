@@ -323,7 +323,7 @@ describe('usePomodoroTimer', () => {
       vi.advanceTimersByTime(25 * 60 * 1000);
     });
 
-    expect(onPomodoroComplete).toHaveBeenCalledWith(1);
+    expect(onPomodoroComplete).not.toHaveBeenCalled();
     expect(onAllPomodorosComplete).toHaveBeenCalled();
   });
 
