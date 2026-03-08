@@ -92,23 +92,23 @@ export default function PomodoroPage() {
                   </div>
 
                   <div className="relative w-full max-w-md aspect-square">
-                    <svg className="w-full h-full -rotate-90">
+                    <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
                       <circle
-                        cx="50%"
-                        cy="50%"
-                        r="45%"
+                        cx="50"
+                        cy="50"
+                        r="45"
                         fill="none"
                         stroke="currentColor"
-                        strokeWidth="8"
+                        strokeWidth="2"
                         className="text-muted opacity-20"
                       />
                       <circle
-                        cx="50%"
-                        cy="50%"
-                        r="45%"
+                        cx="50"
+                        cy="50"
+                        r="45"
                         fill="none"
                         stroke="currentColor"
-                        strokeWidth="8"
+                        strokeWidth="2"
                         className={currentConfig.color}
                         strokeDasharray={`${2 * Math.PI * 45}`}
                         strokeDashoffset={`${2 * Math.PI * 45 * (1 - progress / 100)}`}
