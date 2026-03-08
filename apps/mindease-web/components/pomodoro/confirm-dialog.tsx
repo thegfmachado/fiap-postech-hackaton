@@ -10,6 +10,7 @@ interface ConfirmDialogProps {
   cancelLabel?: string;
   destructive?: boolean;
   infoOnly?: boolean;
+  closeOnOverlayClick?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -22,6 +23,7 @@ export function ConfirmDialog({
   cancelLabel = "Cancelar",
   destructive = false,
   infoOnly = false,
+  closeOnOverlayClick = true,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -29,7 +31,14 @@ export function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onCancel} />
+      <div
+        className="absolute inset-0 bg-black/50"
+        onClick={() => {
+          if (closeOnOverlayClick) {
+            onCancel();
+          }
+        }}
+      />
       <Card className="relative z-10 w-full max-w-sm mx-4">
         <CardContent className="p-6">
           <h3 className="text-lg font-semibold mb-2">{title}</h3>

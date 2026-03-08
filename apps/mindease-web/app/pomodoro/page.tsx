@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Play, Pause, RotateCcw, Coffee, Brain, Square, PlusCircle } from "lucide-react";
 
 import { Header } from "@/components/template/header";
@@ -45,6 +46,8 @@ const modeConfig = {
 };
 
 export default function PomodoroPage() {
+  const router = useRouter();
+
   const {
     mode,
     timeLeft,
@@ -72,7 +75,7 @@ export default function PomodoroPage() {
   const [showStopConfirm, setShowStopConfirm] = useState(false);
   const [showTimerActiveInfo, setShowTimerActiveInfo] = useState(false);
   const [showTaskCompleteInfo, setShowTaskCompleteInfo] = useState(false);
-  const [taskCompleteMsg] = useState("");
+  const promptedTaskIdRef = useRef<string | null>(null);
 
   const currentConfig = modeConfig[mode];
   const Icon = currentConfig.icon;
@@ -98,6 +101,33 @@ export default function PomodoroPage() {
 
   const onStop = () => {
     setShowStopConfirm(true);
+  };
+
+  useEffect(() => {
+    if (pomodoroMode !== "task" || !isTaskComplete || !selectedTask) {
+      return;
+    }
+
+    if (promptedTaskIdRef.current === selectedTask.id) {
+      return;
+    }
+
+    promptedTaskIdRef.current = selectedTask.id;
+    setShowTaskCompleteInfo(true);
+  }, [isTaskComplete, pomodoroMode, selectedTask]);
+
+  const taskCompleteMsg = selectedTask
+    ? `A tarefa "${selectedTask.title}" foi concluida. Deseja voltar ao quadro ou iniciar outra tarefa?`
+    : "Tarefa concluida. Deseja voltar ao quadro ou iniciar outra tarefa?";
+
+  const handleBackToBoard = () => {
+    setShowTaskCompleteInfo(false);
+    router.push("/home");
+  };
+
+  const handleStartAnotherTask = () => {
+    setShowTaskCompleteInfo(false);
+    setShowTaskPicker(true);
   };
 
   // Determine session indicator count
@@ -335,12 +365,13 @@ export default function PomodoroPage() {
       {/* Task Complete Info */}
       <ConfirmDialog
         open={showTaskCompleteInfo}
-        title="🎉 Tarefa Concluída!"
+        title="Tarefa concluida"
         message={taskCompleteMsg}
-        confirmLabel="OK"
-        infoOnly
-        onConfirm={() => setShowTaskCompleteInfo(false)}
-        onCancel={() => setShowTaskCompleteInfo(false)}
+        confirmLabel="Voltar ao quadro"
+        cancelLabel="Iniciar outra tarefa"
+        closeOnOverlayClick={false}
+        onConfirm={handleBackToBoard}
+        onCancel={handleStartAnotherTask}
       />
     </Layout>
   );
