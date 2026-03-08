@@ -12,17 +12,13 @@ import {
 } from "react";
 
 import { Task, Status } from "@mindease/models";
-import { HTTPService } from "@mindease/services";
-import { TasksService } from "@/client/services/task-service";
+import { useTasksContext } from "@/contexts/tasks-context";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import {
   usePomodoroTimer,
   type UsePomodoroTimerReturn,
 } from "@/hooks/use-pomodoro-timer/use-pomodoro-timer";
-
-const httpService = new HTTPService();
-const tasksService = new TasksService(httpService);
 
 export interface PomodoroContextType extends UsePomodoroTimerReturn {
   selectedTask: Task | null;
@@ -41,53 +37,30 @@ const PomodoroContext = createContext<PomodoroContextType | undefined>(undefined
 export function PomodoroProvider({ children }: { children: ReactNode }) {
   const { user } = useCurrentUser();
   const { userSettings } = useUserSettings(user?.id);
+  const {
+    tasks,
+    isLoadingTasks,
+    refreshTasks,
+    updateTask,
+    toggleChecklistItem: toggleTaskChecklistItem,
+  } = useTasksContext();
 
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [isLoadingTasks, setIsLoadingTasks] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const selectedTask = useMemo(
+    () => tasks.find((task) => task.id === selectedTaskId) ?? null,
+    [tasks, selectedTaskId]
+  );
   const selectedTaskRef = useRef(selectedTask);
 
   useEffect(() => {
     selectedTaskRef.current = selectedTask;
   }, [selectedTask]);
 
-  // --- Fetch tasks ---
-  const refreshTasks = useCallback(async () => {
-    setIsLoadingTasks(true);
-    try {
-      const response = await tasksService.get();
-      setTasks(response.data);
-    } catch (err) {
-      console.error("Error fetching tasks for pomodoro:", err);
-    } finally {
-      setIsLoadingTasks(false);
-    }
-  }, []);
-
   useEffect(() => {
-    void refreshTasks();
-  }, [refreshTasks]);
-
-  // --- Keep selectedTask synced with fresh task data ---
-  useEffect(() => {
-    if (!selectedTask) return;
-    const fresh = tasks.find((t) => t.id === selectedTask.id);
-    if (!fresh) {
-      setSelectedTask(null);
-      return;
+    if (selectedTaskId && !selectedTask) {
+      setSelectedTaskId(null);
     }
-    // Compare checksums instead of references to avoid infinite updates
-    const hasChecklistChange = JSON.stringify(fresh.checklistItems) !== JSON.stringify(selectedTask.checklistItems);
-    if (
-      fresh.completedPomodoros !== selectedTask.completedPomodoros ||
-      fresh.estimatedPomodoros !== selectedTask.estimatedPomodoros ||
-      fresh.status !== selectedTask.status ||
-      fresh.title !== selectedTask.title ||
-      hasChecklistChange
-    ) {
-      setSelectedTask(fresh);
-    }
-  }, [tasks, selectedTask]);
+  }, [selectedTask, selectedTaskId]);
 
   // --- Callbacks for pomodoro completion ---
   const handlePomodoroComplete = useCallback(
@@ -95,59 +68,41 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
       const task = selectedTaskRef.current;
       if (!task) return;
       try {
-        await tasksService.update(task.id, {
-          completed_pomodoros: newSessionsCompleted,
+        await updateTask(task.id, {
+          completedPomodoros: newSessionsCompleted,
           status: task.status === Status.todo ? Status.doing : task.status,
         });
-        setSelectedTask((prev) =>
-          prev
-            ? {
-                ...prev,
-                completedPomodoros: newSessionsCompleted,
-                status: prev.status === Status.todo ? Status.doing : prev.status,
-              }
-            : null
-        );
       } catch (err) {
         console.error("Error updating task pomodoro:", err);
         // Continue; timer should not break on update failure
       }
     },
-    []
+    [updateTask]
   );
 
-  const handleAllPomodorosComplete = useCallback(async () => {
-    const task = selectedTaskRef.current;
-    if (!task) return;
-    try {
-      await tasksService.update(task.id, {
-        completed_pomodoros: task.estimatedPomodoros,
-        status: Status.done,
-      });
+  const handleAllPomodorosComplete = useCallback(
+    async () => {
+      const task = selectedTaskRef.current;
+      if (!task) return;
 
-      const incompleteItems =
-        task.checklistItems?.filter((i) => !i.completed) ?? [];
-      for (const item of incompleteItems) {
-        await tasksService.updateChecklistItem(task.id, item.id, true);
+      try {
+        await updateTask(task.id, {
+          completedPomodoros: task.estimatedPomodoros,
+          status: Status.done,
+        });
+
+        const incompleteItems =
+          task.checklistItems?.filter((item) => !item.completed) ?? [];
+
+        for (const item of incompleteItems) {
+          await toggleTaskChecklistItem(task.id, item.id, true);
+        }
+      } catch (err) {
+        console.error("Error completing task:", err);
       }
-
-      setSelectedTask((prev) =>
-        prev
-          ? {
-              ...prev,
-              completedPomodoros: prev.estimatedPomodoros,
-              status: Status.done,
-              checklistItems: prev.checklistItems?.map((i) => ({
-                ...i,
-                completed: true,
-              })),
-            }
-          : null
-      );
-    } catch (err) {
-      console.error("Error completing task:", err);
-    }
-  }, []);
+    },
+    [toggleTaskChecklistItem, updateTask]
+  );
 
   // --- Timer hook ---
   const timer = usePomodoroTimer(userSettings, {
@@ -169,14 +124,14 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
   // --- Handlers ---
   const handleSelectTask = useCallback(
     (task: Task) => {
-      setSelectedTask(task);
+      setSelectedTaskId(task.id);
       timer.startTaskSession(task.estimatedPomodoros, task.completedPomodoros);
     },
     [timer]
   );
 
   const handleStartFree = useCallback(() => {
-    setSelectedTask(null);
+    setSelectedTaskId(null);
     timer.startFreeSession();
   }, [timer]);
 
@@ -184,7 +139,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
     if (timer.isRunning) {
       return false; // Caller should show "timer active" warning
     }
-    setSelectedTask(null);
+    setSelectedTaskId(null);
     timer.startFreeSession();
     return true;
   }, [timer]);
@@ -197,33 +152,13 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
   const toggleChecklistItem = useCallback(
     async (taskId: string, itemId: string, completed: boolean) => {
       try {
-        await tasksService.updateChecklistItem(taskId, itemId, completed);
-        setSelectedTask((prev) => {
-          if (!prev || prev.id !== taskId) return prev;
-          return {
-            ...prev,
-            checklistItems: prev.checklistItems?.map((i) =>
-              i.id === itemId ? { ...i, completed } : i
-            ),
-          };
-        });
-        setTasks((prev) =>
-          prev.map((t) => {
-            if (t.id !== taskId) return t;
-            return {
-              ...t,
-              checklistItems: t.checklistItems?.map((i) =>
-                i.id === itemId ? { ...i, completed } : i
-              ),
-            };
-          })
-        );
+        await toggleTaskChecklistItem(taskId, itemId, completed);
       } catch (err) {
         console.error("Error toggling checklist item:", err);
         throw err; // Propagate error to parent so it can handle/show to user
       }
     },
-    []
+    [toggleTaskChecklistItem]
   );
 
   const value = useMemo<PomodoroContextType>(

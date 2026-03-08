@@ -3,7 +3,6 @@ import { HTTPService } from "@mindease/services";
 import { ITaskService } from "./task-service.interface";
 import { Task, TaskToInsert, ChecklistItem } from "@mindease/models";
 import { toast } from "@mindease/design-system/components";
-import { TaskRowUpdate } from "@mindease/database/types";
 
 export class TasksService implements ITaskService {
   constructor(
@@ -31,7 +30,7 @@ export class TasksService implements ITaskService {
     }
   }
 
-  async update(id: string, updates: TaskRowUpdate): Promise<Task> {
+  async update(id: string, updates: Partial<TaskToInsert>): Promise<Task> {
     try {
       const data = await this.httpService.patch<Task>(`/api/tasks/${id}`, updates);
       toast.success("Tarefa atualizada com sucesso")
