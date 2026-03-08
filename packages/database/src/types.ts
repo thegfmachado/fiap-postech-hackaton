@@ -4,16 +4,17 @@ import type { Database, Tables, TablesInsert, TablesUpdate } from "./generated-t
 
 export type TypedSupabaseClient = SupabaseClient<Database>;
 
-export type ITask = Tables<'tasks'>;
-export type ITaskInsert = TablesInsert<'tasks'>;
-export type ITaskUpdate = TablesUpdate<'tasks'>;
+export type TaskRow = Tables<'tasks'>;
+export type TaskRowInsert = TablesInsert<'tasks'>;
+export type TaskRowUpdate = TablesUpdate<'tasks'>;
+export type TaskRowWithChecklists = TaskRow & { checklists?: Omit<ChecklistRow, 'created_at' | 'user_id'>[] };
 
-export type ISettings = Tables<'settings'>;
-export type ISettingsInsert = TablesInsert<'settings'>;
-export type ISettingsUpdate = TablesUpdate<'settings'>;
+export type SettingsRow = Tables<'settings'>;
+export type SettingsRowInsert = TablesInsert<'settings'>;
+export type SettingsRowUpdate = TablesUpdate<'settings'>;
 
-export type IChecklists = Tables<'checklists'>;
-export type IChecklistsInsert = TablesInsert<'checklists'>;
-export type IChecklistsUpdate = TablesUpdate<'checklists'>;
+export type ChecklistRow = Tables<'checklists'>;
+export type ChecklistRowInsert = TablesInsert<'checklists'>;
+export type ChecklistRowUpdate = TablesUpdate<'checklists'>;
 
 export type { Database } from './generated-types.js';

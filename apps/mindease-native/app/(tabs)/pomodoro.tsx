@@ -20,7 +20,7 @@ import { ConfirmModal } from "@/components/ConfirmModal";
 import { useAppColors } from "@/hooks/useAppColors";
 import { useAccessibility } from "@/contexts/accessibility-context";
 import { ModeSelector } from "@/components/pomodoro/ModeSelector";
-import { TaskCard as PomodoroTaskCard } from "@/components/pomodoro/TaskCard";
+import { TaskCard as PomodoroTaskCard, TaskCardChecklist as PomodoroTaskCardChecklist } from "@/components/pomodoro/TaskCard";
 import { TimerModeSelector } from "@/components/pomodoro/TimerModeSelector";
 import { TimerCircle } from "@/components/pomodoro/TimerCircle";
 import { Controls } from "@/components/pomodoro/Controls";
@@ -55,7 +55,7 @@ export default function PomodoroScreen() {
   const { isDark } = useAppColors();
   const { fontScale, spacingScale } = useAccessibility();
   const timerModeConfig = useMemo(() => getTimerModeConfig(isDark), [isDark]);
-  const { tasks, updateTask } = useTasks();
+  const { tasks, updateTask, toggleChecklistItem } = useTasks();
   const { settings: contextSettings } = usePomodoroSettingsContext();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTaskPicker, setShowTaskPicker] = useState(false);
@@ -80,7 +80,8 @@ export default function PomodoroScreen() {
       fresh.completedPomodoros !== selectedTask.completedPomodoros ||
       fresh.estimatedPomodoros !== selectedTask.estimatedPomodoros ||
       fresh.status !== selectedTask.status ||
-      fresh.title !== selectedTask.title
+      fresh.title !== selectedTask.title ||
+      fresh.checklistItems !== selectedTask.checklistItems
     ) {
       setSelectedTask(fresh);
     }
@@ -101,11 +102,11 @@ export default function PomodoroScreen() {
         setSelectedTask((prev) =>
           prev
             ? {
-                ...prev,
-                completedPomodoros: newSessionsCompleted,
-                status:
-                  prev.status === Status.todo ? Status.doing : prev.status,
-              }
+              ...prev,
+              completedPomodoros: newSessionsCompleted,
+              status:
+                prev.status === Status.todo ? Status.doing : prev.status,
+            }
             : null
         );
       } catch (err) {
@@ -123,13 +124,20 @@ export default function PomodoroScreen() {
         completedPomodoros: task.estimatedPomodoros,
         status: Status.done,
       });
+
+      const incompleteItems = task.checklistItems?.filter((i) => !i.completed) ?? [];
+      for (const item of incompleteItems) {
+        await toggleChecklistItem(task.id, item.id, true);
+      }
+
       setSelectedTask((prev) =>
         prev
           ? {
-              ...prev,
-              completedPomodoros: prev.estimatedPomodoros,
-              status: Status.done,
-            }
+            ...prev,
+            completedPomodoros: prev.estimatedPomodoros,
+            status: Status.done,
+            checklistItems: prev.checklistItems?.map((i) => ({ ...i, completed: true })),
+          }
           : null
       );
       const msg = `Todos os pomodoros de "${task.title}" foram completados! A tarefa foi marcada como concluída.`;
@@ -138,7 +146,7 @@ export default function PomodoroScreen() {
     } catch (err) {
       console.error("Error completing task:", err);
     }
-  }, [updateTask]);
+  }, [updateTask, toggleChecklistItem]);
 
   const {
     timerMode,
@@ -275,6 +283,10 @@ export default function PomodoroScreen() {
           targetPomodoros={targetPomodoros}
           settings={settings}
         />
+
+        {pomodoroMode === "task" && selectedTask && isRunning && (
+          <PomodoroTaskCardChecklist task={selectedTask} />
+        )}
       </ScrollView>
 
       <TaskPicker

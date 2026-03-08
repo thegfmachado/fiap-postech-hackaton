@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
-import { Task, TaskToInsert, Status } from "@mindease/models";
+import { Task, TaskToInsert, ChecklistItem, Status } from "@mindease/models";
 import { taskService } from "@/lib/services/task-service";
 import { useAuth } from "@/contexts/auth-context";
 
@@ -12,6 +12,11 @@ interface TasksContextType {
   updateTask: (id: string, updates: Partial<TaskToInsert>) => Promise<Task>;
   deleteTask: (id: string) => Promise<void>;
   moveTask: (id: string, newStatus: Status) => Promise<Task>;
+  toggleChecklistItem: (taskId: string, itemId: string, completed: boolean) => Promise<void>;
+  addChecklistItem: (taskId: string, description: string) => Promise<ChecklistItem>;
+  removeChecklistItem: (taskId: string, itemId: string) => Promise<void>;
+  updateChecklistItemDescription: (taskId: string, itemId: string, description: string) => Promise<void>;
+  updateChecklistItem: (taskId: string, itemId: string, updates: { description?: string; completed?: boolean }) => Promise<ChecklistItem>;
   tasksByStatus: Record<Status, Task[]>;
   clearError: () => void;
 }
@@ -86,6 +91,108 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     return updateTask(id, { status: newStatus });
   }, [updateTask]);
 
+  const toggleChecklistItem = useCallback(async (taskId: string, itemId: string, completed: boolean) => {
+    try {
+      await taskService.toggleChecklistItem(itemId, completed);
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId
+            ? {
+                ...t,
+                checklistItems: t.checklistItems?.map((item) =>
+                  item.id === itemId ? { ...item, completed } : item
+                ),
+              }
+            : t
+        )
+      );
+    } catch (err) {
+      setError("Erro ao atualizar item do checklist");
+      console.error("Toggle checklist item error:", err);
+      throw err;
+    }
+  }, []);
+
+  const addChecklistItem = useCallback(async (taskId: string, description: string) => {
+    try {
+      const newItem = await taskService.addChecklistItem(taskId, description);
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId
+            ? { ...t, checklistItems: [...(t.checklistItems ?? []), newItem] }
+            : t
+        )
+      );
+      return newItem;
+    } catch (err) {
+      setError("Erro ao adicionar item ao checklist");
+      console.error("Add checklist item error:", err);
+      throw err;
+    }
+  }, []);
+
+  const removeChecklistItem = useCallback(async (taskId: string, itemId: string) => {
+    try {
+      await taskService.removeChecklistItem(itemId);
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId
+            ? { ...t, checklistItems: t.checklistItems?.filter((item) => item.id !== itemId) }
+            : t
+        )
+      );
+    } catch (err) {
+      setError("Erro ao remover item do checklist");
+      console.error("Remove checklist item error:", err);
+      throw err;
+    }
+  }, []);
+
+  const updateChecklistItemDescription = useCallback(async (taskId: string, itemId: string, description: string) => {
+    try {
+      await taskService.updateChecklistItemDescription(itemId, description);
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId
+            ? {
+                ...t,
+                checklistItems: t.checklistItems?.map((item) =>
+                  item.id === itemId ? { ...item, description } : item
+                ),
+              }
+            : t
+        )
+      );
+    } catch (err) {
+      setError("Erro ao atualizar item do checklist");
+      console.error("Update checklist item description error:", err);
+      throw err;
+    }
+  }, []);
+
+  const updateChecklistItem = useCallback(async (taskId: string, itemId: string, updates: { description?: string; completed?: boolean }) => {
+    try {
+      const updated = await taskService.updateChecklistItem(itemId, updates);
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId
+            ? {
+                ...t,
+                checklistItems: t.checklistItems?.map((item) =>
+                  item.id === itemId ? { ...item, ...updates } : item
+                ),
+              }
+            : t
+        )
+      );
+      return updated;
+    } catch (err) {
+      setError("Erro ao atualizar item do checklist");
+      console.error("Update checklist item error:", err);
+      throw err;
+    }
+  }, []);
+
   const tasksByStatus = useMemo(() => ({
     [Status.todo]: tasks.filter((t) => t.status === Status.todo),
     [Status.doing]: tasks.filter((t) => t.status === Status.doing),
@@ -104,10 +211,15 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
       updateTask,
       deleteTask,
       moveTask,
+      toggleChecklistItem,
+      addChecklistItem,
+      removeChecklistItem,
+      updateChecklistItemDescription,
+      updateChecklistItem,
       tasksByStatus,
       clearError,
     }),
-    [tasks, loading, error, fetchTasks, addTask, updateTask, deleteTask, moveTask, tasksByStatus, clearError]
+    [tasks, loading, error, fetchTasks, addTask, updateTask, deleteTask, moveTask, toggleChecklistItem, addChecklistItem, removeChecklistItem, updateChecklistItemDescription, updateChecklistItem, tasksByStatus, clearError]
   );
 
   return (
