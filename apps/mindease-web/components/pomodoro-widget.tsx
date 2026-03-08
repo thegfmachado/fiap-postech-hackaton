@@ -6,17 +6,12 @@ import { usePathname } from "next/navigation";
 
 import { useDisplayMode } from "@/hooks/use-display-mode";
 import { Button, Card, CardContent } from "@mindease/design-system/components";
-import { usePomodoroTimer } from "@/hooks/use-pomodoro-timer/use-pomodoro-timer";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import { useUserSettings } from "@/hooks/use-user-settings";
+import { usePomodoro } from "@/contexts/pomodoro-context";
 
 export function PomodoroWidget() {
   const [isExpanded, setIsExpanded] = useState(false);
   const pathname = usePathname();
   const { isSimplified } = useDisplayMode();
-
-  const { user } = useCurrentUser();
-  const { userSettings } = useUserSettings(user?.id);
 
   const {
     mode,
@@ -26,7 +21,9 @@ export function PomodoroWidget() {
     resetTimer,
     formatTime,
     changeMode,
-  } = usePomodoroTimer(userSettings);
+    pomodoroMode,
+    selectedTask,
+  } = usePomodoro();
 
   // Não mostrar o widget na página de Pomodoro ou no modo simplificado
   if (pathname === "/pomodoro" || isSimplified) {
@@ -116,6 +113,13 @@ export function PomodoroWidget() {
             Longa
           </Button>
         </div>
+
+        {pomodoroMode === "task" && selectedTask && (
+          <div className="mb-4 p-2 bg-accent rounded-md">
+            <p className="text-xs text-muted-foreground">Tarefa vinculada</p>
+            <p className="text-sm font-semibold truncate">{selectedTask.title}</p>
+          </div>
+        )}
 
         <div className="flex flex-col items-center gap-6">
           <div className="text-5xl font-bold tabular-nums">

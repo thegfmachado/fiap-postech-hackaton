@@ -30,6 +30,9 @@ describe('usePomodoroTimer', () => {
     expect(result.current.timeLeft).toBe(25 * 60);
     expect(result.current.isRunning).toBe(false);
     expect(result.current.sessionsCompleted).toBe(0);
+    expect(result.current.pomodoroMode).toBe('free');
+    expect(result.current.targetPomodoros).toBe(0);
+    expect(result.current.isTaskComplete).toBe(false);
   });
 
   test('should start and pause the timer', () => {
@@ -83,7 +86,7 @@ describe('usePomodoroTimer', () => {
     expect(result.current.isRunning).toBe(false);
   });
 
-  test('should change to break mode after completing a work pomodoro', () => {
+  test('should change to break mode and auto-start after completing a work pomodoro', () => {
     const { result } = renderHook(() => usePomodoroTimer(defaultSettings));
 
     act(() => {
@@ -97,25 +100,49 @@ describe('usePomodoroTimer', () => {
     expect(result.current.mode).toBe('break');
     expect(result.current.sessionsCompleted).toBe(1);
     expect(result.current.timeLeft).toBe(5 * 60);
+    expect(result.current.isRunning).toBe(true);
+  });
+
+  test('should auto-start work after break completes', () => {
+    const { result } = renderHook(() => usePomodoroTimer(defaultSettings));
+
+    // Complete a work session
+    act(() => {
+      result.current.toggleTimer();
+    });
+    act(() => {
+      vi.advanceTimersByTime(25 * 60 * 1000);
+    });
+
+    expect(result.current.mode).toBe('break');
+    expect(result.current.isRunning).toBe(true);
+
+    // Let the break complete
+    act(() => {
+      vi.advanceTimersByTime(5 * 60 * 1000);
+    });
+
+    expect(result.current.mode).toBe('work');
+    expect(result.current.isRunning).toBe(true);
   });
 
   test('should change to long break after 4 completed sessions', () => {
     const { result } = renderHook(() => usePomodoroTimer(defaultSettings));
 
     for (let i = 0; i < 4; i++) {
-      act(() => {
-        result.current.toggleTimer();
-      });
+      // Work session
+      if (!result.current.isRunning) {
+        act(() => {
+          result.current.toggleTimer();
+        });
+      }
 
       act(() => {
         vi.advanceTimersByTime(25 * 60 * 1000);
       });
 
       if (i < 3) {
-        act(() => {
-          result.current.toggleTimer();
-        });
-
+        // Break auto-starts, let it complete
         act(() => {
           vi.advanceTimersByTime(5 * 60 * 1000);
         });
@@ -194,5 +221,166 @@ describe('usePomodoroTimer', () => {
 
     expect(result.current.mode).toBe('break');
     expect(result.current.timeLeft).toBe(5 * 60);
+  });
+
+  // --- Task mode tests ---
+
+  test('startTaskSession should initialize task mode correctly', () => {
+    const { result } = renderHook(() => usePomodoroTimer(defaultSettings));
+
+    act(() => {
+      result.current.startTaskSession(5, 2);
+    });
+
+    expect(result.current.pomodoroMode).toBe('task');
+    expect(result.current.targetPomodoros).toBe(5);
+    expect(result.current.sessionsCompleted).toBe(2);
+    expect(result.current.mode).toBe('work');
+    expect(result.current.timeLeft).toBe(25 * 60);
+    expect(result.current.isRunning).toBe(false);
+    expect(result.current.isTaskComplete).toBe(false);
+  });
+
+  test('startFreeSession should reset to free mode', () => {
+    const { result } = renderHook(() => usePomodoroTimer(defaultSettings));
+
+    // First enter task mode
+    act(() => {
+      result.current.startTaskSession(5, 2);
+    });
+
+    // Then switch to free
+    act(() => {
+      result.current.startFreeSession();
+    });
+
+    expect(result.current.pomodoroMode).toBe('free');
+    expect(result.current.targetPomodoros).toBe(0);
+    expect(result.current.sessionsCompleted).toBe(0);
+    expect(result.current.mode).toBe('work');
+    expect(result.current.timeLeft).toBe(25 * 60);
+    expect(result.current.isRunning).toBe(false);
+  });
+
+  test('stopSession should reset all state', () => {
+    const { result } = renderHook(() => usePomodoroTimer(defaultSettings));
+
+    act(() => {
+      result.current.toggleTimer();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(5000);
+    });
+
+    act(() => {
+      result.current.stopSession();
+    });
+
+    expect(result.current.isRunning).toBe(false);
+    expect(result.current.mode).toBe('work');
+    expect(result.current.timeLeft).toBe(25 * 60);
+    expect(result.current.sessionsCompleted).toBe(0);
+  });
+
+  test('should fire onPomodoroComplete callback when a work session finishes', () => {
+    const onPomodoroComplete = vi.fn();
+    const { result } = renderHook(() =>
+      usePomodoroTimer(defaultSettings, { onPomodoroComplete })
+    );
+
+    act(() => {
+      result.current.startTaskSession(4, 0);
+    });
+
+    act(() => {
+      result.current.toggleTimer();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(25 * 60 * 1000);
+    });
+
+    expect(onPomodoroComplete).toHaveBeenCalledWith(1);
+  });
+
+  test('should fire onAllPomodorosComplete when sessions reach target', () => {
+    const onPomodoroComplete = vi.fn();
+    const onAllPomodorosComplete = vi.fn();
+    const { result } = renderHook(() =>
+      usePomodoroTimer(defaultSettings, { onPomodoroComplete, onAllPomodorosComplete })
+    );
+
+    act(() => {
+      result.current.startTaskSession(1, 0);
+    });
+
+    act(() => {
+      result.current.toggleTimer();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(25 * 60 * 1000);
+    });
+
+    expect(onPomodoroComplete).toHaveBeenCalledWith(1);
+    expect(onAllPomodorosComplete).toHaveBeenCalled();
+  });
+
+  test('should NOT auto-start after all pomodoros complete in task mode', () => {
+    const onAllPomodorosComplete = vi.fn();
+    const { result } = renderHook(() =>
+      usePomodoroTimer(defaultSettings, { onAllPomodorosComplete })
+    );
+
+    act(() => {
+      result.current.startTaskSession(1, 0);
+    });
+
+    act(() => {
+      result.current.toggleTimer();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(25 * 60 * 1000);
+    });
+
+    expect(onAllPomodorosComplete).toHaveBeenCalled();
+    // Timer should stop, not auto-start a break
+    expect(result.current.isRunning).toBe(false);
+  });
+
+  test('isTaskComplete should be true when sessions reach target', () => {
+    const { result } = renderHook(() => usePomodoroTimer(defaultSettings));
+
+    act(() => {
+      result.current.startTaskSession(1, 0);
+    });
+
+    act(() => {
+      result.current.toggleTimer();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(25 * 60 * 1000);
+    });
+
+    expect(result.current.isTaskComplete).toBe(true);
+    expect(result.current.sessionsCompleted).toBe(1);
+  });
+
+  test('isTaskComplete should be false in free mode', () => {
+    const { result } = renderHook(() => usePomodoroTimer(defaultSettings));
+
+    // Complete a pomodoro in free mode
+    act(() => {
+      result.current.toggleTimer();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(25 * 60 * 1000);
+    });
+
+    expect(result.current.isTaskComplete).toBe(false);
   });
 });

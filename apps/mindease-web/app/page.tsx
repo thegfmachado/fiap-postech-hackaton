@@ -57,7 +57,7 @@ export default function Page() {
       </header>
 
       <main className="mt-12">
-        <section className="relative flex flex-col py-20 gap-10 md:gap-20 items-center justify-center bg-linear-to-b from-white via-white to-neutral-900/20">
+        <section className="relative flex flex-col py-20 gap-10 md:gap-20 items-center justify-center bg-linear-to-b from-white via-white to-neutral-900/20 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-700">
           <h1 className="text-4xl md:text-7xl lg:text-8xl text-center font-bold max-w-6xl">
             Produtividade Acessível para Todos
           </h1>
