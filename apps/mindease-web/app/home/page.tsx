@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 
 import { Header } from "@/components/template/header";
@@ -10,11 +10,10 @@ import { Sidebar } from "@/components/template/sidebar";
 import { TaskForm } from "@/components/task-form";
 import { TaskCard } from "@/components/task-card/task-card";
 import { TaskDetailsModal } from "@/components/task-details-modal";
+import { useTasksContext } from "@/contexts/tasks-context";
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@mindease/design-system/components";
 import { Task, Status, TaskToInsert } from "@mindease/models";
-import { HTTPService } from "@mindease/services";
-import { TasksService } from "@/client/services/task-service";
 
 const columnTitles: Record<Status, string> = {
   [Status.todo]: "A fazer",
@@ -22,57 +21,62 @@ const columnTitles: Record<Status, string> = {
   [Status.done]: "Concluído",
 };
 
-const httpService = new HTTPService();
-const tasksService = new TasksService(httpService);
-
 export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const {
+    tasks,
+    isLoadingTasks,
+    tasksError,
+    createTask,
+    updateTask,
+    deleteTask,
+    createChecklistItems,
+    toggleChecklistItem: toggleTaskChecklistItem,
+    deleteChecklistItem: deleteTaskChecklistItem,
+  } = useTasksContext();
+
   const [showForm, setShowForm] = useState(false);
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const selectedTask = useMemo(
+    () => tasks.find((task) => task.id === selectedTaskId) ?? null,
+    [tasks, selectedTaskId]
+  );
+  const isLoading = isLoadingTasks;
+  const error = tasksError
+    ? "Não foi possível carregar as tarefas. Tente novamente."
+    : null;
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await tasksService.get();
-        setTasks(response.data);
-        setError(null);
-      } catch (err) {
-        console.error("Erro ao buscar tarefas", err);
-        setError("Não foi possível carregar as tarefas. Tente novamente.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    void fetchTasks();
-  }, []);
+    if (selectedTaskId && !selectedTask) {
+      setSelectedTaskId(null);
+    }
+  }, [selectedTask, selectedTaskId]);
 
   const handleAddTask = async (data: TaskToInsert) => {
     try {
       const { checklistItems, ...taskData } = data;
-      const createdTask = await tasksService.create(taskData);
-      
-      if (checklistItems && checklistItems.length > 0) {
-        const createdItems = await tasksService.createChecklistItem(createdTask.id, checklistItems.map(item => item.description));
+      const createdTask = await createTask(taskData);
 
-        createdTask.checklistItems = createdItems;
+      if (checklistItems && checklistItems.length > 0) {
+        await createChecklistItems(
+          createdTask.id,
+          checklistItems.map((item) => item.description)
+        );
       }
-      
-      setTasks((prev) => [...prev, createdTask]);
     } catch (error) {
       console.error("Erro ao criar nova tarefa", error);
     } finally {
       setShowForm(false);
     }
-  }
+  };
 
   const handleDeleteTask = async (taskId: string) => {
     try {
-      await tasksService.delete(taskId);
-      setTasks((prev) => prev.filter((task) => task.id !== taskId));
+      await deleteTask(taskId);
+
+      if (selectedTaskId === taskId) {
+        setSelectedTaskId(null);
+      }
     } catch (error) {
       console.error("Erro ao deletar tarefa", error);
     }
@@ -80,48 +84,29 @@ export default function Home() {
 
   const handleUpdateTask = async (updatedTask: Task) => {
     try {
-      const savedTask = await tasksService.update(updatedTask.id, updatedTask);
+      await updateTask(updatedTask.id, {
+        title: updatedTask.title,
+        description: updatedTask.description,
+        status: updatedTask.status,
+        dueDate: updatedTask.dueDate,
+        estimatedPomodoros: updatedTask.estimatedPomodoros,
+        completedPomodoros: updatedTask.completedPomodoros,
+        priority: updatedTask.priority,
+      });
 
-      setTasks((prev) => prev.map((task) => (task.id === savedTask.id ? savedTask : task)));
-
-      setSelectedTask(null);
+      setSelectedTaskId(null);
     } catch (error) {
       console.error("Erro ao atualizar tarefa", error);
     }
   };
 
   const handleViewTask = (task: Task) => {
-    setSelectedTask(task);
+    setSelectedTaskId(task.id);
   };
 
   const handleChecklistToggle = async (taskId: string, itemId: string, completed: boolean) => {
     try {
-      const updatedItem = await tasksService.updateChecklistItem(taskId, itemId, completed);
-      setTasks((prev) =>
-        prev.map((task) => {
-          if (task.id === taskId && task.checklistItems) {
-            return {
-              ...task,
-              checklistItems: task.checklistItems.map((item) =>
-                item.id === itemId ? updatedItem : item
-              ),
-            };
-          }
-          return task;
-        })
-      );
-      
-      setSelectedTask((current) => {
-        if (current && current.id === taskId && current.checklistItems) {
-          return {
-            ...current,
-            checklistItems: current.checklistItems.map((item) =>
-              item.id === itemId ? updatedItem : item
-            ),
-          };
-        }
-        return current;
-      });
+      await toggleTaskChecklistItem(taskId, itemId, completed);
     } catch (error) {
       console.error("Erro ao atualizar item da checklist", error);
     }
@@ -129,28 +114,7 @@ export default function Home() {
 
   const handleChecklistDelete = async (taskId: string, itemId: string) => {
     try {
-      await tasksService.deleteChecklistItem(taskId, itemId);
-      setTasks((prev) =>
-        prev.map((task) => {
-          if (task.id === taskId && task.checklistItems) {
-            return {
-              ...task,
-              checklistItems: task.checklistItems.filter((item) => item.id !== itemId),
-            };
-          }
-          return task;
-        })
-      );
-      
-      setSelectedTask((current) => {
-        if (current && current.id === taskId && current.checklistItems) {
-          return {
-            ...current,
-            checklistItems: current.checklistItems.filter((item) => item.id !== itemId),
-          };
-        }
-        return current;
-      });
+      await deleteTaskChecklistItem(taskId, itemId);
     } catch (error) {
       console.error("Erro ao deletar item da checklist", error);
     }
@@ -172,11 +136,9 @@ export default function Home() {
     if (!draggedTaskId) return;
 
     try {
-      const updatedTask = await tasksService.update(draggedTaskId, {
+      await updateTask(draggedTaskId, {
         status: newStatus,
       });
-
-      setTasks((prevTasks) => prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task)));
     } catch (error) {
       console.error("Erro ao atualizar status da tarefa", error);
     } finally {
@@ -272,7 +234,7 @@ export default function Home() {
           {selectedTask && (
             <TaskDetailsModal
               task={selectedTask}
-              onClose={() => setSelectedTask(null)}
+              onClose={() => setSelectedTaskId(null)}
               onSave={handleUpdateTask}
               onDelete={handleDeleteTask}
               onChecklistToggle={handleChecklistToggle}

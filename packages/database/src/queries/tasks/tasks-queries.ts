@@ -11,10 +11,12 @@ export class TasksQueriesService implements ITasksQueries {
     this.client = client
   }
 
+  private selectString = '*, checklists(id, description, completed)' as const;
+
   async get(): Promise<GetAllTasksResponse> {
     const query = this.client
       .from(TasksQueriesService.TABLE_NAME)
-      .select(`*, checklists(id, description, completed)`, { count: 'exact' })
+      .select(this.selectString, { count: 'exact' })
       .order('priority', { ascending: false })
       .order('created_at', { ascending: false })
 
@@ -34,7 +36,7 @@ export class TasksQueriesService implements ITasksQueries {
   async getById(id: string): Promise<Task> {
     const { data, error } = await this.client
       .from(TasksQueriesService.TABLE_NAME)
-      .select('*')
+      .select(this.selectString)
       .eq('id', id)
       .single();
 
@@ -50,7 +52,7 @@ export class TasksQueriesService implements ITasksQueries {
     const { data, error } = await this.client
       .from(TasksQueriesService.TABLE_NAME)
       .insert(taskToInsert)
-      .select()
+      .select(this.selectString)
       .single();
 
     if (error) {
@@ -66,7 +68,7 @@ export class TasksQueriesService implements ITasksQueries {
       .from(TasksQueriesService.TABLE_NAME)
       .update(taskToUpdate)
       .eq('id', id)
-      .select()
+      .select(this.selectString)
       .single();
 
     if (error) {
@@ -77,20 +79,16 @@ export class TasksQueriesService implements ITasksQueries {
     return this.dbTaskToTask(data);
   }
 
-  async delete(id: string): Promise<Task> {
-    const { data, error } = await this.client
+  async delete(id: string): Promise<void> {
+    const { error } = await this.client
       .from(TasksQueriesService.TABLE_NAME)
       .delete()
-      .eq('id', id)
-      .select()
-      .single();
+      .eq('id', id);
 
     if (error) {
       console.error('Supabase error:', error);
       throw new Error(`Error deleting task: ${error.message}`);
     }
-
-    return this.dbTaskToTask(data);
   }
 
   dbTaskToTask(row: TaskRow): Task {

@@ -7,6 +7,8 @@ import { AuthProvider } from "@/contexts/auth-context"
 import { UserSettingsProvider } from "@/contexts/user-settings-context"
 import { AccessibilityProvider } from "@/contexts/accessibility-context"
 import { DisplayModeProvider } from "@/contexts/display-mode-context/display-mode-context"
+import { TasksProvider } from "@/contexts/tasks-context"
+import { PomodoroProvider } from "@/contexts/pomodoro-context"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -19,7 +21,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <UserSettingsProvider>
           <DisplayModeProvider>
             <AccessibilityProvider>
-              {children}
+              <TasksProvider>
+                <PomodoroProvider>
+                  {children}
+                </PomodoroProvider>
+              </TasksProvider>
             </AccessibilityProvider>
           </DisplayModeProvider>
         </UserSettingsProvider>

@@ -1,7 +1,7 @@
 import { ITasksQueries } from "@mindease/database/queries";
 import { HttpError } from "@mindease/services";
 import { ITaskService } from "./tasks-service.interface";
-import type { TaskRowInsert } from '@mindease/database/types';
+import type { TaskRowInsert, TaskRowUpdate } from '@mindease/database/types';
 import { TaskToInsert } from "@mindease/models";
 
 export class TaskService implements ITaskService {
@@ -45,9 +45,9 @@ export class TaskService implements ITaskService {
     }
   }
 
-  async update(id: string, data: TaskToInsert) {
+  async update(id: string, data: Partial<TaskToInsert>) {
     try {
-      const updatedTask = await this.queries.update(id, this.buildTaskToInsert(data));
+      const updatedTask = await this.queries.update(id, this.buildTaskRowUpdate(data));
 
       if (!updatedTask) {
         throw new HttpError(404, 'task not found');
@@ -83,5 +83,19 @@ export class TaskService implements ITaskService {
       completed_pomodoros: data.completedPomodoros || 0,
       priority: data.priority
     };
+  }
+
+  private buildTaskRowUpdate(data: Partial<TaskToInsert>): TaskRowUpdate {
+    const updateData: TaskRowUpdate = {};
+
+    if (data.title !== undefined) updateData.title = data.title;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.status !== undefined) updateData.status = data.status;
+    if (data.dueDate !== undefined) updateData.due_date = data.dueDate;
+    if (data.estimatedPomodoros !== undefined) updateData.estimated_pomodoros = data.estimatedPomodoros;
+    if (data.completedPomodoros !== undefined) updateData.completed_pomodoros = data.completedPomodoros;
+    if (data.priority !== undefined) updateData.priority = data.priority;
+
+    return updateData;
   }
 }
